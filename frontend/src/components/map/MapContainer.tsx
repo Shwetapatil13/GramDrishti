@@ -6,9 +6,14 @@ import { useMapLayers } from '@/hooks/useMapLayers';
 import { VILLAGES } from '@/constants/villages';
 import { VillageMarker } from './VillageMarker';
 import { VillageBoundary } from './VillageBoundary';
+import { NDVILayer } from './NDVILayer';
+import { WaterLayer } from './WaterLayer';
+import { LandCoverLayer } from './LandCoverLayer';
+import { NDVILegend } from './NDVILegend';
 import { LayerControl } from './LayerControl';
 import { MapControls } from './MapControls';
 import { VillageSearch } from './VillageSearch';
+import { useSatelliteData } from '@/hooks/useSatelliteData';
 
 // Separate component to handle map instance binding
 const MapInstanceBinder: React.FC = () => {
@@ -25,6 +30,7 @@ const MapInstanceBinder: React.FC = () => {
 export const MapContainer: React.FC = () => {
   const { selectedVillage } = useVillageSelection();
   const layers = useMapLayers();
+  const { data, geeStatus } = useSatelliteData(selectedVillage?.id, 2024);
 
   const getTileUrl = () => {
     switch (layers.activeBaseLayer) {
@@ -60,9 +66,22 @@ export const MapContainer: React.FC = () => {
           <VillageMarker key={village.id} village={village} />
         ))}
 
-        {selectedVillage && <VillageBoundary village={selectedVillage} />}
+        {selectedVillage && !layers.showNDVI && !layers.showWater && !layers.showLandCover && <VillageBoundary village={selectedVillage} />}
+        
+        {selectedVillage && layers.showNDVI && (
+          <NDVILayer village={selectedVillage} data={data} isLoading={geeStatus.loading} />
+        )}
+        
+        {selectedVillage && layers.showWater && (
+          <WaterLayer village={selectedVillage} data={data} />
+        )}
+
+        {selectedVillage && layers.showLandCover && (
+          <LandCoverLayer village={selectedVillage} data={data} />
+        )}
 
         <LayerControl layers={layers} />
+        {layers.showNDVI && <NDVILegend />}
         <MapControls />
         <VillageSearch />
       </LeafletMap>

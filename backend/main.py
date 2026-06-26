@@ -2,8 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.logging import get_logger
-from app.api.routes import health, villages, satellite
-from app.services.gee.auth import initialize_gee
+from app.api.routes import health, villages, satellite, analysis
 
 logger = get_logger(__name__)
 
@@ -27,3 +26,4 @@ async def startup_event():
 app.include_router(health.router, prefix="/api/v1")
 app.include_router(villages.router, prefix="/api/v1")
 app.include_router(satellite.router, prefix="/api/v1")
+app.include_router(analysis.router, prefix="/api/v1")

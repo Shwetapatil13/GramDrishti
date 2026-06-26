@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query
 from app.services.gee.processor import get_all_gee_metrics
 from app.services.village_service import get_village_boundary
+from app.services.scoring.aggregator import aggregate_environmental_metrics
 from app.core.exceptions import GEETimeoutError, GEEDataError
 from app.models.satellite import (
     EnvironmentalMetricsResponse, 
@@ -9,10 +10,11 @@ from app.models.satellite import (
     TerrainMetrics, 
     WaterMetrics
 )
+from app.models.village import EnvironmentalMetrics
 
 router = APIRouter()
 
-@router.get("/satellite/{village_id}/metrics", response_model=EnvironmentalMetricsResponse)
+@router.get("/satellite/{village_id}/metrics", response_model=EnvironmentalMetrics)
 async def get_village_metrics(
     village_id: str,
     year: int = Query(2024, ge=2022, le=2026, description="Target year")
@@ -22,24 +24,8 @@ async def get_village_metrics(
         raise HTTPException(status_code=404, detail="Village not found")
         
     try:
-        metrics = await get_all_gee_metrics(village_id, boundary, year)
-        return {
-            "villageId": village_id,
-            "year": year,
-            "ndvi": metrics.get("ndvi", 0.0),
-            "ndwi": metrics.get("ndwi", 0.0),
-            "waterAreaHa": metrics.get("water_area_ha", 0.0),
-            "greenCoverPercent": metrics.get("green_cover_percent", 0.0),
-            "landCover": metrics.get("land_cover", {
-                "cropland": 0, "trees": 0, "water": 0, "builtArea": 0,
-                "grassland": 0, "bareLand": 0, "flooded": 0
-            }),
-            "temperature": 0.0,
-            "rainfall": 0.0,
-            "humidity": 0.0,
-            "windSpeed": 0.0,
-            "dataSource": metrics.get("dataSource", "live")
-        }
+        raw_metrics = await get_all_gee_metrics(village_id, boundary, year)
+        return aggregate_environmental_metrics(village_id, year, raw_metrics)
     except GEETimeoutError as e:
         raise HTTPException(status_code=504, detail=str(e))
     except GEEDataError as e:

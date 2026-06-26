@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
+import { useSatelliteData } from '@/hooks/useSatelliteData';
 import { EmptyState } from './EmptyState';
-
 import { GEEProgress } from '../ui/GEEProgress';
+import { EnvironmentTab } from './EnvironmentTab';
 
 const TABS = ['OVERVIEW', 'ENVIRONMENT', 'HISTORY', 'AI ANALYST', 'REPORT'] as const;
 type TabType = typeof TABS[number];
@@ -10,23 +11,7 @@ type TabType = typeof TABS[number];
 export const DashboardPanel: React.FC = () => {
   const { selectedVillage } = useVillageSelection();
   const [activeTab, setActiveTab] = useState<TabType>('OVERVIEW');
-
-  // Simple state to show loading progress on tab switch as a mockup
-  const [loading, setLoading] = useState(false);
-
-  React.useEffect(() => {
-    let timer: ReturnType<typeof setTimeout>;
-    if (selectedVillage) {
-      // Simulate loading when village changes
-      // setState in effect can cause double render, but this is a deliberate mockup effect
-      // to avoid lint error, we wrap in setTimeout
-      timer = setTimeout(() => {
-        setLoading(true);
-        setTimeout(() => setLoading(false), 800);
-      }, 0);
-    }
-    return () => clearTimeout(timer);
-  }, [selectedVillage, activeTab]);
+  const { geeStatus } = useSatelliteData(selectedVillage?.id, 2024);
 
   if (!selectedVillage) {
     return (
@@ -60,18 +45,23 @@ export const DashboardPanel: React.FC = () => {
 
       {/* Tab Content Area */}
       <div className="flex-1 overflow-y-auto p-6">
-        {loading ? (
+        {geeStatus.loading ? (
           <div className="mb-4">
-            <GEEProgress message="Retrieving satellite data (~45s on first load)…" cached={false} />
+            <GEEProgress message="Retrieving satellite data (~45s on first load)…" cached={geeStatus.cached} />
           </div>
         ) : null}
-        <div className="flex flex-col items-center justify-center h-full text-center">
-          <p className="text-body text-text-secondary">
-            Content for <span className="text-brand-mint font-mono uppercase">{activeTab}</span>
-            <br />
-            Coming in a later level...
-          </p>
-        </div>
+        
+        {activeTab === 'ENVIRONMENT' ? (
+          <EnvironmentTab />
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full text-center">
+            <p className="text-body text-text-secondary">
+              Content for <span className="text-brand-mint font-mono uppercase">{activeTab}</span>
+              <br />
+              Coming in a later level...
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
