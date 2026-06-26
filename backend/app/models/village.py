@@ -32,7 +32,7 @@ class EnvironmentalMetrics(BaseModel):
     rainfall: float
     humidity: float
     windSpeed: float
-    dataSource: Literal['live', 'cached', 'mock']
+    dataSource: Literal['live', 'cached', 'mock', 'incomplete']
 
 class ScoreDetail(BaseModel):
     score: float

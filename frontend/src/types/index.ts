@@ -7,8 +7,12 @@ export interface Village {
   district: string;
   state: string;
   coordinates: [number, number]; // [lat, lng]
-  boundary: GeoJSON.Polygon;
+  boundary: GeoJSON.Polygon | GeoJSON.MultiPolygon | null;
   area: number; // km²
+  /** Source of this result: 'local' = backend GeoJSON, 'nominatim' = OpenStreetMap search */
+  source?: 'local' | 'nominatim';
+  /** OSM place_id for Nominatim results */
+  osm_id?: number;
 }
 
 export interface EnvironmentalMetrics {
@@ -23,7 +27,7 @@ export interface EnvironmentalMetrics {
   rainfall: number;          // mm annual
   humidity: number;          // percent
   windSpeed: number;         // km/h
-  dataSource: 'live' | 'cached' | 'mock';
+  dataSource: 'live' | 'cached' | 'mock' | 'incomplete';
 }
 
 export interface LandCoverBreakdown {

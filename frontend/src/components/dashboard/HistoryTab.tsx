@@ -8,7 +8,17 @@ import { ChangeDetection } from './ChangeDetection';
 
 export const HistoryTab: React.FC = () => {
   const { selectedVillage } = useVillageSelection();
-  const { data: changesData, isLoading: changesLoading } = useHistoricalChanges(selectedVillage?.id);
+  const { data: changesData, isLoading: changesLoading, error } = useHistoricalChanges(selectedVillage?.id);
+
+  if (error) {
+    return (
+      <div className="flex flex-col gap-6 w-full max-w-full pb-8">
+        <div className="bg-surface-slate border border-surface-border rounded-card p-6 h-[400px] flex items-center justify-center">
+          <span className="text-body text-text-muted">Historical analysis temporarily unavailable — try refreshing.</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-full pb-8">
@@ -37,7 +47,7 @@ export const HistoryTab: React.FC = () => {
             data={changesData?.ndvi_changes} 
             isLoading={changesLoading} 
             valueKey="value" 
-            color="var(--brand-mint)" 
+            color="#3cffd0" 
             name="NDVI" 
             chartType="line" 
           />
@@ -48,7 +58,7 @@ export const HistoryTab: React.FC = () => {
             data={changesData?.water_area_changes} 
             isLoading={changesLoading} 
             valueKey="value_ha" 
-            color="var(--brand-blue)" 
+            color="#3B82F6" 
             name="Water Area" 
             chartType="bar" 
           />

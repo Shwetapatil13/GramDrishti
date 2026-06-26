@@ -1,5 +1,5 @@
 import React from 'react';
-import { Polygon, Tooltip } from 'react-leaflet';
+import { GeoJSON, Tooltip } from 'react-leaflet';
 import { Village, EnvironmentalMetrics } from '@/types';
 
 interface WaterLayerProps {
@@ -8,14 +8,22 @@ interface WaterLayerProps {
 }
 
 export const WaterLayer: React.FC<WaterLayerProps> = ({ village, data }) => {
-  if (!village || !village.boundary || !village.boundary.coordinates) return null;
+  if (!village || !village.boundary) return null;
 
-  const positions = village.boundary.coordinates[0].map((coord) => [coord[1], coord[0]] as [number, number]);
+  const boundary: any = village.boundary;
+  const geoJsonData = boundary.type === 'Feature' || boundary.type === 'FeatureCollection'
+    ? boundary
+    : {
+        type: "Feature",
+        properties: {},
+        geometry: boundary
+      };
 
   return (
-    <Polygon
-      positions={positions}
-      pathOptions={{
+    <GeoJSON
+      key={`water-${village.id}`}
+      data={geoJsonData as any}
+      style={{
         color: 'var(--brand-mint)',
         weight: 1,
         fillColor: 'var(--brand-mint)',
@@ -29,6 +37,6 @@ export const WaterLayer: React.FC<WaterLayerProps> = ({ village, data }) => {
           </div>
         </Tooltip>
       )}
-    </Polygon>
+    </GeoJSON>
   );
 };

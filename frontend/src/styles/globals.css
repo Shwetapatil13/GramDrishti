@@ -143,3 +143,32 @@ body {
   margin: 0;
   width: auto !important;
 }
+
+/* Land Cover interactive tooltip */
+.land-cover-tooltip {
+  background: rgba(17, 24, 39, 0.95) !important;
+  border: 1px solid rgba(55, 65, 81, 0.8) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+  padding: 0 !important;
+  backdrop-filter: blur(8px);
+}
+.land-cover-tooltip::before {
+  display: none !important;
+}
+
+/* ECharts canvas: prevent text bleeding on overflow */
+.echarts-for-react {
+  overflow: hidden;
+}
+
+/* No-scrollbar utility */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Score bar glow animation */
+@keyframes barGlow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.3); }
+}
+.bar-glow { animation: barGlow 2s ease-in-out infinite; }

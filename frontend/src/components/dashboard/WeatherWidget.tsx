@@ -6,12 +6,15 @@ import { apiService } from '@/services/api';
 interface WeatherData {
   temperature_c?: number;
   rainfall_mm?: number;
+  humidity_percent?: number;
+  wind_speed_kmh?: number;
 }
 
 export const WeatherWidget: React.FC = () => {
   const { selectedVillage } = useVillageSelection();
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [weatherError, setWeatherError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   useEffect(() => {
@@ -20,14 +23,23 @@ export const WeatherWidget: React.FC = () => {
     let mounted = true;
     const fetchWeather = async () => {
       setLoading(true);
+      setWeatherError(null);
+      console.log(`[WeatherWidget] Fetching current weather for village: ${selectedVillage.id}`);
       try {
         const data = await apiService.get<WeatherData>(`/api/v1/weather/${selectedVillage.id}/current`);
+        console.log(`[WeatherWidget] ✅ Weather received:`, data);
         if (mounted) {
           setWeather(data);
           setLastUpdated(new Date());
         }
-      } catch {
-        // Silently handle error as widget shows unavailable state
+      } catch (err: any) {
+        const isOffline = err?.code === 'ERR_NETWORK' || !err?.response;
+        const msg = isOffline
+          ? 'Backend offline — start the server'
+          : `HTTP ${err?.response?.status}: ${err?.response?.data?.detail || err?.message}`;
+        console.error(`[WeatherWidget] ❌ Weather fetch failed for ${selectedVillage.id}:`, msg);
+        console.error(`[WeatherWidget] Full error:`, err);
+        if (mounted) setWeatherError(msg);
       } finally {
         if (mounted) setLoading(false);
       }
@@ -75,6 +87,11 @@ export const WeatherWidget: React.FC = () => {
           <div className="text-[10px] font-mono text-text-muted">
             {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </div>
+        </div>
+      ) : weatherError ? (
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] text-semantic-warning font-mono">Weather unavailable</span>
+          <span className="text-[10px] text-text-muted break-all">{weatherError}</span>
         </div>
       ) : (
         <span className="text-body text-text-muted">Unavailable</span>

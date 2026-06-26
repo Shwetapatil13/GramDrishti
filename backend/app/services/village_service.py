@@ -1,144 +1,103 @@
-import httpx
+import json
+import os
+import glob
 from typing import List, Dict, Any, Optional
 from app.models.village import Village
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)
 
-async def search_osm_village(query: str) -> List[Village]:
-    """
-    Search OpenStreetMap via Nominatim for village boundaries.
-    """
-    url = "https://nominatim.openstreetmap.org/search"
-    params: dict[str, str | int] = {
-        "q": query + ", India", # Force India context
-        "format": "geojson",
-        "polygon_geojson": 1,
-        "limit": 5
-    }
-    headers = {
-        "User-Agent": "GramDrishti/1.0 (Contact: local-dev@example.com)"
-    }
+# Cache for villages: { "id": Village }
+SEARCH_CACHE: Dict[str, Village] = {}
+# Cache for village boundaries: { "id": Dict[str, Any] }
+BOUNDARY_CACHE: Dict[str, Dict[str, Any]] = {}
+# Search index: List of searchable dictionaries without full boundary
+SEARCH_INDEX: List[Dict[str, Any]] = []
+
+def load_villages():
+    """Load all GeoJSON files from data/ directory and build the index."""
+    global SEARCH_CACHE, BOUNDARY_CACHE, SEARCH_INDEX
+    SEARCH_CACHE.clear()
+    BOUNDARY_CACHE.clear()
+    SEARCH_INDEX.clear()
     
-    try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.get(url, params=params, headers=headers)
-            response.raise_for_status()
-            data = response.json()
-            
-            villages = []
-            features = data.get("features", [])
-            for f in features:
-                props = f.get("properties", {})
-                geom = f.get("geometry", {})
+    data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data")
+    geojson_files = glob.glob(os.path.join(data_dir, "*.geojson"))
+    
+    logger.info(f"Loading GeoJSON files from {data_dir}...")
+    
+    count = 0
+    for file_path in geojson_files:
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                features = data.get("features", [])
                 
-                # We need polygons for GEE
-                if not geom or geom.get("type") not in ["Polygon", "MultiPolygon"]:
-                    continue
+                for feature in features:
+                    props = feature.get("properties", {})
+                    geom = feature.get("geometry", {})
                     
-                display_name = props.get("display_name", "")
-                parts = [p.strip() for p in display_name.split(",")]
-                
-                name = parts[0] if parts else "Unknown"
-                district = parts[1] if len(parts) > 1 else "Unknown"
-                state = parts[2] if len(parts) > 2 else "Unknown"
-                
-                # Approximate area if not provided (Nominatim doesn't provide area easily, 
-                # we just mock it to 50 for the UI since GEE handles actual pixel areas)
-                
-                # Get center coordinates from bounding box if available, otherwise just use a point inside
-                bbox = f.get("bbox", [0, 0, 0, 0])
-                lat = (bbox[1] + bbox[3]) / 2 if bbox else 20.0
-                lon = (bbox[0] + bbox[2]) / 2 if bbox else 78.0
-                
-                villages.append(Village(
-                    id=str(props.get("place_id", name.lower())),
-                    name=name,
-                    nameHindi=name, # Nominatim doesn't always give Hindi, default to same
-                    district=district,
-                    state=state,
-                    coordinates=(lat, lon),
-                    boundary=geom,
-                    area=50.0 # Mocked area for display
-                ))
+                    if not geom or geom.get("type") not in ["Polygon", "MultiPolygon"]:
+                        continue
+                        
+                    v_id = str(props.get("id", count))
+                    name = props.get("name", "Unknown")
+                    district = props.get("district", "Unknown")
+                    state = props.get("state", "Unknown")
+                    
+                    # Calculate approximate center from coordinates for display purposes
+                    coords = geom.get("coordinates", [])
+                    lat = 20.0
+                    lon = 78.0
+                    if coords and len(coords) > 0 and len(coords[0]) > 0:
+                        # simple average of first few points
+                        pts = coords[0]
+                        if isinstance(pts[0], list): # Polygon
+                            lon = sum([p[0] for p in pts]) / len(pts)
+                            lat = sum([p[1] for p in pts]) / len(pts)
+                    
+                    village = Village(
+                        id=v_id,
+                        name=name,
+                        nameHindi=name,
+                        district=district,
+                        state=state,
+                        coordinates=(lat, lon),
+                        boundary=geom,
+                        area=50.0  # Mock area
+                    )
+                    
+                    SEARCH_CACHE[v_id] = village
+                    BOUNDARY_CACHE[v_id] = geom
+                    
+                    # Add to search index (without heavy geometry)
+                    SEARCH_INDEX.append({
+                        "id": v_id,
+                        "name": name,
+                        "district": district,
+                        "state": state
+                    })
+                    
+                    count += 1
+        except Exception as e:
+            logger.error(f"Failed to load {file_path}: {e}")
             
-            return villages
-            
-    except Exception as e:
-        logger.error(f"OSM Search failed: {e}")
-        return []
+    logger.info(f"Loaded {count} villages into the index.")
 
-# Default mock villages to ensure demo_setup.py and initial load works without searching
-MOCK_VILLAGES_DATA = [
-    {
-        "id": "mulshi",
-        "name": "Mulshi",
-        "nameHindi": "मुळशी",
-        "district": "Pune",
-        "state": "Maharashtra",
-        "coordinates": [18.5204, 73.5297],
-        "boundary": {
-            "type": "Polygon",
-            "coordinates": [[[73.48, 18.48], [73.58, 18.48], [73.58, 18.56], [73.48, 18.56], [73.48, 18.48]]]
-        },
-        "area": 50.5
-    },
-    {
-        "id": "maval",
-        "name": "Maval",
-        "nameHindi": "मावळ",
-        "district": "Pune",
-        "state": "Maharashtra",
-        "coordinates": [18.7667, 73.5833],
-        "boundary": {
-            "type": "Polygon",
-            "coordinates": [[[73.53, 18.72], [73.63, 18.72], [73.63, 18.81], [73.53, 18.81], [73.53, 18.72]]]
-        },
-        "area": 60.2
-    },
-    {
-        "id": "ambegaon",
-        "name": "Ambegaon",
-        "nameHindi": "आंबेगाव",
-        "district": "Pune",
-        "state": "Maharashtra",
-        "coordinates": [19.1167, 73.7167],
-        "boundary": {
-            "type": "Polygon",
-            "coordinates": [[[73.66, 19.06], [73.76, 19.06], [73.76, 19.16], [73.66, 19.16], [73.66, 19.06]]]
-        },
-        "area": 45.3
-    },
-    {
-        "id": "khed",
-        "name": "Khed",
-        "nameHindi": "खेड",
-        "district": "Pune",
-        "state": "Maharashtra",
-        "coordinates": [18.8333, 73.8667],
-        "boundary": {
-            "type": "Polygon",
-            "coordinates": [[[73.81, 18.78], [73.91, 18.78], [73.91, 18.88], [73.81, 18.88], [73.81, 18.78]]]
-        },
-        "area": 55.0
-    },
-    {
-        "id": "junnar",
-        "name": "Junnar",
-        "nameHindi": "जुन्नर",
-        "district": "Pune",
-        "state": "Maharashtra",
-        "coordinates": [19.2000, 73.8833],
-        "boundary": {
-            "type": "Polygon",
-            "coordinates": [[[73.83, 19.15], [73.93, 19.15], [73.93, 19.25], [73.83, 19.25], [73.83, 19.15]]]
-        },
-        "area": 70.1
-    }
-]
-
-# We'll store searched villages in memory for fast retrieval of boundaries later by ID
-SEARCH_CACHE: Dict[str, Village] = {v["id"]: Village(**v) for v in MOCK_VILLAGES_DATA}
+async def search_villages(query: str) -> List[Dict[str, Any]]:
+    """Search for villages in the loaded index."""
+    query_lower = query.lower()
+    results = []
+    
+    for item in SEARCH_INDEX:
+        if (query_lower in item["name"].lower() or 
+            query_lower in item["district"].lower() or 
+            query_lower in item["state"].lower()):
+            results.append(item)
+            if len(results) >= 20: # Limit results
+                break
+                
+    return results
 
 def get_village_by_id(village_id: str) -> Optional[Village]:
     """Return a specific village by ID."""
@@ -146,7 +105,4 @@ def get_village_by_id(village_id: str) -> Optional[Village]:
 
 def get_village_boundary(village_id: str) -> Optional[Dict[str, Any]]:
     """Return the GeoJSON boundary for a specific village."""
-    village = get_village_by_id(village_id)
-    if village:
-        return village.boundary
-    return None
+    return BOUNDARY_CACHE.get(village_id)

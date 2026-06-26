@@ -19,9 +19,9 @@ def aggregate_environmental_metrics(village_id: str, year: int, raw_metrics: Dic
     lc = raw_metrics.get("land_cover") or {}
     
     # Basic fallbacks (to 0.0) if missing
-    ndvi = float(sentinel.get("ndvi_mean", 0.0))
-    ndwi = float(sentinel.get("ndwi_mean", 0.0))
-    water_area = float(water.get("water_area_ha", 0.0))
+    ndvi = float(sentinel.get("ndvi_mean", raw_metrics.get("ndvi", 0.0)))
+    ndwi = float(sentinel.get("ndwi_mean", raw_metrics.get("ndwi", 0.0)))
+    water_area = float(water.get("water_area_ha", raw_metrics.get("water_area_ha", 0.0)))
     
     # Clean limits
     ndvi = max(-1.0, min(1.0, ndvi))

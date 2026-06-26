@@ -14,16 +14,19 @@ export const EnvironmentTab: React.FC = () => {
       <MetricsPanel data={data} isLoading={isLoading} error={error} />
       
       {/* Land Cover Breakdown Chart */}
-      <div className="flex flex-col gap-4 mt-2">
-        <h3 className="text-mono text-text-primary flex items-center gap-2">
+      <div className="flex flex-col gap-3">
+        <h3 className="text-mono text-text-primary flex items-center gap-2 text-xs">
           <span className="w-2 h-2 rounded-full bg-brand-blue"></span>
           LAND COVER BREAKDOWN
         </h3>
-        <LandCoverChart data={data?.landCover} isLoading={isLoading} />
+        {/* Fixed height wrapper so chart never gets squeezed */}
+        <div className="w-full" style={{ minHeight: '280px' }}>
+          <LandCoverChart data={data?.landCover} isLoading={isLoading} />
+        </div>
       </div>
       
-      <div className="flex flex-col gap-4">
-        <h3 className="text-mono text-text-primary flex items-center gap-2">
+      <div className="flex flex-col gap-3">
+        <h3 className="text-mono text-text-primary flex items-center gap-2 text-xs">
           <span className="w-2 h-2 rounded-full bg-brand-violet"></span>
           CLIMATE ASSESSMENT
         </h3>

@@ -30,7 +30,7 @@ const MapInstanceBinder: React.FC = () => {
 };
 
 export const MapContainer: React.FC = React.memo(() => {
-  const { selectedVillage, selectedYear } = useVillageSelection();
+  const { selectedVillage, selectedYear, selectedVillagePolygon } = useVillageSelection();
   const layers = useMapLayers();
   const { data, geeStatus } = useSatelliteData(selectedVillage?.id, selectedYear);
   const { theme } = useTheme();
@@ -73,7 +73,7 @@ export const MapContainer: React.FC = React.memo(() => {
           <VillageMarker key={village.id} village={village} />
         ))}
 
-        {selectedVillage && !layers.showNDVI && !layers.showWater && !layers.showLandCover && <VillageBoundary village={selectedVillage} />}
+        {selectedVillage && !layers.showNDVI && !layers.showWater && !layers.showLandCover && <VillageBoundary key={selectedVillage.id} polygon={selectedVillagePolygon} />}
         
         {selectedVillage && layers.showNDVI && (
           <NDVILayer village={selectedVillage} data={data} isLoading={geeStatus.loading} />

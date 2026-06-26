@@ -5,6 +5,8 @@ from app.core.logging import get_logger
 from app.api.routes import health, villages, satellite, analysis, weather, scores, history, ai, recommendations, reports
 from app.services.gee.auth import initialize_gee
 
+from app.services.village_service import load_villages
+
 logger = get_logger(__name__)
 
 app = FastAPI(title="GramDrishti API", version="1.0.0")
@@ -20,9 +22,11 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_event():
     try:
+        # Reloading villages from data folder.
+        load_villages()
         initialize_gee()
     except Exception as e:
-        logger.error(f"Failed to initialize GEE on startup: {str(e)}")
+        logger.error(f"Failed to initialize on startup: {str(e)}")
 
 app.include_router(health.router, prefix="/api/v1")
 app.include_router(villages.router, prefix="/api/v1")

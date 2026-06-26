@@ -1,17 +1,61 @@
 from fastapi import APIRouter, HTTPException, Query
-from typing import List, Any, Dict
+from typing import List, Any, Dict, Optional
+from pydantic import BaseModel
 from app.models.village import Village
 from app.services import village_service
 
 router = APIRouter()
 
-@router.get("/villages/search", response_model=List[Village])
+
+class RegisterVillageRequest(BaseModel):
+    """Payload to temporarily register an externally-resolved village (e.g. from Nominatim)."""
+    id: str
+    name: str
+    nameHindi: str = ""
+    district: str = ""
+    state: str = "India"
+    coordinates: tuple[float, float]
+    boundary: Dict[str, Any]
+    area: float = 50.0
+
+
+@router.post("/villages/register", status_code=200)
+async def register_village(payload: RegisterVillageRequest):
+    """
+    Temporarily register a village resolved by the frontend (e.g. from Nominatim / OSM).
+    Adds the village to the in-memory SEARCH_CACHE and BOUNDARY_CACHE so that all
+    downstream endpoints (weather, scores, satellite, recommendations) can find it by ID.
+    This registration lives only for the duration of the server process (no persistence).
+    """
+    village = Village(
+        id=payload.id,
+        name=payload.name,
+        nameHindi=payload.nameHindi or payload.name,
+        district=payload.district,
+        state=payload.state,
+        coordinates=payload.coordinates,
+        boundary=payload.boundary,
+        area=payload.area,
+    )
+    village_service.SEARCH_CACHE[payload.id] = village
+    village_service.BOUNDARY_CACHE[payload.id] = payload.boundary
+
+    # Add to search index if not already present
+    if not any(item["id"] == payload.id for item in village_service.SEARCH_INDEX):
+        village_service.SEARCH_INDEX.append({
+            "id": payload.id,
+            "name": payload.name,
+            "district": payload.district,
+            "state": payload.state,
+        })
+
+    return {"status": "registered", "id": payload.id, "name": payload.name}
+
+
+@router.get("/villages/search")
 async def search_villages(q: str = Query(..., description="Search query")):
-    """Search for villages via OpenStreetMap."""
-    villages = await village_service.search_osm_village(q)
-    # Cache them so get_village_by_id works immediately after
-    for v in villages:
-        village_service.SEARCH_CACHE[v.id] = v
+    """Search for villages via local index."""
+    villages = await village_service.search_villages(q)
     return villages
 
 @router.get("/villages/{village_id}", response_model=Village)

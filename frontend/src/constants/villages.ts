@@ -1,5 +1,9 @@
 import { Village } from '@/types';
 
+// NOTE: boundaries are intentionally null here.
+// Real polygon boundaries are fetched from the backend (/api/v1/villages/:id)
+// which loads actual GeoJSON from the maharashtra.geojson dataset.
+// Do NOT put hardcoded bounding rectangles here — they cause the blue box bug.
 export const VILLAGES: Village[] = [
   {
     id: 'mulshi',
@@ -8,10 +12,7 @@ export const VILLAGES: Village[] = [
     district: 'Pune',
     state: 'Maharashtra',
     coordinates: [18.5204, 73.5297],
-    boundary: {
-      type: 'Polygon',
-      coordinates: [[[73.48, 18.48], [73.58, 18.48], [73.58, 18.56], [73.48, 18.56], [73.48, 18.48]]],
-    },
+    boundary: null,
     area: 50.5,
   },
   {
@@ -21,10 +22,7 @@ export const VILLAGES: Village[] = [
     district: 'Pune',
     state: 'Maharashtra',
     coordinates: [18.7667, 73.5833],
-    boundary: {
-      type: 'Polygon',
-      coordinates: [[[73.53, 18.72], [73.63, 18.72], [73.63, 18.81], [73.53, 18.81], [73.53, 18.72]]],
-    },
+    boundary: null,
     area: 60.2,
   },
   {
@@ -34,10 +32,7 @@ export const VILLAGES: Village[] = [
     district: 'Pune',
     state: 'Maharashtra',
     coordinates: [19.1167, 73.7167],
-    boundary: {
-      type: 'Polygon',
-      coordinates: [[[73.66, 19.06], [73.76, 19.06], [73.76, 19.16], [73.66, 19.16], [73.66, 19.06]]],
-    },
+    boundary: null,
     area: 45.3,
   },
   {
@@ -47,10 +42,7 @@ export const VILLAGES: Village[] = [
     district: 'Pune',
     state: 'Maharashtra',
     coordinates: [18.8333, 73.8667],
-    boundary: {
-      type: 'Polygon',
-      coordinates: [[[73.81, 18.78], [73.91, 18.78], [73.91, 18.88], [73.81, 18.88], [73.81, 18.78]]],
-    },
+    boundary: null,
     area: 55.0,
   },
   {
@@ -60,10 +52,7 @@ export const VILLAGES: Village[] = [
     district: 'Pune',
     state: 'Maharashtra',
     coordinates: [19.2000, 73.8833],
-    boundary: {
-      type: 'Polygon',
-      coordinates: [[[73.83, 19.15], [73.93, 19.15], [73.93, 19.25], [73.83, 19.25], [73.83, 19.15]]],
-    },
+    boundary: null,
     area: 70.1,
   },
 ];

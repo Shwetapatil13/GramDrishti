@@ -149,24 +149,31 @@ async def get_all_gee_metrics(village_id: str, boundary: dict, year: int) -> dic
     if settings.USE_MOCK_DATA:
         # Simulate slight delay to mimic network response
         await asyncio.sleep(0.5)
+        
+        # Use a fallback mock data if village is not in hardcoded MOCK_METRICS
         if village_id in MOCK_METRICS and year in MOCK_METRICS[village_id]:
             mock_data = MOCK_METRICS[village_id][year].copy()
-            mock_data["dataSource"] = "mock"
-            
-            # Fetch real weather for mock mode to avoid hardcoding large weather tables
-            village = get_village_by_id(village_id)
-            if village:
-                lat, lon = village.coordinates
-                try:
-                    weather = await get_historical_annual(lat, lon, year)
-                    mock_data["weather"] = weather
-                except Exception as e:
-                    logger.error(f"Mock weather fetch failed: {str(e)}")
-                    mock_data["weather"] = {"annual_rainfall_mm": 800.0, "mean_temp_c": 28.0, "max_temp_c": 38.0, "dry_days_count": 250, "humidity_percent": 50.0, "wind_speed_kmh": 12.0}
-            
-            return mock_data
         else:
-            raise GEEDataError(f"No mock data available for {village_id} in {year}")
+            mock_data = {
+                "ndvi": 0.55, "ndwi": 0.20, "water_area_ha": 100.0, "green_cover_percent": 50.0,
+                "land_cover": {"trees": 25.0, "cropland": 25.0, "water": 5.0, "built": 5.0,
+                               "grassland": 15.0, "bareLand": 24.0, "flooded": 1.0}
+            }
+
+        mock_data["dataSource"] = "mock"
+        
+        # Fetch real weather for mock mode to avoid hardcoding large weather tables
+        village = get_village_by_id(village_id)
+        if village:
+            lat, lon = village.coordinates
+            try:
+                weather = await get_historical_annual(lat, lon, year)
+                mock_data["weather"] = weather
+            except Exception as e:
+                logger.error(f"Mock weather fetch failed: {str(e)}")
+                mock_data["weather"] = {"annual_rainfall_mm": 800.0, "mean_temp_c": 28.0, "max_temp_c": 38.0, "dry_days_count": 250, "humidity_percent": 50.0, "wind_speed_kmh": 12.0}
+        
+        return mock_data
 
     cached = cache.get(cache_key)
     if cached:

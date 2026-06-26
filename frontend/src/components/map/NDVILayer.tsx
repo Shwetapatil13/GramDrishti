@@ -1,5 +1,5 @@
 import React from 'react';
-import { Polygon } from 'react-leaflet';
+import { GeoJSON } from 'react-leaflet';
 import { Village, EnvironmentalMetrics } from '@/types';
 import { GEEProgress } from '../ui/GEEProgress';
 
@@ -10,9 +10,7 @@ interface NDVILayerProps {
 }
 
 export const NDVILayer: React.FC<NDVILayerProps> = ({ village, data, isLoading }) => {
-  if (!village || !village.boundary || !village.boundary.coordinates) return null;
-
-  const positions = village.boundary.coordinates[0].map((coord) => [coord[1], coord[0]] as [number, number]);
+  if (!village || !village.boundary) return null;
 
   // Determine color based on NDVI value
   let fillColor = 'var(--semantic-warning)'; // fair
@@ -23,11 +21,21 @@ export const NDVILayer: React.FC<NDVILayerProps> = ({ village, data, isLoading }
     else fillColor = 'var(--semantic-danger)'; // poor
   }
 
+  const boundary: any = village.boundary;
+  const geoJsonData = boundary.type === 'Feature' || boundary.type === 'FeatureCollection'
+    ? boundary
+    : {
+        type: "Feature",
+        properties: {},
+        geometry: boundary
+      };
+
   return (
     <>
-      <Polygon
-        positions={positions}
-        pathOptions={{
+      <GeoJSON
+        key={`ndvi-${village.id}-${fillColor}`}
+        data={geoJsonData as any}
+        style={{
           color: fillColor,
           weight: 2,
           fillColor: fillColor,

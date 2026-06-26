@@ -15,7 +15,7 @@ const HistoryTab = React.lazy(() => import('./HistoryTab').then(m => ({ default:
 const AITab = React.lazy(() => import('./AITab').then(m => ({ default: m.AITab })));
 const ReportTab = React.lazy(() => import('./ReportTab').then(m => ({ default: m.ReportTab })));
 
-const TABS = ['OVERVIEW', 'ENVIRONMENT', 'HISTORY', 'AI ANALYST', 'REPORT'] as const;
+const TABS = ['OVERVIEW', 'ENVIRONMENT', 'HISTORY', 'REPORT'] as const;
 type TabType = typeof TABS[number];
 
 export const DashboardPanel: React.FC = () => {
@@ -97,8 +97,6 @@ export const DashboardPanel: React.FC = () => {
                   <EnvironmentTab />
                 ) : activeTab === 'HISTORY' ? (
                   <HistoryTab />
-                ) : activeTab === 'AI ANALYST' ? (
-                  <AITab />
                 ) : activeTab === 'REPORT' ? (
                   <ReportTab />
                 ) : (

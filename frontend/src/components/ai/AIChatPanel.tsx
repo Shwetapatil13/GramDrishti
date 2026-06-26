@@ -26,7 +26,7 @@ export const AIChatPanel: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-[500px] bg-surface-slate border border-surface-border rounded-[20px] overflow-hidden">
+    <div className="flex flex-col h-full bg-canvas-black overflow-hidden">
       {/* Header */}
       <div className="p-4 border-b border-surface-border flex items-center gap-2 bg-surface-elevated">
         <div className="w-2 h-2 rounded-full bg-brand-mint"></div>
