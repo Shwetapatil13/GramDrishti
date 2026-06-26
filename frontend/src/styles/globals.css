@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --canvas-black: #131313;
+  --surface-slate: #1a1a1a;
+  --surface-elevated: #222222;
+  --surface-border: #2d2d2d;
+
+  --jelly-mint: #3cffd0;
+  --console-mint: #309875;
+  --verge-violet: #5200ff;
+  --deep-link-blue: #3860be;
+
+  --text-primary: #ffffff;
+  --text-secondary: #949494;
+  --text-muted: #e9e9e9;
+  --text-inverted: #131313;
+
+  --color-success: #3cffd0;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #3860be;
+
+  --score-excellent: #3cffd0;
+  --score-good: #86efac;
+  --score-medium: #f59e0b;
+  --score-poor: #ef4444;
+}
+
+body {
+  background: var(--canvas-black);
+  color: var(--text-primary);
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-border);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--jelly-mint);
+  border-radius: 3px;
+}
+
+/* Typography classes mapping to design system */
+@layer utilities {
+  .text-display {
+    font: 700 3.5rem/0.90 'Space Grotesk';
+    letter-spacing: -0.02em;
+  }
+  .text-heading-lg {
+    font: 700 1.5rem/1.10 'Space Grotesk';
+  }
+  .text-heading-md {
+    font: 500 1.125rem/1.20 'Space Grotesk';
+  }
+  .text-body {
+    font: 400 0.9375rem/1.60 'Space Grotesk';
+  }
+  .text-mono {
+    font: 600 0.6875rem/1 'Space Mono';
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .text-mono-lg {
+    font: 600 0.75rem/1 'Space Mono';
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+}
+
+/* Leaflet overrides */
+.leaflet-container {
+  background-color: var(--canvas-black) !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+}
+
+.leaflet-control-zoom a {
+  background-color: var(--surface-slate) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--surface-border) !important;
+}
+
+.leaflet-control-zoom a:hover {
+  color: var(--jelly-mint) !important;
+}

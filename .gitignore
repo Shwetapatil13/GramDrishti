@@ -1,0 +1,19 @@
+# Node
+node_modules/
+dist/
+build/
+.env
+
+# Python
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+
+# GramDrishti
+backend/credentials/
+
+# OS
+.DS_Store
+Thumbs.db

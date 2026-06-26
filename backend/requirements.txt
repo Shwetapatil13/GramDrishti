@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+geopandas
+shapely
+numpy
+pandas
+rasterio
+earthengine-api
+pydantic
+pydantic-settings
+python-dotenv
+httpx
+google-generativeai
+reportlab
+Pillow
+python-multipart
+pytest
