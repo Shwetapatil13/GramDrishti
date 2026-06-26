@@ -1,0 +1,39 @@
+from app.core.config import settings
+from app.core.logging import get_logger
+from app.services.ai.gemini_client import GeminiClient
+from app.services.ai.ollama_client import OllamaClient
+from app.models.village import EnvironmentalMetrics, VillageHealthScore, Village
+from app.services.ai.prompt_builder import build_village_context
+
+logger = get_logger(__name__)
+
+class AIService:
+    def __init__(self):
+        if settings.GEMINI_API_KEY and settings.GEMINI_API_KEY.strip():
+            logger.info("Initializing AI Service with Google Gemini")
+            self.client = GeminiClient()
+        else:
+            logger.info("GEMINI_API_KEY not found. Falling back to local Ollama (qwen2.5)")
+            self.client = OllamaClient()
+
+    def _build_context(self, village: Village, metrics: EnvironmentalMetrics, score: VillageHealthScore, historical_summary: str | None = None) -> str:
+        return build_village_context(village, metrics, score, historical_summary)
+
+    async def get_summary(self, village: Village, metrics: EnvironmentalMetrics, score: VillageHealthScore, historical_summary: str | None = None) -> str:
+        context = self._build_context(village, metrics, score, historical_summary)
+        return await self.client.generate_summary(context)
+
+    async def get_recommendations(self, village: Village, metrics: EnvironmentalMetrics, score: VillageHealthScore) -> list[dict]:
+        context = self._build_context(village, metrics, score)
+        return await self.client.generate_recommendations(context)
+
+    async def chat(self, question: str, village: Village, metrics: EnvironmentalMetrics, score: VillageHealthScore) -> str:
+        context = self._build_context(village, metrics, score)
+        return await self.client.answer_question(question, context)
+        
+    async def get_report_narrative(self, village: Village, metrics: EnvironmentalMetrics, score: VillageHealthScore) -> str:
+        context = self._build_context(village, metrics, score)
+        return await self.client.generate_report_narrative(context)
+
+# Singleton
+ai_service = AIService()

@@ -1,0 +1,66 @@
+import google.generativeai as genai
+from app.core.config import settings
+from app.core.logging import get_logger
+import json
+import asyncio
+
+logger = get_logger(__name__)
+
+class GeminiClient:
+    def __init__(self):
+        genai.configure(api_key=settings.GEMINI_API_KEY)
+        self.model = genai.GenerativeModel('gemini-1.5-flash-latest')
+
+    async def _generate_content_with_timeout(self, prompt: str) -> str:
+        # Wrap sync call in thread to avoid blocking loop
+        loop = asyncio.get_event_loop()
+        response = await asyncio.wait_for(
+            loop.run_in_executor(None, self.model.generate_content, prompt),
+            timeout=30.0
+        )
+        return response.text
+
+    async def generate_summary(self, context: str) -> str:
+        prompt = __import__('app.services.ai.prompt_builder', fromlist=['']).build_summary_prompt(context)
+        text = await self._generate_content_with_timeout(prompt)
+        text = text.strip()
+        if len(text) < 100 or len(text) > 1500:
+            # Enforce validation
+            text = text[:1500] if len(text) > 1500 else text
+            if len(text) < 100:
+                text = "The AI generated a summary that was too brief. The village appears stable overall based on available metrics."
+        return text
+
+    async def generate_recommendations(self, context: str) -> list[dict]:
+        prompt = __import__('app.services.ai.prompt_builder', fromlist=['']).build_recommendation_prompt(context)
+        text = await self._generate_content_with_timeout(prompt)
+        
+        # Try to parse JSON. Gemini sometimes wraps in ```json
+        text = text.strip()
+        if text.startswith("```json"):
+            text = text[7:]
+        if text.endswith("```"):
+            text = text[:-3]
+            
+        try:
+            items = json.loads(text.strip())
+            if not isinstance(items, list) or len(items) != 3:
+                raise ValueError("Must return exactly 3 items")
+            return items
+        except Exception as e:
+            logger.error(f"Failed to parse recommendations JSON: {str(e)} - Raw text: {text}")
+            raise ValueError(f"AI returned invalid format: {str(e)}")
+
+    async def answer_question(self, question: str, context: str) -> str:
+        prompt = __import__('app.services.ai.prompt_builder', fromlist=['']).build_qa_prompt(question, context)
+        text = await self._generate_content_with_timeout(prompt)
+        text = text.strip()
+        if len(text) < 20:
+            return "I don't have enough specific information in the context to answer that question comprehensively."
+        return text
+
+    async def generate_report_narrative(self, context: str) -> str:
+        prompt = __import__('app.services.ai.prompt_builder', fromlist=['']).build_report_narrative_prompt(context)
+        text = await self._generate_content_with_timeout(prompt)
+        text = text.strip()
+        return text[:2000] # Ensure bounds

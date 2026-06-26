@@ -6,6 +6,7 @@ import { GEEProgress } from '../ui/GEEProgress';
 import { EnvironmentTab } from './EnvironmentTab';
 import { OverviewTab } from './OverviewTab';
 import { HistoryTab } from './HistoryTab';
+import { AITab } from './AITab';
 
 const TABS = ['OVERVIEW', 'ENVIRONMENT', 'HISTORY', 'AI ANALYST', 'REPORT'] as const;
 type TabType = typeof TABS[number];
@@ -59,6 +60,8 @@ export const DashboardPanel: React.FC = () => {
           <EnvironmentTab />
         ) : activeTab === 'HISTORY' ? (
           <HistoryTab />
+        ) : activeTab === 'AI ANALYST' ? (
+          <AITab />
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <p className="text-body text-text-secondary">
