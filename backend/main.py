@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.logging import get_logger
 from app.api.routes import health, villages, satellite, analysis, weather, scores, history, ai, recommendations, reports
+from app.services.gee.auth import initialize_gee
 
 logger = get_logger(__name__)
 
