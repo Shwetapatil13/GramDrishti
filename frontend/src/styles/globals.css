@@ -94,3 +94,17 @@ body {
 .leaflet-control-zoom a:hover {
   color: var(--jelly-mint) !important;
 }
+
+/* Custom Popup styles */
+.custom-leaflet-popup .leaflet-popup-content-wrapper {
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+.custom-leaflet-popup .leaflet-popup-tip-container {
+  display: none;
+}
+.custom-leaflet-popup .leaflet-popup-content {
+  margin: 0;
+  width: auto !important;
+}
