@@ -2,6 +2,7 @@ import React from 'react';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { useSatelliteData } from '@/hooks/useSatelliteData';
 import { MetricsPanel } from './MetricsPanel';
+import { ClimateAssessment } from './ClimateAssessment';
 
 export const EnvironmentTab: React.FC = () => {
   const { selectedVillage } = useVillageSelection();
@@ -28,9 +29,7 @@ export const EnvironmentTab: React.FC = () => {
           <span className="w-2 h-2 rounded-full bg-brand-violet"></span>
           CLIMATE ASSESSMENT
         </h3>
-        <div className="bg-surface-slate border border-surface-border rounded-xl p-4 h-[120px] flex items-center justify-center">
-          <span className="text-body text-text-muted">Climate Assessment (Level 5)</span>
-        </div>
+        <ClimateAssessment />
       </div>
     </div>
   );

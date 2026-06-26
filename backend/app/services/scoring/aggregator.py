@@ -56,6 +56,8 @@ def aggregate_environmental_metrics(village_id: str, year: int, raw_metrics: Dic
     if not sentinel or not lc or not water:
         if data_source == "live":
             data_source = "incomplete"
+            
+    weather = raw_metrics.get("weather") or {}
     
     # Construct complete metric
     return EnvironmentalMetrics(
@@ -66,9 +68,9 @@ def aggregate_environmental_metrics(village_id: str, year: int, raw_metrics: Dic
         waterAreaHa=water_area,
         greenCoverPercent=green_cover_percent,
         landCover=land_cover_breakdown,
-        temperature=0.0, # Filled in Level 5
-        rainfall=0.0,
-        humidity=0.0,
-        windSpeed=0.0,
+        temperature=float(weather.get("mean_temp_c", 0.0)),
+        rainfall=float(weather.get("annual_rainfall_mm", 0.0)),
+        humidity=float(weather.get("humidity_percent", 50.0)), # Mocked/Default if historical doesn't have it
+        windSpeed=float(weather.get("wind_speed_kmh", 10.0)), # Mocked/Default
         dataSource=data_source
     )

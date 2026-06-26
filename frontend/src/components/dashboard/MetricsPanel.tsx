@@ -86,6 +86,8 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({ data, isLoading, err
         <div className="grid grid-cols-2 gap-4">
           <MetricCard title="TEMPERATURE" value={data?.temperature?.toFixed(1) || '--'} unit="°C" colorType="climate" isLoading={isLoading} hasError={hasError} trend="neutral" />
           <MetricCard title="RAINFALL" value={data?.rainfall?.toFixed(1) || '--'} unit="MM" colorType="climate" isLoading={isLoading} hasError={hasError} trend="neutral" />
+          <MetricCard title="HUMIDITY" value={data?.humidity?.toFixed(0) || '--'} unit="%" colorType="climate" isLoading={isLoading} hasError={hasError} trend="neutral" />
+          <MetricCard title="WIND SPEED" value={data?.windSpeed?.toFixed(1) || '--'} unit="KM/H" colorType="climate" isLoading={isLoading} hasError={hasError} trend="neutral" />
         </div>
       </div>
     </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { VILLAGES } from '@/constants/villages';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { Search } from 'lucide-react';
+import { WeatherWidget } from '../dashboard/WeatherWidget';
 
 export const Sidebar: React.FC = () => {
   const { selectedVillage, setSelectedVillage, flyToVillage } = useVillageSelection();
@@ -32,6 +33,8 @@ export const Sidebar: React.FC = () => {
           />
         </div>
       </div>
+
+      <WeatherWidget />
 
       <div className="flex-1 overflow-y-auto">
         {filteredVillages.map((village) => {

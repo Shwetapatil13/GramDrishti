@@ -14,6 +14,8 @@ from app.services.gee.sentinel2 import get_sentinel2_metrics
 from app.services.gee.dynamic_world import get_land_cover
 from app.services.gee.terrain import get_terrain_metrics
 from app.services.gee.water import get_water_metrics
+from app.services.weather.openmeteo import get_historical_annual
+from app.services.village_service import get_village_by_id
 
 logger = get_logger(__name__)
 
@@ -148,8 +150,20 @@ async def get_all_gee_metrics(village_id: str, boundary: dict, year: int) -> dic
         # Simulate slight delay to mimic network response
         await asyncio.sleep(0.5)
         if village_id in MOCK_METRICS and year in MOCK_METRICS[village_id]:
-            mock_data = MOCK_METRICS[village_id][year]
+            mock_data = MOCK_METRICS[village_id][year].copy()
             mock_data["dataSource"] = "mock"
+            
+            # Fetch real weather for mock mode to avoid hardcoding large weather tables
+            village = get_village_by_id(village_id)
+            if village:
+                lat, lon = village.coordinates
+                try:
+                    weather = await get_historical_annual(lat, lon, year)
+                    mock_data["weather"] = weather
+                except Exception as e:
+                    logger.error(f"Mock weather fetch failed: {str(e)}")
+                    mock_data["weather"] = {"annual_rainfall_mm": 800.0, "mean_temp_c": 28.0, "max_temp_c": 38.0, "dry_days_count": 250, "humidity_percent": 50.0, "wind_speed_kmh": 12.0}
+            
             return mock_data
         else:
             raise GEEDataError(f"No mock data available for {village_id} in {year}")
@@ -162,6 +176,9 @@ async def get_all_gee_metrics(village_id: str, boundary: dict, year: int) -> dic
 
     logger.info(f"Cache MISS for {cache_key}. Starting GEE retrieval...")
     start_time = time.time()
+    
+    village = get_village_by_id(village_id)
+    lat, lon = village.coordinates if village else (20.5937, 78.9629)
 
     try:
         # Run independent GEE queries concurrently
@@ -170,10 +187,11 @@ async def get_all_gee_metrics(village_id: str, boundary: dict, year: int) -> dic
             _call_with_retry(get_land_cover, boundary, year),
             _call_with_retry(get_terrain_metrics, boundary),
             _call_with_retry(get_water_metrics, boundary, year),
+            get_historical_annual(lat, lon, year),
             return_exceptions=True
         )
 
-        sentinel_res, dw_res, terrain_res, water_res = results
+        sentinel_res, dw_res, terrain_res, water_res, weather_res = results
 
         # Construct final aggregated dictionary
         aggregated: dict[str, Any] = {
@@ -204,6 +222,12 @@ async def get_all_gee_metrics(village_id: str, boundary: dict, year: int) -> dic
             aggregated["water"] = None
         else:
             aggregated["water"] = water_res
+
+        if isinstance(weather_res, Exception):
+            logger.error(f"Weather failed: {weather_res}")
+            aggregated["weather"] = None
+        else:
+            aggregated["weather"] = weather_res
 
         # Calculate some direct metrics expected by the current mockup structure 
         # (This will be fully refined in Level 4 Environmental Analysis Engine)
