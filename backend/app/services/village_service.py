@@ -2,7 +2,7 @@ from typing import List, Optional, Dict, Any
 from app.models.village import Village
 
 # Using approximate polygons around the central coordinates
-MOCK_VILLAGES_DATA = [
+MOCK_VILLAGES_DATA: List[Dict[str, Any]] = [
     {
         "id": "mulshi",
         "name": "Mulshi",
