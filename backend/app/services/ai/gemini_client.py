@@ -9,7 +9,7 @@ logger = get_logger(__name__)
 class GeminiClient:
     def __init__(self):
         genai.configure(api_key=settings.GEMINI_API_KEY)
-        self.model = genai.GenerativeModel('gemini-1.5-flash-latest')
+        self.model = genai.GenerativeModel('gemini-1.5-flash')
 
     async def _generate_content_with_timeout(self, prompt: str) -> str:
         # Wrap sync call in thread to avoid blocking loop

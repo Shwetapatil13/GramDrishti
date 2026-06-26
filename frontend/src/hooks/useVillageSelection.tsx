@@ -11,6 +11,8 @@ interface VillageContextType {
   flyToVillage: (village: Village) => void;
   setMapInstance: (map: L.Map) => void;
   selectedVillagePolygon: any | null;
+  selectedNDVICategory: string | null;
+  setSelectedNDVICategory: (category: string | null) => void;
 }
 
 const VillageContext = createContext<VillageContextType | undefined>(undefined);
@@ -20,6 +22,8 @@ export const VillageProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [selectedYear, setSelectedYear] = useState<number>(2024);
   const [_mapInstance, setMapInstance] = useState<L.Map | null>(null);
   const [selectedVillagePolygon, setSelectedVillagePolygon] = useState<any | null>(null);
+  const [selectedNDVICategory, setSelectedNDVICategory] = useState<string | null>(null);
+
 
   const handleSetSelectedVillage = useCallback(async (village: Village | null) => {
     // If it's a Nominatim village, register it first so backend knows about it
@@ -119,10 +123,13 @@ export const VillageProvider: React.FC<{ children: React.ReactNode }> = ({ child
         flyToVillage,
         setMapInstance,
         selectedVillagePolygon,
+        selectedNDVICategory,
+        setSelectedNDVICategory,
       }}
     >
       {children}
     </VillageContext.Provider>
+
   );
 };
 

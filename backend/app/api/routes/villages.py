@@ -73,3 +73,26 @@ async def get_village_boundary(village_id: str):
     if not boundary:
         raise HTTPException(status_code=404, detail="Village not found")
     return boundary
+
+@router.get("/villages/boundaries/all")
+async def get_all_village_boundaries():
+    """Get a FeatureCollection of all indexed village boundaries."""
+    features = []
+    for village_id, boundary in village_service.BOUNDARY_CACHE.items():
+        village = village_service.get_village_by_id(village_id)
+        if not village:
+            continue
+        features.append({
+            "type": "Feature",
+            "properties": {
+                "id": village.id,
+                "name": village.name,
+                "district": village.district,
+                "state": village.state
+            },
+            "geometry": boundary
+        })
+    return {
+        "type": "FeatureCollection",
+        "features": features
+    }

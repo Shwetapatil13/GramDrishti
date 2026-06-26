@@ -7,6 +7,7 @@ import { VILLAGES } from '@/constants/villages';
 import { VillageMarker } from './VillageMarker';
 import { VillageBoundary } from './VillageBoundary';
 import { NDVILayer } from './NDVILayer';
+import { ChoroplethLayer } from './ChoroplethLayer';
 import { WaterLayer } from './WaterLayer';
 import { LandCoverLayer } from './LandCoverLayer';
 import { NDVILegend } from './NDVILegend';
@@ -75,8 +76,11 @@ export const MapContainer: React.FC = React.memo(() => {
 
         {selectedVillage && !layers.showNDVI && !layers.showWater && !layers.showLandCover && <VillageBoundary key={selectedVillage.id} polygon={selectedVillagePolygon} />}
         
-        {selectedVillage && layers.showNDVI && (
-          <NDVILayer village={selectedVillage} data={data} isLoading={geeStatus.loading} />
+        {layers.showNDVI && (
+          <>
+            <ChoroplethLayer />
+            {selectedVillage && <NDVILayer village={selectedVillage} data={data} isLoading={geeStatus.loading} />}
+          </>
         )}
         
         {selectedVillage && layers.showWater && (

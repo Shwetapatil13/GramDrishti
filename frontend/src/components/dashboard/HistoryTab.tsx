@@ -1,7 +1,6 @@
 import React from 'react';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { useHistoricalChanges } from '@/hooks/useHistoricalData';
-import { TimelineSlider } from './TimelineSlider';
 import { TrendChart } from '../charts/TrendChart';
 import { HealthScoreTrendChart } from '../charts/HealthScoreTrendChart';
 import { ChangeDetection } from './ChangeDetection';
@@ -22,7 +21,6 @@ export const HistoryTab: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-full pb-8">
-      <TimelineSlider />
 
       <div className="flex flex-col gap-3 mt-4">
         <h3 className="text-mono text-text-primary flex items-center gap-2">

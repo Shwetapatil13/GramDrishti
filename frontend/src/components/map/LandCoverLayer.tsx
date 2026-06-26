@@ -1,8 +1,9 @@
-import React, { useEffect, useRef } from 'react';
-import { useMap, GeoJSON } from 'react-leaflet';
+import React, { useEffect, useRef, useState } from 'react';
+import { useMap, GeoJSON, TileLayer } from 'react-leaflet';
 import L from 'leaflet';
 import { Village, EnvironmentalMetrics, LandCoverBreakdown } from '@/types';
 import { LAND_COVER_COLORS, LAND_COVER_LABELS } from '../charts/LandCoverChart';
+import { apiService } from '@/services/api';
 
 interface LandCoverLayerProps {
   village: Village | null;
@@ -104,6 +105,30 @@ export const LandCoverLayer: React.FC<LandCoverLayerProps> = ({ village, data })
   const dominantColor = LAND_COVER_COLORS[dominantKey];
   const dominantLabel = LAND_COVER_LABELS[dominantKey];
 
+  const [tileUrl, setTileUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!village || !data?.year) return;
+    let mounted = true;
+    
+    const fetchTiles = async () => {
+      try {
+        const res = await apiService.get<{ urlFormat: string }>(
+          `/api/v1/satellite/${village.id}/landcover/tiles`,
+          { year: data.year }
+        );
+        if (mounted && res?.urlFormat) {
+          setTileUrl(res.urlFormat);
+        }
+      } catch (err) {
+        console.error('Failed to fetch land cover tiles:', err);
+      }
+    };
+
+    fetchTiles();
+    return () => { mounted = false; };
+  }, [village?.id, data?.year]);
+
   const boundary: any = village.boundary;
   const geoJsonData = boundary.type === 'Feature' || boundary.type === 'FeatureCollection'
     ? boundary
@@ -169,14 +194,21 @@ export const LandCoverLayer: React.FC<LandCoverLayerProps> = ({ village, data })
 
   return (
     <>
+      {tileUrl && (
+        <TileLayer 
+          url={tileUrl} 
+          zIndex={10} 
+          opacity={0.85} 
+        />
+      )}
       <GeoJSON
         key={`lc-${village.id}-${dominantKey}`}
         data={geoJsonData as any}
         style={{
           color: dominantColor,
           weight: 2,
-          fillColor: dominantColor,
-          fillOpacity: 0.5,
+          fillColor: 'transparent',
+          fillOpacity: 0.05, // very light tint to preserve underlying tile visibility
           dashArray: undefined,
         }}
         onEachFeature={onEachFeature}

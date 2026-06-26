@@ -18,3 +18,4 @@ class Settings(BaseSettings):
         return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",")]
 
 settings = Settings()
+# reload trigger

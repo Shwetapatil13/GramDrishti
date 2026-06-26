@@ -61,7 +61,11 @@ async def get_village_score(
     cached = cache.get(cache_key)
     if cached:
         logger.info(f"[Scores] Cache HIT for {cache_key}")
-        return cached
+        # Cached as dict — reconstruct Pydantic model so callers get .overall etc.
+        try:
+            return VillageHealthScore(**cached)
+        except Exception:
+            return cached  # fallback: return raw dict if reconstruction fails
 
     logger.info(f"[Scores] Cache MISS for {cache_key}. Running GEE pipeline (current + prev year concurrently)...")
 

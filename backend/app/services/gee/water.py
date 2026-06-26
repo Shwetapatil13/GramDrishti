@@ -76,3 +76,33 @@ def get_water_metrics(boundary: dict, year: int) -> dict[str, float]:
         raise GEEDataError(f"Earth Engine error processing Surface Water: {str(e)}")
     except Exception as e:
         raise GEEDataError(f"Error processing Surface Water metrics: {str(e)}")
+
+def get_water_tiles(boundary: dict, year: int) -> dict[str, str]:
+    """
+    Generates a Google Earth Engine MapID (tile URL) for Surface Water.
+    """
+    try:
+        geom = geojson_to_ee_geometry(boundary)
+        
+        jrc = ee.Image("JRC/GSW1_4/GlobalSurfaceWater").clip(geom)
+        occurrence = jrc.select('occurrence')
+        water_mask = occurrence.gt(0)
+        
+        water_image = occurrence.updateMask(water_mask)
+        
+        vis_params = {
+            'min': 0,
+            'max': 100,
+            'palette': ['#93C5FD', '#3B82F6', '#1D4ED8']
+        }
+
+        map_id_dict = ee.Image(water_image).getMapId(vis_params)
+        
+        return {
+            "urlFormat": map_id_dict['tile_fetcher'].url_format
+        }
+
+    except ee.EEException as e:
+        raise GEEDataError(f"Earth Engine error generating water tiles: {str(e)}")
+    except Exception as e:
+        raise GEEDataError(f"Error generating water tiles: {str(e)}")
