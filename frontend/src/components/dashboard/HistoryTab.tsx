@@ -37,7 +37,7 @@ export const HistoryTab: React.FC = () => {
             data={changesData?.ndvi_changes} 
             isLoading={changesLoading} 
             valueKey="value" 
-            color="#3cffd0" 
+            color="var(--brand-mint)" 
             name="NDVI" 
             chartType="line" 
           />
@@ -48,7 +48,7 @@ export const HistoryTab: React.FC = () => {
             data={changesData?.water_area_changes} 
             isLoading={changesLoading} 
             valueKey="value_ha" 
-            color="#3860be" 
+            color="var(--brand-blue)" 
             name="Water Area" 
             chartType="bar" 
           />

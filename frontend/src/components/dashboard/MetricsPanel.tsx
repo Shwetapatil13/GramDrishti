@@ -16,9 +16,9 @@ const MetricCard: React.FC<MetricCardProps> = ({
   title, value, unit, trend = 'neutral', colorType = 'vegetation', isLoading, hasError 
 }) => {
   const borderColors = {
-    vegetation: 'border-l-[#166534]', // green
-    water: 'border-l-[#3860be]', // blue
-    climate: 'border-l-[#f59e0b]' // amber
+    vegetation: 'border-l-score-excellent', // green
+    water: 'border-l-brand-blue', // blue
+    climate: 'border-l-semantic-warning' // amber
   };
 
   if (isLoading) {
@@ -67,7 +67,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = React.memo(({ data, isL
     <div className="flex flex-col gap-6">
       <div>
         <h3 className="text-mono text-text-primary mb-3 flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#166534]"></span>
+          <span className="w-2 h-2 rounded-full bg-score-excellent"></span>
           ENVIRONMENTAL METRICS
         </h3>
         <div className="grid grid-cols-2 gap-4">
@@ -80,7 +80,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = React.memo(({ data, isL
 
       <div>
         <h3 className="text-mono text-text-primary mb-3 flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#f59e0b]"></span>
+          <span className="w-2 h-2 rounded-full bg-semantic-warning"></span>
           CLIMATE & WEATHER
         </h3>
         <div className="grid grid-cols-2 gap-4">

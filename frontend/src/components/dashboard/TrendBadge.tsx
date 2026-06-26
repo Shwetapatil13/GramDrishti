@@ -11,10 +11,10 @@ export const TrendBadge: React.FC<TrendBadgeProps> = ({ trend, className = '' })
   let Icon = ArrowRight;
 
   if (trend === 'improving') {
-    colorClass = 'bg-[#166534] text-[#86efac]'; // mint/green
+    colorClass = 'bg-semantic-success/20 text-semantic-success'; // mint/green
     Icon = ArrowUpRight;
   } else if (trend === 'declining') {
-    colorClass = 'bg-[#991b1b] text-[#fca5a5]'; // red
+    colorClass = 'bg-semantic-danger/20 text-semantic-danger'; // red
     Icon = ArrowDownRight;
   }
 

@@ -38,10 +38,10 @@ export const HealthScoreRing: React.FC<HealthScoreRingProps> = ({ score, isLoadi
   const displayScore = score ?? 0;
   const strokeDashoffset = circumference - (animatedScore / 100) * circumference;
 
-  let color = '#ef4444'; // poor
-  if (displayScore >= 80) color = '#3cffd0'; // excellent
-  else if (displayScore >= 60) color = '#86efac'; // good
-  else if (displayScore >= 40) color = '#f59e0b'; // medium
+  let color = 'var(--semantic-danger)'; // poor
+  if (displayScore >= 80) color = 'var(--score-excellent)'; // excellent
+  else if (displayScore >= 60) color = 'var(--score-good)'; // good
+  else if (displayScore >= 40) color = 'var(--score-medium)'; // medium
 
   return (
     <div className="relative w-[120px] h-[120px] flex items-center justify-center shrink-0">
@@ -50,7 +50,7 @@ export const HealthScoreRing: React.FC<HealthScoreRingProps> = ({ score, isLoadi
           cx="60"
           cy="60"
           r={radius}
-          stroke="#2d2d2d"
+          stroke="var(--surface-border)"
           strokeWidth="8"
           fill="transparent"
         />

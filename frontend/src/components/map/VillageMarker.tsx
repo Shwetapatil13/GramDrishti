@@ -16,7 +16,7 @@ const createCustomIcon = (isSelected: boolean) => {
       <div class="relative flex items-center justify-center w-6 h-6">
         ${
           isSelected
-            ? `<div class="absolute w-4 h-4 bg-brand-mint rounded-full shadow-[0_0_10px_#3cffd0]"></div>
+            ? `<div class="absolute w-4 h-4 bg-brand-mint rounded-full shadow-[0_0_10px_var(--brand-mint)]"></div>
                <div class="absolute w-6 h-6 border-2 border-brand-mint rounded-full"></div>`
             : `<div class="absolute w-2.5 h-2.5 bg-brand-mint rounded-full animate-pulse"></div>`
         }

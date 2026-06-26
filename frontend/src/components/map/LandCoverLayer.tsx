@@ -14,16 +14,16 @@ export const LandCoverLayer: React.FC<LandCoverLayerProps> = ({ village, data })
 
   // Determine dominant class for the single polygon representation
   let dominantClass = 'Unknown';
-  let dominantColor = '#1a1a1a'; // Default slate
+  let dominantColor = 'var(--surface-slate)'; // Default slate
 
   const LC_COLORS: Record<keyof LandCoverBreakdown, string> = {
-    cropland: '#ca8a04',
-    trees: '#166534',
-    water: '#3cffd0',
-    builtArea: '#6b7280',
-    grassland: '#86efac',
-    bareLand: '#a16207',
-    flooded: '#3860be',
+    cropland: 'var(--semantic-warning)',
+    trees: 'var(--score-excellent)',
+    water: 'var(--brand-mint)',
+    builtArea: 'var(--text-muted)',
+    grassland: 'var(--score-good)',
+    bareLand: 'var(--semantic-warning)',
+    flooded: 'var(--brand-blue)',
   };
 
   if (data && data.landCover) {

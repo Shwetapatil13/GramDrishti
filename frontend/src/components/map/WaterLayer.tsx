@@ -16,9 +16,9 @@ export const WaterLayer: React.FC<WaterLayerProps> = ({ village, data }) => {
     <Polygon
       positions={positions}
       pathOptions={{
-        color: '#3cffd0',
+        color: 'var(--brand-mint)',
         weight: 1,
-        fillColor: '#3cffd0',
+        fillColor: 'var(--brand-mint)',
         fillOpacity: 0.6,
       }}
     >

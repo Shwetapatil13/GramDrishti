@@ -2,10 +2,10 @@ import React from 'react';
 
 export const NDVILegend: React.FC = () => {
   const legendItems = [
-    { label: 'EXCELLENT (>0.6)', color: 'bg-[#166534]' },
-    { label: 'GOOD (0.4-0.6)', color: 'bg-[#16a34a]' },
-    { label: 'FAIR (0.2-0.4)', color: 'bg-[#ca8a04]' },
-    { label: 'POOR (<0.2)', color: 'bg-[#dc2626]' },
+    { label: 'EXCELLENT (>0.6)', color: 'bg-score-excellent' },
+    { label: 'GOOD (0.4-0.6)', color: 'bg-score-good' },
+    { label: 'FAIR (0.2-0.4)', color: 'bg-semantic-warning' },
+    { label: 'POOR (<0.2)', color: 'bg-semantic-danger' },
   ];
 
   return (

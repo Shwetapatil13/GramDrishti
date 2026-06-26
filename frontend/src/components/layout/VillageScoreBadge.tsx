@@ -18,11 +18,11 @@ export const VillageScoreBadge: React.FC<VillageScoreBadgeProps> = ({ villageId 
     );
   }
 
-  let colorClass = 'bg-[#ef4444] text-[#fca5a5]'; // poor
+  let colorClass = 'bg-semantic-danger text-white'; // poor
   const val = score.overall;
-  if (val >= 80) colorClass = 'bg-[#166534] text-[#86efac]'; // excellent
-  else if (val >= 60) colorClass = 'bg-[#16a34a] text-canvas-black'; // good
-  else if (val >= 40) colorClass = 'bg-[#f59e0b] text-canvas-black'; // medium
+  if (val >= 80) colorClass = 'bg-score-excellent text-canvas-black'; // excellent
+  else if (val >= 60) colorClass = 'bg-score-good text-canvas-black'; // good
+  else if (val >= 40) colorClass = 'bg-score-medium text-canvas-black'; // medium
 
   return (
     <div className={`text-mono rounded-tag px-2 py-1 ${colorClass}`}>

@@ -65,7 +65,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({
         // Find if this year was a loss
         const item = data.find(d => d.year === Number(params.name));
         if (item && item.delta_ha !== undefined && item.delta_ha < 0) {
-          return '#ef4444'; // Red for loss
+          return 'var(--semantic-danger)'; // Red for loss
         }
         return color;
       }
@@ -73,13 +73,13 @@ export const TrendChart: React.FC<TrendChartProps> = ({
   }
 
   const option = {
-    backgroundColor: '#131313',
+    backgroundColor: 'transparent',
     tooltip: {
       trigger: 'axis',
-      backgroundColor: '#1a1a1a',
-      borderColor: '#2d2d2d',
-      textStyle: { color: '#ffffff', fontFamily: 'Space Mono' },
-      axisPointer: { type: 'line', lineStyle: { color: '#2d2d2d' } }
+      backgroundColor: 'var(--surface-slate)',
+      borderColor: 'var(--surface-border)',
+      textStyle: { color: 'var(--text-primary)', fontFamily: 'Space Mono' },
+      axisPointer: { type: 'line', lineStyle: { color: 'var(--surface-border)' } }
     },
     grid: {
       top: 30, right: 20, bottom: 20, left: 40, containLabel: true
@@ -87,21 +87,21 @@ export const TrendChart: React.FC<TrendChartProps> = ({
     xAxis: {
       type: 'category',
       data: years,
-      axisLine: { lineStyle: { color: '#2d2d2d' } },
-      axisLabel: { color: '#949494', fontFamily: 'Space Mono' }
+      axisLine: { lineStyle: { color: 'var(--surface-border)' } },
+      axisLabel: { color: 'var(--text-secondary)', fontFamily: 'Space Mono' }
     },
     yAxis: {
       type: 'value',
       name: yAxisName,
-      nameTextStyle: { color: '#949494', fontFamily: 'Space Mono', align: 'left' },
-      splitLine: { lineStyle: { color: '#2d2d2d', type: 'dashed' } },
-      axisLabel: { color: '#949494', fontFamily: 'Space Mono' }
+      nameTextStyle: { color: 'var(--text-secondary)', fontFamily: 'Space Mono', align: 'left' },
+      splitLine: { lineStyle: { color: 'var(--surface-border)', type: 'dashed' } },
+      axisLabel: { color: 'var(--text-secondary)', fontFamily: 'Space Mono' }
     },
     series: [seriesObj]
   };
 
   return (
-    <div className="w-full h-full bg-[#131313] border border-surface-border rounded-xl p-4 overflow-hidden">
+    <div className="w-full h-full bg-canvas-black border border-surface-border rounded-xl p-4 overflow-hidden">
       <ReactECharts
         option={option}
         style={{ height: '100%', width: '100%' }}

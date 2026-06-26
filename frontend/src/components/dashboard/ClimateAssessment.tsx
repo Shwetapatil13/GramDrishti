@@ -60,15 +60,15 @@ export const ClimateAssessment: React.FC = () => {
   const clampedPercent = Math.min(Math.max(percent, 0), 200); // 0 to 200 scale
   const barPosition = `${(clampedPercent / 200) * 100}%`;
   
-  let adequacyColor = '#3cffd0'; // normal
-  if (rainfall_adequacy.adequacy === 'deficit') adequacyColor = '#ef4444';
-  if (rainfall_adequacy.adequacy === 'surplus') adequacyColor = '#3860be';
+  let adequacyColor = 'var(--semantic-success)'; // normal
+  if (rainfall_adequacy.adequacy === 'deficit') adequacyColor = 'var(--semantic-danger)';
+  if (rainfall_adequacy.adequacy === 'surplus') adequacyColor = 'var(--brand-blue)';
 
   const riskColors: Record<string, string> = {
     low: 'bg-brand-mint text-canvas-black',
     moderate: 'bg-semantic-warning text-canvas-black',
     high: 'bg-semantic-danger text-text-primary',
-    extreme: 'bg-[#991b1b] text-text-primary', // darker red
+    extreme: 'bg-semantic-danger opacity-90 text-text-primary', // fallback
   };
 
   return (

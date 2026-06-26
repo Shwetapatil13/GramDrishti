@@ -36,7 +36,7 @@ export const TimelineSlider: React.FC = () => {
                 {/* Thumb */}
                 <div 
                   className={`w-4 h-4 rounded-full transition-colors z-10 ${
-                    isActive ? 'bg-brand-mint shadow-[0_0_10px_#3cffd0]' : 'bg-[#555] hover:bg-[#888]'
+                    isActive ? 'bg-brand-mint shadow-[0_0_10px_var(--brand-mint)]' : 'bg-surface-border hover:bg-surface-elevated'
                   }`}
                 />
                 {/* Year Label */}

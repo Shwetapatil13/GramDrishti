@@ -9,36 +9,36 @@ export default {
     extend: {
       colors: {
         canvas: {
-          black: '#131313',
+          black: 'var(--canvas-black)',
         },
         surface: {
-          slate: '#1a1a1a',
-          elevated: '#222222',
-          border: '#2d2d2d',
+          slate: 'var(--surface-slate)',
+          elevated: 'var(--surface-elevated)',
+          border: 'var(--surface-border)',
         },
         brand: {
-          mint: '#3cffd0',
-          console: '#309875',
-          violet: '#5200ff',
-          blue: '#3860be',
+          mint: 'var(--brand-mint)',
+          console: 'var(--brand-console)',
+          violet: 'var(--brand-violet)',
+          blue: 'var(--brand-blue)',
         },
         text: {
-          primary: '#ffffff',
-          secondary: '#949494',
-          muted: '#e9e9e9',
-          inverted: '#131313',
+          primary: 'var(--text-primary)',
+          secondary: 'var(--text-secondary)',
+          muted: 'var(--text-muted)',
+          inverted: 'var(--text-inverted)',
         },
         semantic: {
-          success: '#3cffd0',
-          warning: '#f59e0b',
-          danger: '#ef4444',
-          info: '#3860be',
+          success: 'var(--semantic-success)',
+          warning: 'var(--semantic-warning)',
+          danger: 'var(--semantic-danger)',
+          info: 'var(--semantic-info)',
         },
         score: {
-          excellent: '#3cffd0',
-          good: '#86efac',
-          medium: '#f59e0b',
-          poor: '#ef4444',
+          excellent: 'var(--score-excellent)',
+          good: 'var(--score-good)',
+          medium: 'var(--score-medium)',
+          poor: 'var(--score-poor)',
         }
       },
       fontFamily: {
@@ -55,8 +55,8 @@ export default {
           '100%': { transform: 'translateX(100%)' }
         },
         'pulse-border': {
-          '0%, 100%': { borderColor: '#309875' },
-          '50%': { borderColor: '#3cffd0' },
+          '0%, 100%': { borderColor: 'var(--brand-console)' },
+          '50%': { borderColor: 'var(--brand-mint)' },
         }
       }
     },

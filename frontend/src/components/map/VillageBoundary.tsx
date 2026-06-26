@@ -17,9 +17,9 @@ export const VillageBoundary: React.FC<VillageBoundaryProps> = ({ village }) => 
     <Polygon
       positions={positions}
       pathOptions={{
-        color: '#3cffd0',
+        color: 'var(--brand-mint)',
         weight: 3,
-        fillColor: '#3cffd0',
+        fillColor: 'var(--brand-mint)',
         fillOpacity: 0.12,
       }}
     />

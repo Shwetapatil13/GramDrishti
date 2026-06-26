@@ -15,12 +15,12 @@ export const NDVILayer: React.FC<NDVILayerProps> = ({ village, data, isLoading }
   const positions = village.boundary.coordinates[0].map((coord) => [coord[1], coord[0]] as [number, number]);
 
   // Determine color based on NDVI value
-  let fillColor = '#ca8a04'; // fair
+  let fillColor = 'var(--semantic-warning)'; // fair
   if (data) {
-    if (data.ndvi > 0.6) fillColor = '#166534'; // excellent
-    else if (data.ndvi >= 0.4) fillColor = '#16a34a'; // good
-    else if (data.ndvi >= 0.2) fillColor = '#ca8a04'; // fair
-    else fillColor = '#dc2626'; // poor
+    if (data.ndvi > 0.6) fillColor = 'var(--score-excellent)'; // excellent
+    else if (data.ndvi >= 0.4) fillColor = 'var(--score-good)'; // good
+    else if (data.ndvi >= 0.2) fillColor = 'var(--semantic-warning)'; // fair
+    else fillColor = 'var(--semantic-danger)'; // poor
   }
 
   return (

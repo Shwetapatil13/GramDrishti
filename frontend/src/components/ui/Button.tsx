@@ -21,8 +21,8 @@ export const Button: React.FC<ButtonProps> = ({
   const baseClasses = 'transition-all duration-180 ease-in-out font-mono tracking-[0.12em] uppercase rounded-button flex items-center justify-center';
   
   const variantClasses = {
-    primary: 'bg-brand-mint text-text-inverted hover:bg-white/20 hover:text-black hover:outline hover:outline-1 hover:outline-[#c2c2c2] border-none',
-    secondary: 'bg-surface-border text-text-muted font-grotesk normal-case tracking-normal hover:bg-white/15 hover:text-black',
+    primary: 'bg-brand-mint text-text-inverted hover:bg-white/20 hover:text-canvas-black hover:outline hover:outline-1 hover:outline-surface-border border-none',
+    secondary: 'bg-surface-border text-text-muted font-grotesk normal-case tracking-normal hover:bg-surface-slate hover:text-text-primary',
     outlined: 'border border-surface-border bg-transparent text-text-primary hover:border-brand-mint',
   };
 

@@ -26,22 +26,22 @@ export const LandCoverChart: React.FC<LandCoverChartProps> = ({ data, isLoading 
   }
 
   const chartData = [
-    { value: data.cropland, name: 'Crops', itemStyle: { color: '#ca8a04' } },
-    { value: data.trees, name: 'Trees', itemStyle: { color: '#166534' } },
-    { value: data.water, name: 'Water', itemStyle: { color: '#3cffd0' } },
-    { value: data.builtArea, name: 'Built', itemStyle: { color: '#6b7280' } },
-    { value: data.grassland, name: 'Grass', itemStyle: { color: '#86efac' } },
-    { value: data.bareLand, name: 'Bare', itemStyle: { color: '#a16207' } },
-    { value: data.flooded, name: 'Flooded', itemStyle: { color: '#3860be' } },
+    { value: data.cropland, name: 'Crops', itemStyle: { color: 'var(--semantic-warning)' } },
+    { value: data.trees, name: 'Trees', itemStyle: { color: 'var(--brand-console)' } },
+    { value: data.water, name: 'Water', itemStyle: { color: 'var(--brand-mint)' } },
+    { value: data.builtArea, name: 'Built', itemStyle: { color: 'var(--text-muted)' } },
+    { value: data.grassland, name: 'Grass', itemStyle: { color: 'var(--score-good)' } },
+    { value: data.bareLand, name: 'Bare', itemStyle: { color: 'var(--semantic-warning)' } },
+    { value: data.flooded, name: 'Flooded', itemStyle: { color: 'var(--brand-blue)' } },
   ].filter(item => item.value > 0);
 
   const option = {
-    backgroundColor: '#131313',
+    backgroundColor: 'transparent',
     tooltip: {
       trigger: 'item',
-      backgroundColor: '#1a1a1a',
-      borderColor: '#2d2d2d',
-      textStyle: { color: '#ffffff', fontFamily: 'Space Mono' },
+      backgroundColor: 'var(--surface-slate)',
+      borderColor: 'var(--surface-border)',
+      textStyle: { color: 'var(--text-primary)', fontFamily: 'Space Mono' },
       formatter: '{b}: {c}%'
     },
     legend: {
@@ -49,7 +49,7 @@ export const LandCoverChart: React.FC<LandCoverChartProps> = ({ data, isLoading 
       orient: 'vertical',
       right: 10,
       top: 'middle',
-      textStyle: { color: '#949494', fontFamily: 'Space Mono', fontSize: 10 },
+      textStyle: { color: 'var(--text-secondary)', fontFamily: 'Space Mono', fontSize: 10 },
       icon: 'circle'
     },
     series: [
@@ -66,7 +66,7 @@ export const LandCoverChart: React.FC<LandCoverChartProps> = ({ data, isLoading 
             fontSize: 12,
             fontWeight: 'bold',
             fontFamily: 'Space Mono',
-            color: '#ffffff'
+            color: 'var(--text-primary)'
           }
         },
         labelLine: { show: false },
@@ -76,7 +76,7 @@ export const LandCoverChart: React.FC<LandCoverChartProps> = ({ data, isLoading 
   };
 
   return (
-    <div className="w-full h-[200px] bg-[#131313] border border-surface-border rounded-xl p-4 overflow-hidden">
+    <div className="w-full h-[200px] bg-canvas-black border border-surface-border rounded-xl p-4 overflow-hidden">
       <ReactECharts
         option={option}
         style={{ height: '100%', width: '100%' }}

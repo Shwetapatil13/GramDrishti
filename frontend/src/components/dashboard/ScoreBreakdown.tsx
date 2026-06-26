@@ -41,10 +41,10 @@ export const ScoreBreakdown: React.FC<ScoreBreakdownProps> = ({ score, isLoading
     <div className="w-full flex flex-col gap-5">
       {components.map((comp) => {
         const value = comp.detail.score;
-        let color = '#ef4444'; // poor
-        if (value >= 80) color = '#3cffd0'; // excellent
-        else if (value >= 60) color = '#86efac'; // good
-        else if (value >= 40) color = '#f59e0b'; // medium
+        let color = 'var(--semantic-danger)'; // poor
+        if (value >= 80) color = 'var(--score-excellent)'; // excellent
+        else if (value >= 60) color = 'var(--score-good)'; // good
+        else if (value >= 40) color = 'var(--score-medium)'; // medium
 
         return (
           <div key={comp.name} className="flex flex-col gap-1 w-full">

@@ -28,8 +28,8 @@ export const RiskDashboard: React.FC = () => {
   }
 
   const urgencyColors: Record<string, string> = {
-    critical: 'bg-[#991b1b] text-text-primary',
-    high: 'bg-semantic-danger text-text-primary',
+    critical: 'bg-semantic-danger text-white',
+    high: 'bg-semantic-danger opacity-80 text-white',
     medium: 'bg-semantic-warning text-canvas-black',
     low: 'bg-brand-mint text-canvas-black',
   };

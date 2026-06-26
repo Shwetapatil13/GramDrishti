@@ -30,12 +30,12 @@ export const HealthScoreTrendChart: React.FC<HealthScoreTrendChartProps> = ({ da
   const values = data.map(d => d.overall);
 
   const option = {
-    backgroundColor: '#131313',
+    backgroundColor: 'transparent',
     tooltip: {
       trigger: 'axis',
-      backgroundColor: '#1a1a1a',
-      borderColor: '#2d2d2d',
-      textStyle: { color: '#ffffff', fontFamily: 'Space Mono' },
+      backgroundColor: 'var(--surface-slate)',
+      borderColor: 'var(--surface-border)',
+      textStyle: { color: 'var(--text-primary)', fontFamily: 'Space Mono' },
     },
     grid: {
       top: 30, right: 30, bottom: 20, left: 40, containLabel: true
@@ -43,23 +43,23 @@ export const HealthScoreTrendChart: React.FC<HealthScoreTrendChartProps> = ({ da
     xAxis: {
       type: 'category',
       data: years,
-      axisLine: { lineStyle: { color: '#2d2d2d' } },
-      axisLabel: { color: '#949494', fontFamily: 'Space Mono' }
+      axisLine: { lineStyle: { color: 'var(--surface-border)' } },
+      axisLabel: { color: 'var(--text-secondary)', fontFamily: 'Space Mono' }
     },
     yAxis: {
       type: 'value',
       min: 0,
       max: 100,
-      splitLine: { lineStyle: { color: '#2d2d2d', type: 'dashed' } },
-      axisLabel: { color: '#949494', fontFamily: 'Space Mono' }
+      splitLine: { lineStyle: { color: 'var(--surface-border)', type: 'dashed' } },
+      axisLabel: { color: 'var(--text-secondary)', fontFamily: 'Space Mono' }
     },
     visualMap: {
       show: false,
       pieces: [
-        { gt: 0, lte: 39, color: '#ef4444' },
-        { gt: 39, lte: 59, color: '#f59e0b' },
-        { gt: 59, lte: 79, color: '#86efac' },
-        { gt: 79, lte: 100, color: '#3cffd0' }
+        { gt: 0, lte: 39, color: 'var(--semantic-danger)' },
+        { gt: 39, lte: 59, color: 'var(--semantic-warning)' },
+        { gt: 59, lte: 79, color: 'var(--score-good)' },
+        { gt: 79, lte: 100, color: 'var(--score-excellent)' }
       ]
     },
     series: [
@@ -72,8 +72,8 @@ export const HealthScoreTrendChart: React.FC<HealthScoreTrendChartProps> = ({ da
         symbolSize: 8,
         markLine: {
           silent: true,
-          lineStyle: { color: '#949494', type: 'dashed' },
-          label: { position: 'end', formatter: 'MH AVERAGE', color: '#949494', fontFamily: 'Space Mono', fontSize: 10 },
+          lineStyle: { color: 'var(--text-secondary)', type: 'dashed' },
+          label: { position: 'end', formatter: 'MH AVERAGE', color: 'var(--text-secondary)', fontFamily: 'Space Mono', fontSize: 10 },
           data: [{ yAxis: 65 }]
         }
       }
@@ -81,7 +81,7 @@ export const HealthScoreTrendChart: React.FC<HealthScoreTrendChartProps> = ({ da
   };
 
   return (
-    <div className="w-full h-[250px] bg-[#131313] border border-surface-border rounded-xl p-4 overflow-hidden">
+    <div className="w-full h-[250px] bg-canvas-black border border-surface-border rounded-xl p-4 overflow-hidden">
       <ReactECharts
         option={option}
         style={{ height: '100%', width: '100%' }}

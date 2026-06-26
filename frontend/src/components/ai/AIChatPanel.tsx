@@ -28,7 +28,7 @@ export const AIChatPanel: React.FC = () => {
   return (
     <div className="flex flex-col h-[500px] bg-surface-slate border border-surface-border rounded-[20px] overflow-hidden">
       {/* Header */}
-      <div className="p-4 border-b border-surface-border flex items-center gap-2 bg-[#1a1a1a]">
+      <div className="p-4 border-b border-surface-border flex items-center gap-2 bg-surface-elevated">
         <div className="w-2 h-2 rounded-full bg-brand-mint"></div>
         <h3 className="text-mono text-text-primary text-sm">GRAMDRISHTI AI</h3>
       </div>
@@ -73,7 +73,7 @@ export const AIChatPanel: React.FC = () => {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 border-t border-surface-border bg-[#1a1a1a]">
+      <div className="p-4 border-t border-surface-border bg-surface-elevated">
         {messages.length === 0 && <SuggestedQuestions onSelect={sendMessage} />}
         
         <form onSubmit={handleSubmit} className="mt-3 relative flex items-center">

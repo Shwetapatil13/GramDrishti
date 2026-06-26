@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
-import { Menu } from 'lucide-react';
+import { Menu, Sun, Moon } from 'lucide-react';
+import { useTheme } from '@/hooks/useTheme';
 
 interface HeaderProps {
   onMenuToggle?: () => void;
@@ -8,6 +9,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   const { selectedVillage, selectedYear, setSelectedYear } = useVillageSelection();
+  const { theme, toggleTheme } = useTheme();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const years = [2026, 2025, 2024, 2023, 2022];
 
@@ -32,6 +34,14 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
       </div>
 
       <div className="flex items-center gap-4 relative">
+        <button 
+          onClick={toggleTheme}
+          className="text-text-muted hover:text-brand-mint transition-colors p-1"
+          aria-label="Toggle theme"
+        >
+          {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+        </button>
+
         <div 
           className="text-mono text-text-muted cursor-pointer hover:text-brand-mint transition-colors flex items-center gap-1 bg-surface-slate px-3 py-1.5 rounded-tag border border-surface-border"
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}

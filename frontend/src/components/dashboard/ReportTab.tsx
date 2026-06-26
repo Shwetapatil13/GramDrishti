@@ -57,7 +57,7 @@ export const ReportTab: React.FC = () => {
     <div className="flex flex-col gap-6 w-full max-w-full pb-8">
       <div className="flex flex-col gap-3">
         <h3 className="text-mono text-text-primary flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#f59e0b]"></span>
+          <span className="w-2 h-2 rounded-full bg-semantic-warning"></span>
           VILLAGE REPORT
         </h3>
         
