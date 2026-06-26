@@ -60,7 +60,7 @@ interface MetricsPanelProps {
   error?: Error | null;
 }
 
-export const MetricsPanel: React.FC<MetricsPanelProps> = ({ data, isLoading, error }) => {
+export const MetricsPanel: React.FC<MetricsPanelProps> = React.memo(({ data, isLoading, error }) => {
   const hasError = !!error;
 
   return (
@@ -92,4 +92,6 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({ data, isLoading, err
       </div>
     </div>
   );
-};
+});
+
+MetricsPanel.displayName = 'MetricsPanel';

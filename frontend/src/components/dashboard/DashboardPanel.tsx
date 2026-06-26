@@ -1,16 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { useSatelliteData } from '@/hooks/useSatelliteData';
 import { EmptyState } from './EmptyState';
 import { GEEProgress } from '../ui/GEEProgress';
-import { EnvironmentTab } from './EnvironmentTab';
-import { OverviewTab } from './OverviewTab';
-import { HistoryTab } from './HistoryTab';
-import { AITab } from './AITab';
-import { ReportTab } from './ReportTab';
 import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronUp, ChevronDown } from 'lucide-react';
+import { Skeleton } from '../ui/Skeleton';
+
+// Lazy loading tabs for code splitting
+const OverviewTab = React.lazy(() => import('./OverviewTab').then(m => ({ default: m.OverviewTab })));
+const EnvironmentTab = React.lazy(() => import('./EnvironmentTab').then(m => ({ default: m.EnvironmentTab })));
+const HistoryTab = React.lazy(() => import('./HistoryTab').then(m => ({ default: m.HistoryTab })));
+const AITab = React.lazy(() => import('./AITab').then(m => ({ default: m.AITab })));
+const ReportTab = React.lazy(() => import('./ReportTab').then(m => ({ default: m.ReportTab })));
 
 const TABS = ['OVERVIEW', 'ENVIRONMENT', 'HISTORY', 'AI ANALYST', 'REPORT'] as const;
 type TabType = typeof TABS[number];
@@ -87,25 +90,27 @@ export const DashboardPanel: React.FC = () => {
               transition={{ duration: 0.2 }}
               className="w-full h-full"
             >
-              {activeTab === 'OVERVIEW' ? (
-                <OverviewTab />
-              ) : activeTab === 'ENVIRONMENT' ? (
-                <EnvironmentTab />
-              ) : activeTab === 'HISTORY' ? (
-                <HistoryTab />
-              ) : activeTab === 'AI ANALYST' ? (
-                <AITab />
-              ) : activeTab === 'REPORT' ? (
-                <ReportTab />
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center">
-                  <p className="text-body text-text-secondary">
-                    Content for <span className="text-brand-mint font-mono uppercase">{activeTab}</span>
-                    <br />
-                    Coming in a later level...
-                  </p>
-                </div>
-              )}
+              <Suspense fallback={<div className="h-full flex items-center justify-center"><Skeleton width="100%" height="200px" borderRadius="12px" /></div>}>
+                {activeTab === 'OVERVIEW' ? (
+                  <OverviewTab />
+                ) : activeTab === 'ENVIRONMENT' ? (
+                  <EnvironmentTab />
+                ) : activeTab === 'HISTORY' ? (
+                  <HistoryTab />
+                ) : activeTab === 'AI ANALYST' ? (
+                  <AITab />
+                ) : activeTab === 'REPORT' ? (
+                  <ReportTab />
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-center">
+                    <p className="text-body text-text-secondary">
+                      Content for <span className="text-brand-mint font-mono uppercase">{activeTab}</span>
+                      <br />
+                      Coming in a later level...
+                    </p>
+                  </div>
+                )}
+              </Suspense>
             </motion.div>
           </AnimatePresence>
         </ErrorBoundary>

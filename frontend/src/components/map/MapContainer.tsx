@@ -27,7 +27,7 @@ const MapInstanceBinder: React.FC = () => {
   return null;
 };
 
-export const MapContainer: React.FC = () => {
+export const MapContainer: React.FC = React.memo(() => {
   const { selectedVillage, selectedYear } = useVillageSelection();
   const layers = useMapLayers();
   const { data, geeStatus } = useSatelliteData(selectedVillage?.id, selectedYear);
@@ -87,4 +87,6 @@ export const MapContainer: React.FC = () => {
       </LeafletMap>
     </div>
   );
-};
+});
+
+MapContainer.displayName = 'MapContainer';
