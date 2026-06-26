@@ -1,0 +1,44 @@
+import React from 'react';
+import { ScoreCard } from './ScoreCard';
+import { useVillageSelection } from '@/hooks/useVillageSelection';
+import { useSatelliteData } from '@/hooks/useSatelliteData';
+
+export const OverviewTab: React.FC = () => {
+  const { selectedVillage } = useVillageSelection();
+  const { data: weather } = useSatelliteData(selectedVillage?.id, 2024);
+
+  return (
+    <div className="flex flex-col gap-6 w-full max-w-full">
+      <ScoreCard />
+      
+      {/* Weather Quick Summary inside Overview */}
+      <div className="flex flex-col gap-3 mt-2">
+        <h3 className="text-mono text-text-primary flex items-center gap-2 text-xs">
+          <span className="w-1.5 h-1.5 rounded-full bg-brand-blue"></span>
+          QUICK CONDITIONS
+        </h3>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-surface-slate border border-surface-border rounded-xl p-3 flex justify-between items-center">
+            <span className="text-mono text-text-secondary text-[10px]">TEMP</span>
+            <span className="text-body text-text-primary text-sm">{weather?.temperature?.toFixed(1) || '--'}°C</span>
+          </div>
+          <div className="bg-surface-slate border border-surface-border rounded-xl p-3 flex justify-between items-center">
+            <span className="text-mono text-text-secondary text-[10px]">RAIN</span>
+            <span className="text-body text-text-primary text-sm">{weather?.rainfall?.toFixed(1) || '--'}mm</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Recommendations Preview for Level 10 */}
+      <div className="flex flex-col gap-3">
+        <h3 className="text-mono text-text-primary flex items-center gap-2 text-xs">
+          <span className="w-1.5 h-1.5 rounded-full bg-brand-violet"></span>
+          TOP RECOMMENDATIONS
+        </h3>
+        <div className="bg-surface-slate border border-surface-border rounded-xl p-4 h-[100px] flex items-center justify-center">
+          <span className="text-body text-text-muted text-sm">Recommendations loading (Level 10)</span>
+        </div>
+      </div>
+    </div>
+  );
+};

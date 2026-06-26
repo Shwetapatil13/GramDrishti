@@ -4,6 +4,7 @@ import { useSatelliteData } from '@/hooks/useSatelliteData';
 import { EmptyState } from './EmptyState';
 import { GEEProgress } from '../ui/GEEProgress';
 import { EnvironmentTab } from './EnvironmentTab';
+import { OverviewTab } from './OverviewTab';
 
 const TABS = ['OVERVIEW', 'ENVIRONMENT', 'HISTORY', 'AI ANALYST', 'REPORT'] as const;
 type TabType = typeof TABS[number];
@@ -51,7 +52,9 @@ export const DashboardPanel: React.FC = () => {
           </div>
         ) : null}
         
-        {activeTab === 'ENVIRONMENT' ? (
+        {activeTab === 'OVERVIEW' ? (
+          <OverviewTab />
+        ) : activeTab === 'ENVIRONMENT' ? (
           <EnvironmentTab />
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-center">

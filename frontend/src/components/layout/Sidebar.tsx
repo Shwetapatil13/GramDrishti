@@ -3,6 +3,7 @@ import { VILLAGES } from '@/constants/villages';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { Search } from 'lucide-react';
 import { WeatherWidget } from '../dashboard/WeatherWidget';
+import { VillageScoreBadge } from './VillageScoreBadge';
 
 export const Sidebar: React.FC = () => {
   const { selectedVillage, setSelectedVillage, flyToVillage } = useVillageSelection();
@@ -54,10 +55,7 @@ export const Sidebar: React.FC = () => {
                   <h3 className="text-heading-md text-text-primary">{village.name}</h3>
                   <p className="text-mono text-text-secondary mt-1">{village.district}</p>
                 </div>
-                {/* Placeholder for health score badge */}
-                <div className="bg-surface-border text-text-muted text-mono rounded-tag px-2 py-1">
-                  --/100
-                </div>
+                <VillageScoreBadge villageId={village.id} />
               </div>
             </div>
           );
