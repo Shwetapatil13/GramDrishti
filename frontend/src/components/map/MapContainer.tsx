@@ -28,9 +28,9 @@ const MapInstanceBinder: React.FC = () => {
 };
 
 export const MapContainer: React.FC = () => {
-  const { selectedVillage } = useVillageSelection();
+  const { selectedVillage, selectedYear } = useVillageSelection();
   const layers = useMapLayers();
-  const { data, geeStatus } = useSatelliteData(selectedVillage?.id, 2024);
+  const { data, geeStatus } = useSatelliteData(selectedVillage?.id, selectedYear);
 
   const getTileUrl = () => {
     switch (layers.activeBaseLayer) {

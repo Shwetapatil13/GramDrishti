@@ -10,7 +10,7 @@ interface AssessmentData {
 }
 
 export const ClimateAssessment: React.FC = () => {
-  const { selectedVillage } = useVillageSelection();
+  const { selectedVillage, selectedYear } = useVillageSelection();
   const [assessment, setAssessment] = useState<AssessmentData | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -21,7 +21,7 @@ export const ClimateAssessment: React.FC = () => {
     const fetchAssessment = async () => {
       setLoading(true);
       try {
-        const data = await apiService.get<AssessmentData>(`/api/v1/weather/${selectedVillage.id}/assessment`, { year: 2024 });
+        const data = await apiService.get<AssessmentData>(`/api/v1/weather/${selectedVillage.id}/assessment`, { year: selectedYear });
         if (mounted) setAssessment(data);
       } catch {
         // Silently handle error as component shows unavailable state
@@ -35,7 +35,7 @@ export const ClimateAssessment: React.FC = () => {
     return () => {
       mounted = false;
     };
-  }, [selectedVillage]);
+  }, [selectedVillage, selectedYear]);
 
   if (loading) {
     return (

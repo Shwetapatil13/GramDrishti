@@ -5,14 +5,15 @@ import { EmptyState } from './EmptyState';
 import { GEEProgress } from '../ui/GEEProgress';
 import { EnvironmentTab } from './EnvironmentTab';
 import { OverviewTab } from './OverviewTab';
+import { HistoryTab } from './HistoryTab';
 
 const TABS = ['OVERVIEW', 'ENVIRONMENT', 'HISTORY', 'AI ANALYST', 'REPORT'] as const;
 type TabType = typeof TABS[number];
 
 export const DashboardPanel: React.FC = () => {
-  const { selectedVillage } = useVillageSelection();
+  const { selectedVillage, selectedYear } = useVillageSelection();
   const [activeTab, setActiveTab] = useState<TabType>('OVERVIEW');
-  const { geeStatus } = useSatelliteData(selectedVillage?.id, 2024);
+  const { geeStatus } = useSatelliteData(selectedVillage?.id, selectedYear);
 
   if (!selectedVillage) {
     return (
@@ -56,6 +57,8 @@ export const DashboardPanel: React.FC = () => {
           <OverviewTab />
         ) : activeTab === 'ENVIRONMENT' ? (
           <EnvironmentTab />
+        ) : activeTab === 'HISTORY' ? (
+          <HistoryTab />
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <p className="text-body text-text-secondary">

@@ -4,8 +4,8 @@ import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { useSatelliteData } from '@/hooks/useSatelliteData';
 
 export const OverviewTab: React.FC = () => {
-  const { selectedVillage } = useVillageSelection();
-  const { data: weather } = useSatelliteData(selectedVillage?.id, 2024);
+  const { selectedVillage, selectedYear } = useVillageSelection();
+  const { data: weather } = useSatelliteData(selectedVillage?.id, selectedYear);
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-full">

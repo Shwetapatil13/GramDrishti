@@ -73,6 +73,36 @@ export interface HistoricalData {
   scores: VillageHealthScore[];
 }
 
+export interface ChangeMetric {
+  year: number;
+  value?: number;
+  value_ha?: number;
+  value_percent?: number;
+  overall?: number;
+  delta?: number;
+  delta_from_previous?: number;
+  delta_ha?: number;
+  delta_percent?: number;
+}
+
+export interface TopChange {
+  type: string;
+  magnitude: number;
+  direction: 'improving' | 'stable' | 'declining';
+  description: string;
+}
+
+export interface ChangeStatistics {
+  ndvi_changes: ChangeMetric[];
+  water_area_changes: ChangeMetric[];
+  green_cover_changes: ChangeMetric[];
+  score_changes: ChangeMetric[];
+  best_year: number;
+  worst_year: number;
+  overall_trend: 'improving' | 'stable' | 'declining';
+  top_changes: TopChange[];
+}
+
 export interface GEEStatus {
   loading: boolean;
   cached: boolean;

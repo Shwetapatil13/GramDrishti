@@ -1,12 +1,14 @@
 import React from 'react';
 import { useScores } from '@/hooks/useScores';
+import { useVillageSelection } from '@/hooks/useVillageSelection';
 
 interface VillageScoreBadgeProps {
   villageId: string;
 }
 
 export const VillageScoreBadge: React.FC<VillageScoreBadgeProps> = ({ villageId }) => {
-  const { data: score, isLoading } = useScores(villageId, 2024);
+  const { selectedYear } = useVillageSelection();
+  const { data: score, isLoading } = useScores(villageId, selectedYear);
 
   if (isLoading || !score) {
     return (

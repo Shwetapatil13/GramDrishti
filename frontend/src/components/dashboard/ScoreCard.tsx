@@ -6,9 +6,8 @@ import { ScoreBreakdown } from './ScoreBreakdown';
 import { TrendBadge } from './TrendBadge';
 
 export const ScoreCard: React.FC = () => {
-  const { selectedVillage } = useVillageSelection();
-  // Using 2024 for now
-  const { data: score, isLoading, error } = useScores(selectedVillage?.id, 2024);
+  const { selectedVillage, selectedYear } = useVillageSelection();
+  const { data: score, isLoading, error } = useScores(selectedVillage?.id, selectedYear);
 
   // Compute overall trend string for the badge
   const overallTrend = useMemo(() => {
