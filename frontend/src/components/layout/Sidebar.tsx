@@ -4,8 +4,14 @@ import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { Search } from 'lucide-react';
 import { WeatherWidget } from '../dashboard/WeatherWidget';
 import { VillageScoreBadge } from './VillageScoreBadge';
+import { X } from 'lucide-react';
 
-export const Sidebar: React.FC = () => {
+interface SidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { selectedVillage, setSelectedVillage, flyToVillage } = useVillageSelection();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -18,12 +24,33 @@ export const Sidebar: React.FC = () => {
   const handleSelect = (village: typeof VILLAGES[0]) => {
     setSelectedVillage(village);
     flyToVillage(village);
+    if (onClose) onClose();
   };
 
+  const sidebarClasses = `
+    w-[280px] bg-canvas-black border-r border-surface-border flex flex-col h-full shrink-0
+    absolute md:relative z-[600] md:z-auto transition-transform duration-300 ease-in-out
+    ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+  `;
+
   return (
-    <aside className="w-[280px] bg-canvas-black border-r border-surface-border flex flex-col h-full shrink-0 hidden md:flex">
-      <div className="p-4 border-b border-surface-border">
-        <div className="relative">
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-[550] md:hidden"
+          onClick={onClose}
+        />
+      )}
+      <aside className={sidebarClasses}>
+        <div className="p-4 border-b border-surface-border flex flex-col gap-3">
+          {onClose && (
+            <div className="flex justify-between items-center md:hidden mb-1">
+              <span className="text-mono text-text-primary">VILLAGES</span>
+              <button onClick={onClose} className="text-text-muted"><X className="w-5 h-5"/></button>
+            </div>
+          )}
+          <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
           <input
             type="text"
@@ -61,6 +88,7 @@ export const Sidebar: React.FC = () => {
           );
         })}
       </div>
-    </aside>
+      </aside>
+    </>
   );
 };

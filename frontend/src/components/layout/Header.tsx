@@ -1,19 +1,31 @@
 import React, { useState } from 'react';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
+import { Menu } from 'lucide-react';
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  onMenuToggle?: () => void;
+}
+
+export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   const { selectedVillage, selectedYear, setSelectedYear } = useVillageSelection();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const years = [2026, 2025, 2024, 2023, 2022];
 
   return (
-    <header className="h-[56px] bg-canvas-black border-b border-surface-border flex items-center justify-between px-6 shrink-0 relative z-[500]">
-      <div className="flex items-baseline gap-3">
-        <h1 className="text-heading-lg text-text-primary tracking-tight">GRAMDRISHTI</h1>
-        <span className="text-brand-mint text-sm font-medium">ग्रामदृष्टि</span>
+    <header className="h-[56px] bg-canvas-black border-b border-surface-border flex items-center justify-between px-4 md:px-6 shrink-0 relative z-[500]">
+      <div className="flex items-center gap-3">
+        {onMenuToggle && (
+          <button className="md:hidden text-text-primary p-1 -ml-1" onClick={onMenuToggle}>
+            <Menu className="w-5 h-5" />
+          </button>
+        )}
+        <div className="flex items-baseline gap-2 md:gap-3">
+          <h1 className="text-heading-lg text-text-primary tracking-tight text-lg md:text-2xl">GRAMDRISHTI</h1>
+          <span className="text-brand-mint text-xs md:text-sm font-medium">ग्रामदृष्टि</span>
+        </div>
       </div>
       
-      <div className="flex-1 flex justify-center">
+      <div className="hidden md:flex flex-1 justify-center">
         <span className="text-body text-text-secondary">
           {selectedVillage ? `${selectedVillage.name}, ${selectedVillage.district}` : 'Select a village'}
         </span>
