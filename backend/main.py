@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.logging import get_logger
-from app.api.routes import health, villages, satellite, analysis, weather, scores, history, ai
+from app.api.routes import health, villages, satellite, analysis, weather, scores, history, ai, recommendations
 
 logger = get_logger(__name__)
 
@@ -31,3 +31,4 @@ app.include_router(weather.router, prefix="/api/v1")
 app.include_router(scores.router, prefix="/api/v1")
 app.include_router(history.router, prefix="/api/v1")
 app.include_router(ai.router, prefix="/api/v1")
+app.include_router(recommendations.router, prefix="/api/v1")

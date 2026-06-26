@@ -1,11 +1,13 @@
 import React from 'react';
 import { VillageSummary } from '../ai/VillageSummary';
 import { AIChatPanel } from '../ai/AIChatPanel';
+import { RecommendationsPanel } from './RecommendationsPanel';
 
 export const AITab: React.FC = () => {
   return (
-    <div className="flex flex-col gap-6 w-full max-w-full">
+    <div className="flex flex-col gap-6 w-full max-w-full pb-8">
       <VillageSummary />
+      <RecommendationsPanel />
       <AIChatPanel />
     </div>
   );
