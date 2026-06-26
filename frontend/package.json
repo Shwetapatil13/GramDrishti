@@ -21,6 +21,7 @@
     "react": "18.3.x",
     "react-dom": "18.3.x",
     "react-leaflet": "4.2.x",
+    "react-router-dom": "^7.18.0",
     "zustand": "^5.0.14"
   },
   "devDependencies": {
