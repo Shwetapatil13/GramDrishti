@@ -18,4 +18,5 @@ api.interceptors.response.use(
 export const apiService = {
   get: <T>(url: string, params?: Record<string, unknown>) => api.get<unknown, T>(url, { params }),
   post: <T>(url: string, data?: unknown) => api.post<unknown, T>(url, data),
+  search: <T>(url: string, params?: Record<string, unknown>) => api.get<unknown, T>(url, { params }),
 };

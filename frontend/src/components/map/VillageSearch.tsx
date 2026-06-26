@@ -1,20 +1,37 @@
-import React, { useState } from 'react';
-import { Search } from 'lucide-react';
-import { VILLAGES } from '@/constants/villages';
+import React, { useState, useEffect } from 'react';
+import { Search, Loader2 } from 'lucide-react';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
+import { apiService } from '@/services/api';
+import { Village } from '@/types';
 
 export const VillageSearch: React.FC = () => {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const { setSelectedVillage, flyToVillage } = useVillageSelection();
+  const [results, setResults] = useState<Village[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
-  const results = VILLAGES.filter(
-    (v) =>
-      v.name.toLowerCase().includes(query.toLowerCase()) ||
-      v.nameHindi.includes(query)
-  );
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (query.length < 3) {
+        setResults([]);
+        return;
+      }
+      setIsSearching(true);
+      try {
+        const res = await apiService.search<Village[]>('/api/v1/villages/search', { q: query });
+        setResults(res);
+      } catch {
+        // Handle silently
+      } finally {
+        setIsSearching(false);
+      }
+    }, 500);
 
-  const handleSelect = (village: typeof VILLAGES[0]) => {
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  const handleSelect = (village: Village) => {
     setSelectedVillage(village);
     flyToVillage(village);
     setQuery('');
@@ -39,18 +56,22 @@ export const VillageSearch: React.FC = () => {
           />
         </div>
         
-        {isOpen && results.length > 0 && (
+        {isOpen && (results.length > 0 || isSearching) && (
           <div className="absolute top-full mt-2 w-full bg-surface-slate border border-surface-border rounded-xl overflow-hidden shadow-lg">
-            {results.map((village) => (
-              <div
-                key={village.id}
-                className="p-3 hover:bg-brand-mint/10 hover:text-brand-mint cursor-pointer border-b border-surface-border last:border-b-0 transition-colors"
-                onClick={() => handleSelect(village)}
-              >
-                <div className="text-body font-medium">{village.name}</div>
-                <div className="text-mono text-xs text-text-secondary">{village.district}</div>
-              </div>
-            ))}
+            {isSearching ? (
+               <div className="p-3 text-center text-text-muted"><Loader2 className="w-4 h-4 animate-spin mx-auto"/></div>
+            ) : (
+              results.map((village) => (
+                <div
+                  key={village.id}
+                  className="p-3 hover:bg-brand-mint/10 hover:text-brand-mint cursor-pointer border-b border-surface-border last:border-b-0 transition-colors"
+                  onClick={() => handleSelect(village)}
+                >
+                  <div className="text-body font-medium">{village.name}</div>
+                  <div className="text-mono text-[10px] text-text-secondary">{village.district}, {village.state}</div>
+                </div>
+              ))
+            )}
           </div>
         )}
       </div>

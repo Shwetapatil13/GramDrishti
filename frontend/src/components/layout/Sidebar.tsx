@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { VILLAGES } from '@/constants/villages';
+import React, { useState, useEffect } from 'react';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
-import { Search } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 import { WeatherWidget } from '../dashboard/WeatherWidget';
 import { VillageScoreBadge } from './VillageScoreBadge';
 import { X } from 'lucide-react';
+import { apiService } from '@/services/api';
+import { Village } from '@/types';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -14,14 +15,30 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { selectedVillage, setSelectedVillage, flyToVillage } = useVillageSelection();
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Village[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
-  const filteredVillages = VILLAGES.filter(
-    (v) =>
-      v.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      v.nameHindi.includes(searchQuery)
-  );
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (searchQuery.length < 3) {
+        setSearchResults([]);
+        return;
+      }
+      setIsSearching(true);
+      try {
+        const results = await apiService.search<Village[]>('/api/v1/villages/search', { q: searchQuery });
+        setSearchResults(results);
+      } catch {
+        // Handle silently
+      } finally {
+        setIsSearching(false);
+      }
+    }, 500);
 
-  const handleSelect = (village: typeof VILLAGES[0]) => {
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const handleSelect = (village: Village) => {
     setSelectedVillage(village);
     flyToVillage(village);
     if (onClose) onClose();
@@ -64,8 +81,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
       <WeatherWidget />
 
-      <div className="flex-1 overflow-y-auto">
-        {filteredVillages.map((village) => {
+      <div className="flex-1 overflow-y-auto relative">
+        {isSearching && (
+          <div className="absolute inset-0 bg-canvas-black/50 flex items-center justify-center z-10">
+            <Loader2 className="w-6 h-6 text-brand-mint animate-spin" />
+          </div>
+        )}
+        {searchResults.map((village) => {
           const isSelected = selectedVillage?.id === village.id;
           return (
             <div
@@ -80,13 +102,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="text-heading-md text-text-primary">{village.name}</h3>
-                  <p className="text-mono text-text-secondary mt-1">{village.district}</p>
+                  <p className="text-mono text-text-secondary mt-1 text-[10px]">{village.district}, {village.state}</p>
                 </div>
                 <VillageScoreBadge villageId={village.id} />
               </div>
             </div>
           );
         })}
+        {!isSearching && searchResults.length === 0 && searchQuery.length >= 3 && (
+           <div className="p-4 text-center text-text-muted text-sm">No villages found.</div>
+        )}
+        {!isSearching && searchResults.length === 0 && searchQuery.length < 3 && (
+           <div className="p-4 text-center text-text-muted text-sm">Type at least 3 characters to search OpenStreetMap.</div>
+        )}
       </div>
       </aside>
     </>
