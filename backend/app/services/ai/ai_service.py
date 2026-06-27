@@ -1,6 +1,6 @@
 from app.core.config import settings
 from app.core.logging import get_logger
-from app.services.ai.ollama_client import OllamaClient
+from app.services.ai.gemini_client import GeminiClient
 from app.models.village import EnvironmentalMetrics, VillageHealthScore, Village
 from app.services.ai.prompt_builder import build_village_context
 
@@ -8,8 +8,8 @@ logger = get_logger(__name__)
 
 class AIService:
     def __init__(self):
-        logger.info("Initializing AI Service with local Ollama (qwen2.5)")
-        self.client = OllamaClient()
+        logger.info("Initializing AI Service with Gemini (gemini-1.5-flash)")
+        self.client = GeminiClient()
 
     def _build_context(self, village: Village, metrics: EnvironmentalMetrics, score: VillageHealthScore, historical_summary: str | None = None, language: str = "en") -> str:
         return build_village_context(village, metrics, score, historical_summary, language)

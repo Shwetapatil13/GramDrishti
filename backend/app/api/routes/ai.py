@@ -23,17 +23,13 @@ async def debug_score(village_id: str, year: int = 2024):
         return {"error": str(e), "type": str(type(e))}
 
 @router.get("/ai/test-gemini")
-async def test_gemini():
+async def test_gemini(request: Request):
     try:
-        from app.services.ai.gemini_client import GeminiClient
-        from app.services.ai.ai_service import ai_service
-        
-        if isinstance(ai_service.client, GeminiClient):
-            return {"status": "ok", "message": "Gemini client is initialized properly."}
-        else:
-            return {"status": "warning", "message": f"Using client: {type(ai_service.client).__name__}"}
+        from app.api.routes.reports import download_pdf
+        return await download_pdf(request, "kolhapur", 2024, True)
     except Exception as e:
-        return {"status": "error", "message": str(e), "type": str(type(e))}
+        import traceback
+        return {"status": "error", "message": str(e), "trace": traceback.format_exc()}
 
 class ChatRequest(BaseModel):
     question: str
