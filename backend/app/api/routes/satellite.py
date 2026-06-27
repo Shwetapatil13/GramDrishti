@@ -9,19 +9,21 @@ from app.services.village_service import get_village_boundary, SEARCH_INDEX
 from app.services.scoring.aggregator import aggregate_environmental_metrics
 from app.core.exceptions import GEETimeoutError, GEEDataError
 from app.models.satellite import (
-    EnvironmentalMetricsResponse, 
-    Sentinel2Metrics, 
-    LandCoverMetrics, 
-    TerrainMetrics, 
+    EnvironmentalMetricsResponse,
+    Sentinel2Metrics,
+    LandCoverMetrics,
+    TerrainMetrics,
     WaterMetrics
 )
 from app.models.village import EnvironmentalMetrics
 
 router = APIRouter()
 
+
 class BoundaryTileRequest(BaseModel):
     boundary: Dict[str, Any]  # GeoJSON geometry
     year: Optional[int] = 2024
+
 
 @router.get("/satellite/regions/metrics")
 async def get_all_regions_metrics(
@@ -29,7 +31,7 @@ async def get_all_regions_metrics(
 ):
     """Fetch metrics for all villages in the local search index simultaneously."""
     import asyncio
-    
+
     async def fetch_village(v_info):
         vid = v_info["id"]
         boundary = get_village_boundary(vid)
@@ -40,10 +42,13 @@ async def get_all_regions_metrics(
             metrics = aggregate_environmental_metrics(vid, year, raw)
             # Determine category for frontend
             cat = "poor"
-            if metrics.ndvi > 0.6: cat = "excellent"
-            elif metrics.ndvi >= 0.4: cat = "good"
-            elif metrics.ndvi >= 0.2: cat = "fair"
-            
+            if metrics.ndvi > 0.6:
+                cat = "excellent"
+            elif metrics.ndvi >= 0.4:
+                cat = "good"
+            elif metrics.ndvi >= 0.2:
+                cat = "fair"
+
             # Fetch village area
             from app.services.village_service import get_village_by_id
             village = get_village_by_id(vid)
@@ -63,16 +68,16 @@ async def get_all_regions_metrics(
 
     tasks = [fetch_village(v) for v in SEARCH_INDEX]
     results = await asyncio.gather(*tasks, return_exceptions=True)
-    
+
     # Filter out failures and None
     valid_results = [r for r in results if r and not isinstance(r, Exception)]
-    
+
     # Return as a dict mapped by ID
     return {r["id"]: r for r in valid_results}
 
 
-
-@router.get("/satellite/{village_id}/metrics", response_model=EnvironmentalMetrics)
+@router.get("/satellite/{village_id}/metrics",
+            response_model=EnvironmentalMetrics)
 async def get_village_metrics(
     village_id: str,
     year: int = Query(2024, ge=2022, le=2026, description="Target year")
@@ -80,7 +85,7 @@ async def get_village_metrics(
     boundary = get_village_boundary(village_id)
     if not boundary:
         raise HTTPException(status_code=404, detail="Village not found")
-        
+
     try:
         raw_metrics = await get_all_gee_metrics(village_id, boundary, year)
         return aggregate_environmental_metrics(village_id, year, raw_metrics)
@@ -91,6 +96,7 @@ async def get_village_metrics(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.get("/satellite/{village_id}/ndvi", response_model=Sentinel2Metrics)
 async def get_village_ndvi(
     village_id: str,
@@ -99,14 +105,14 @@ async def get_village_ndvi(
     boundary = get_village_boundary(village_id)
     if not boundary:
         raise HTTPException(status_code=404, detail="Village not found")
-        
+
     try:
         metrics = await get_all_gee_metrics(village_id, boundary, year)
         # Using mock mapped response or Sentinel response
         sentinel = metrics.get("sentinel")
         if sentinel:
             return sentinel
-            
+
         # Fallback for mock mapping
         return {
             "ndvi_mean": metrics.get("ndvi", 0.0),
@@ -122,6 +128,7 @@ async def get_village_ndvi(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.get("/satellite/{village_id}/water", response_model=WaterMetrics)
 async def get_village_water(
     village_id: str,
@@ -130,13 +137,13 @@ async def get_village_water(
     boundary = get_village_boundary(village_id)
     if not boundary:
         raise HTTPException(status_code=404, detail="Village not found")
-        
+
     try:
         metrics = await get_all_gee_metrics(village_id, boundary, year)
         water = metrics.get("water")
         if water:
             return water
-            
+
         return {
             "water_area_ha": metrics.get("water_area_ha", 0.0),
             "water_coverage_percent": 0.0,
@@ -150,7 +157,9 @@ async def get_village_water(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/satellite/{village_id}/landcover", response_model=LandCoverMetrics)
+
+@router.get("/satellite/{village_id}/landcover",
+            response_model=LandCoverMetrics)
 async def get_village_landcover(
     village_id: str,
     year: int = Query(2024, ge=2022, le=2026, description="Target year")
@@ -158,7 +167,7 @@ async def get_village_landcover(
     boundary = get_village_boundary(village_id)
     if not boundary:
         raise HTTPException(status_code=404, detail="Village not found")
-        
+
     try:
         metrics = await get_all_gee_metrics(village_id, boundary, year)
         lc = metrics.get("land_cover")
@@ -175,7 +184,7 @@ async def get_village_landcover(
                 "bare": lc.get("bareLand", lc.get("bare", 0.0)),
                 "snow_and_ice": lc.get("snow_and_ice", 0.0)
             }
-            
+
         raise GEEDataError("Land cover metrics not found")
     except GEETimeoutError as e:
         raise HTTPException(status_code=504, detail=str(e))
@@ -183,6 +192,7 @@ async def get_village_landcover(
         raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.get("/satellite/{village_id}/landcover/tiles")
 async def get_village_landcover_tiles(
@@ -192,7 +202,7 @@ async def get_village_landcover_tiles(
     boundary = get_village_boundary(village_id)
     if not boundary:
         raise HTTPException(status_code=404, detail="Village not found")
-        
+
     try:
         # In a production app, we would cache this urlFormat for an hour since Earth Engine tokens expire,
         # but for demonstration we'll fetch it on demand.
@@ -206,6 +216,7 @@ async def get_village_landcover_tiles(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.get("/satellite/{village_id}/ndvi/tiles")
 async def get_village_ndvi_tiles(
     village_id: str,
@@ -213,8 +224,10 @@ async def get_village_ndvi_tiles(
 ):
     boundary = get_village_boundary(village_id)
     if not boundary:
-        raise HTTPException(status_code=404, detail="Village not found in local DB — use POST /ndvi/tiles with boundary")
-        
+        raise HTTPException(
+            status_code=404,
+            detail="Village not found in local DB — use POST /ndvi/tiles with boundary")
+
     try:
         import asyncio
         tile_data = await asyncio.to_thread(get_ndvi_tiles, boundary, year)
@@ -225,6 +238,7 @@ async def get_village_ndvi_tiles(
         raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.post("/satellite/ndvi/tiles")
 async def post_ndvi_tiles(req: BoundaryTileRequest):
@@ -241,6 +255,7 @@ async def post_ndvi_tiles(req: BoundaryTileRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.get("/satellite/{village_id}/water/tiles")
 async def get_village_water_tiles(
     village_id: str,
@@ -248,8 +263,10 @@ async def get_village_water_tiles(
 ):
     boundary = get_village_boundary(village_id)
     if not boundary:
-        raise HTTPException(status_code=404, detail="Village not found in local DB — use POST /water/tiles with boundary")
-        
+        raise HTTPException(
+            status_code=404,
+            detail="Village not found in local DB — use POST /water/tiles with boundary")
+
     try:
         import asyncio
         tile_data = await asyncio.to_thread(get_water_tiles, boundary, year)
@@ -260,6 +277,7 @@ async def get_village_water_tiles(
         raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.post("/satellite/water/tiles")
 async def post_water_tiles(req: BoundaryTileRequest):
@@ -282,7 +300,7 @@ async def get_village_terrain(village_id: str):
     boundary = get_village_boundary(village_id)
     if not boundary:
         raise HTTPException(status_code=404, detail="Village not found")
-        
+
     try:
         # Mock terrain for now
         return {

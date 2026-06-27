@@ -36,7 +36,7 @@ export const WaterLayer: React.FC<WaterLayerProps> = ({ village, data }) => {
         }
       } catch (err) {
         // Tiles unavailable — polygon fill will act as fallback
-        console.warn('Water tiles unavailable, using polygon fill fallback.');
+
       }
     };
 

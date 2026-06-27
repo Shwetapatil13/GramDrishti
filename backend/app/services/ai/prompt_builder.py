@@ -24,6 +24,7 @@ Rules:
 - Responses must reference only the village and year provided in context.
 """
 
+
 def get_language_instruction(language: str) -> str:
     if language == "hi":
         return "Always respond in Hindi using natural, grammatically correct Hindi."
@@ -31,7 +32,13 @@ def get_language_instruction(language: str) -> str:
         return "Always respond in fluent Marathi using natural agricultural terminology."
     return "Always respond in English."
 
-def build_village_context(village: Village, metrics: EnvironmentalMetrics, score: VillageHealthScore, historical_summary: str | None = None, language: str = "en") -> str:
+
+def build_village_context(
+        village: Village,
+        metrics: EnvironmentalMetrics,
+        score: VillageHealthScore,
+        historical_summary: str | None = None,
+        language: str = "en") -> str:
     """
     Build human-readable context string.
     """
@@ -53,26 +60,30 @@ def build_village_context(village: Village, metrics: EnvironmentalMetrics, score
         f"Annual Rainfall: {metrics.rainfall:.1f} mm",
         f"Average Temperature: {metrics.temperature:.1f} °C",
     ]
-    
+
     if historical_summary:
         lines.append("")
         lines.append("--- HISTORICAL CONTEXT ---")
         lines.append(historical_summary)
-        
+
     lines.append("")
     lines.append("--- LANGUAGE REQUIREMENT ---")
     lines.append(f"CRITICAL: {get_language_instruction(language)}")
-        
+
     return "\n".join(lines)
+
 
 def build_summary_prompt(context: str) -> str:
     return f"{SYSTEM_PROMPT}\n\nTask: Provide a 2-3 paragraph executive summary of the village's environmental health based on the following context. Do not use markdown headers, just plain paragraphs.\n\nContext:\n{context}"
 
+
 def build_recommendation_prompt(context: str) -> str:
     return f"{SYSTEM_PROMPT}\n\nTask: Based on the context below, provide exactly 3 specific, actionable recommendations prioritizing the most critical areas. Your output MUST be a valid JSON array of objects, with no extra text. Each object must have these keys: priority (integer 1, 2, or 3), category (string: water, vegetation, climate, flood, or land), title (string), description (string), scheme (string or null), expectedImpact (string), timeframe (string), costEstimate (string or null), urgency (string: low, medium, high, or critical).\n\nContext:\n{context}"
 
+
 def build_qa_prompt(question: str, context: str) -> str:
     return f"{SYSTEM_PROMPT}\n\nContext:\n{context}\n\nUser Question: {question}\n\nTask: Answer the user's question clearly and concisely based ONLY on the context provided."
+
 
 def build_report_narrative_prompt(context: str) -> str:
     return f"{SYSTEM_PROMPT}\n\nTask: Write a comprehensive, professional narrative report section detailing the village's environmental health, climate risks, and overall trajectory. Do not include recommendations here. Ensure it flows well for a formal PDF document.\n\nContext:\n{context}"

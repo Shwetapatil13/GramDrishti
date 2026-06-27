@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 /** Query Nominatim for villages in India when the backend has no results */
 async function searchNominatim(query: string): Promise<Village[]> {
 //...omitted for brevity, assume searchNominatim doesn't need translation hooks as it's outside component
-  console.log(`[VillageSearch][Nominatim] Querying OSM Nominatim for: "${query}"`);
+
   const url = new URL('https://nominatim.openstreetmap.org/search');
   url.searchParams.set('q', `${query}, India`);
   url.searchParams.set('format', 'json');
@@ -30,7 +30,6 @@ async function searchNominatim(query: string): Promise<Village[]> {
   }
 
   const data: any[] = await res.json();
-  console.log(`[VillageSearch][Nominatim] ${data.length} results returned from OSM`);
 
   return data
     .filter((item) => {
@@ -51,9 +50,6 @@ async function searchNominatim(query: string): Promise<Village[]> {
       let boundary: Village['boundary'] = null;
       if (geojson && (geojson.type === 'Polygon' || geojson.type === 'MultiPolygon')) {
         boundary = geojson;
-        console.log(`[VillageSearch][Nominatim] ✅ Real polygon found for "${item.display_name}" (${geojson.type})`);
-      } else {
-        console.warn(`[VillageSearch][Nominatim] ⚠️ No polygon for "${item.display_name}", geojson type: ${geojson?.type ?? 'none'}`);
       }
 
       const villageName =
@@ -109,18 +105,17 @@ export const VillageSearch: React.FC = () => {
     setIsSearching(true);
     setError(null);
     setErrorType(null);
-    console.log(`[VillageSearch] 🔍 Search started for: "${searchQuery}"`);
 
     let localResults: Village[] = [];
     let backendOnline = false;
 
     // Step 1: Try the local backend first
     try {
-      console.log(`[VillageSearch] → Calling backend /api/v1/villages/search?q=${searchQuery}`);
+
       const res = await apiService.search<Village[]>('/api/v1/villages/search', { q: searchQuery });
       localResults = Array.isArray(res) ? res : [];
       backendOnline = true;
-      console.log(`[VillageSearch] ✅ Backend returned ${localResults.length} local result(s)`);
+
     } catch (err: any) {
       const isNetworkError =
         err?.code === 'ERR_NETWORK' ||
@@ -129,13 +124,12 @@ export const VillageSearch: React.FC = () => {
         !err?.response;
 
       if (isNetworkError) {
-        console.warn(`[VillageSearch] ⚠️ Backend offline. Falling back to Nominatim OSM.`);
-        console.warn(`[VillageSearch] Backend error:`, err?.message);
+
+
         // Don't set error yet — try Nominatim first
       } else {
-        const status = err?.response?.status;
         const detail = err?.response?.data?.detail || err?.message;
-        console.error(`[VillageSearch] ❌ Backend search failed (HTTP ${status}):`, detail);
+
         setError(`Search failed: ${detail || 'Unknown error'}`);
         setErrorType('generic');
         setIsSearching(false);
@@ -146,7 +140,7 @@ export const VillageSearch: React.FC = () => {
     // Step 2: If backend had no matches or is offline, query Nominatim
     if (localResults.length < 3) {
       try {
-        console.log(`[VillageSearch] → Querying Nominatim (backend had ${localResults.length} results)`);
+
         const nominatimResults = await searchNominatim(searchQuery);
         // Prioritize results that have polygons
         const sortedNominatim = [...nominatimResults].sort((a, b) => {
@@ -176,7 +170,7 @@ export const VillageSearch: React.FC = () => {
             seenNames.add(baseName);
           }
         }
-        console.log(`[VillageSearch] 📍 Total results after Nominatim merge: ${merged.length}`);
+
         setResults(merged);
 
         if (merged.length === 0) {
@@ -184,7 +178,7 @@ export const VillageSearch: React.FC = () => {
           setErrorType('notfound');
         }
       } catch (nominatimErr: any) {
-        console.error(`[VillageSearch] ❌ Nominatim fallback also failed:`, nominatimErr?.message);
+
         if (localResults.length > 0) {
           setResults(localResults);
         } else {
@@ -209,10 +203,7 @@ export const VillageSearch: React.FC = () => {
   }, [query, runSearch]);
 
   const handleSelect = (village: Village) => {
-    console.log(
-      `[VillageSearch] 🏘️ Village selected:`,
-      JSON.stringify({ id: village.id, name: village.name, district: village.district, source: village.source, hasBoundary: !!village.boundary }, null, 2)
-    );
+    
     setSelectedVillage(village);
     flyToVillage(village);
     setQuery('');

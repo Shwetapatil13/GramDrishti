@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Tuple, List, Any, Dict, Literal
 
+
 class Village(BaseModel):
     id: str
     name: str
@@ -11,6 +12,7 @@ class Village(BaseModel):
     boundary: Dict[str, Any]
     area: float
 
+
 class LandCoverBreakdown(BaseModel):
     cropland: float
     trees: float
@@ -19,6 +21,7 @@ class LandCoverBreakdown(BaseModel):
     grassland: float
     bareLand: float
     flooded: float
+
 
 class EnvironmentalMetrics(BaseModel):
     villageId: str
@@ -34,11 +37,13 @@ class EnvironmentalMetrics(BaseModel):
     windSpeed: float
     dataSource: Literal['live', 'cached', 'mock', 'incomplete']
 
+
 class ScoreDetail(BaseModel):
     score: float
     explanation: str
     trend: Literal['improving', 'stable', 'declining']
     trendValue: float
+
 
 class VillageHealthScore(BaseModel):
     villageId: str
@@ -49,6 +54,7 @@ class VillageHealthScore(BaseModel):
     climate: ScoreDetail
     flood: ScoreDetail
     land: ScoreDetail
+
 
 class AIRecommendation(BaseModel):
     priority: Literal[1, 2, 3]
@@ -61,11 +67,13 @@ class AIRecommendation(BaseModel):
     costEstimate: str | None = None
     urgency: Literal['low', 'medium', 'high', 'critical']
 
+
 class HistoricalData(BaseModel):
     villageId: str
     years: List[int]
     metrics: List[EnvironmentalMetrics]
     scores: List[VillageHealthScore]
+
 
 class GEEStatus(BaseModel):
     loading: bool

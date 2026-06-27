@@ -6,6 +6,7 @@ import ee
 from app.services.gee.geometry import geojson_to_ee_geometry
 from app.core.exceptions import GEEDataError
 
+
 def get_land_cover(boundary: dict, year: int) -> dict[str, float]:
     """
     Classes: water, trees, grass, flooded_vegetation, crops,
@@ -30,7 +31,7 @@ def get_land_cover(boundary: dict, year: int) -> dict[str, float]:
 
         # Calculate area (in square meters) per class using pixel area
         area_image = ee.Image.pixelArea().addBands(classification)
-        
+
         # We use grouped reducer to sum area by class label
         stats = area_image.reduceRegion(
             reducer=ee.Reducer.sum().group(
@@ -59,10 +60,10 @@ def get_land_cover(boundary: dict, year: int) -> dict[str, float]:
         results = {name: 0.0 for name in dw_classes.values()}
 
         groups = stats.get('groups', [])
-        
+
         # Calculate total area to get percentages
         total_area = sum([g.get('sum', 0) for g in groups])
-        
+
         if total_area > 0:
             for group in groups:
                 label_val = group.get('label')
@@ -75,9 +76,12 @@ def get_land_cover(boundary: dict, year: int) -> dict[str, float]:
         return results
 
     except ee.EEException as e:
-        raise GEEDataError(f"Earth Engine error processing Dynamic World: {str(e)}")
+        raise GEEDataError(
+            f"Earth Engine error processing Dynamic World: {
+                str(e)}")
     except Exception as e:
         raise GEEDataError(f"Error processing Dynamic World metrics: {str(e)}")
+
 
 def get_land_cover_tiles(boundary: dict, year: int) -> dict[str, str]:
     """
@@ -108,25 +112,25 @@ def get_land_cover_tiles(boundary: dict, year: int) -> dict[str, str]:
         # 6: built (slate #6B7280)
         # 7: bare (orange #D97706)
         # 8: snow_and_ice (white #FFFFFF)
-        
+
         vis_params = {
             'min': 0,
             'max': 8,
             'palette': [
-                '#3B82F6', 
-                '#10B981', 
-                '#84CC16', 
-                '#06B6D4', 
-                '#F59E0B', 
-                '#D97706', 
-                '#6B7280', 
-                '#D97706', 
+                '#3B82F6',
+                '#10B981',
+                '#84CC16',
+                '#06B6D4',
+                '#F59E0B',
+                '#D97706',
+                '#6B7280',
+                '#D97706',
                 '#FFFFFF'
             ]
         }
 
         map_id_dict = ee.Image(classification).getMapId(vis_params)
-        
+
         return {
             "urlFormat": map_id_dict['tile_fetcher'].url_format
         }

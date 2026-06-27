@@ -9,6 +9,7 @@ from app.core.logging import get_logger
 
 logger = get_logger(__name__)
 
+
 def initialize_gee() -> None:
     """
     Initialize GEE with service account credentials.
@@ -18,11 +19,11 @@ def initialize_gee() -> None:
     if settings.USE_MOCK_DATA:
         logger.info("Mock mode enabled — skipping GEE initialization")
         return
-        
+
     credentials_path = Path(settings.GEE_CREDENTIALS_PATH)
     if not credentials_path.exists():
         raise RuntimeError(f"GEE credentials not found at {credentials_path}")
-        
+
     try:
         credentials = ee.ServiceAccountCredentials(
             settings.GEE_SERVICE_ACCOUNT_EMAIL,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { Menu, Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';

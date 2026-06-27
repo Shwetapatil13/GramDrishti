@@ -1,5 +1,6 @@
 from shapely.geometry import shape  # type: ignore
 
+
 def validate_geometry(geojson: dict) -> bool:
     try:
         geom = shape(geojson)

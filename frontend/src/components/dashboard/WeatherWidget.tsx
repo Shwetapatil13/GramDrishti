@@ -26,10 +26,10 @@ export const WeatherWidget: React.FC = () => {
     const fetchWeather = async () => {
       setLoading(true);
       setWeatherError(null);
-      console.log(`[WeatherWidget] Fetching current weather for village: ${selectedVillage.id}`);
+
       try {
         const data = await apiService.get<WeatherData>(`/api/v1/weather/${selectedVillage.id}/current`);
-        console.log(`[WeatherWidget] ✅ Weather received:`, data);
+
         if (mounted) {
           setWeather(data);
           setLastUpdated(new Date());
@@ -39,8 +39,8 @@ export const WeatherWidget: React.FC = () => {
         const msg = isOffline
           ? 'Backend offline — start the server'
           : `HTTP ${err?.response?.status}: ${err?.response?.data?.detail || err?.message}`;
-        console.error(`[WeatherWidget] ❌ Weather fetch failed for ${selectedVillage.id}:`, msg);
-        console.error(`[WeatherWidget] Full error:`, err);
+
+
         if (mounted) setWeatherError(msg);
       } finally {
         if (mounted) setLoading(false);

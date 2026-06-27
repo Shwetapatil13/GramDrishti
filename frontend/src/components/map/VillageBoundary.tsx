@@ -10,7 +10,7 @@ interface VillageBoundaryProps {
 export const VillageBoundary: React.FC<VillageBoundaryProps> = ({ polygon }) => {
   const map = useMap();
   const geoJsonRef = useRef<L.GeoJSON>(null);
-  const { theme } = useTheme();
+  useTheme();
 
   useEffect(() => {
     if (polygon && geoJsonRef.current) {
@@ -19,22 +19,22 @@ export const VillageBoundary: React.FC<VillageBoundaryProps> = ({ polygon }) => 
         requestAnimationFrame(() => {
           if (!geoJsonRef.current) return;
           const bounds = geoJsonRef.current.getBounds();
-          console.log('[VillageBoundary] Computed bounds:', bounds.isValid() ? `SW: ${bounds.getSouthWest()}, NE: ${bounds.getNorthEast()}` : 'INVALID');
+
           if (bounds && bounds.isValid()) {
-            console.log('[VillageBoundary] ✅ Fitting map to polygon bounds');
+
             map.fitBounds(bounds, { padding: [30, 30], maxZoom: 14 });
           } else {
-            console.warn('[VillageBoundary] ⚠️ Bounds are invalid — cannot fit map. Polygon type:', polygon?.type);
+
           }
         });
       } catch (err) {
-        console.error('[VillageBoundary] ❌ Error computing bounds from GeoJSON layer:', err);
+
       }
     }
   }, [polygon, map]);
 
   if (!polygon) {
-    console.log('[VillageBoundary] No polygon — rendering nothing.');
+
     return null;
   }
 
@@ -48,8 +48,6 @@ export const VillageBoundary: React.FC<VillageBoundaryProps> = ({ polygon }) => 
           properties: {},
           geometry: polygon,
         };
-
-  console.log('[VillageBoundary] Rendering polygon type:', polygon.type, '→ wrapped as:', geoJsonData.type);
 
   // Use green for the boundary (spec requirement: green outline, semi-transparent fill)
   const boundaryColor = '#22c55e'; // Tailwind green-500
@@ -66,7 +64,7 @@ export const VillageBoundary: React.FC<VillageBoundaryProps> = ({ polygon }) => 
         weight: 2.5,
         fillColor: fillColor,
         fillOpacity: 0.15,
-        smoothFactor: 1.5,
+
       }}
     />
   );

@@ -1,7 +1,7 @@
 import React from 'react';
 import { VillageHealthScore } from '@/types';
 import { ArrowUpRight, ArrowDownRight, ArrowRight } from 'lucide-react';
-import { Skeleton } from '../ui/Skeleton';
+
 import { useTranslation } from 'react-i18next';
 
 interface ScoreBreakdownProps {

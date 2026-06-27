@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
 
+
 class Settings(BaseSettings):
     GEE_PROJECT_ID: str = ""
     GEE_SERVICE_ACCOUNT_EMAIL: str = ""
@@ -16,6 +17,7 @@ class Settings(BaseSettings):
     @property
     def cors_origins(self) -> List[str]:
         return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",")]
+
 
 settings = Settings()
 # reload trigger

@@ -1,6 +1,7 @@
 import time
 from typing import Dict, Any, Optional
 
+
 class TTLCache:
     def __init__(self):
         self._cache: Dict[str, Dict[str, Any]] = {}
@@ -24,8 +25,14 @@ class TTLCache:
         if key in self._cache:
             del self._cache[key]
 
-    def build_key(self, village_id: str, year: int, dataset: str, language: Optional[str] = None) -> str:
+    def build_key(
+            self,
+            village_id: str,
+            year: int,
+            dataset: str,
+            language: Optional[str] = None) -> str:
         base = f"{village_id}_{year}_{dataset}"
         return f"{base}_{language}" if language else base
+
 
 cache = TTLCache()

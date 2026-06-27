@@ -41,7 +41,8 @@ async def register_village(payload: RegisterVillageRequest):
     village_service.BOUNDARY_CACHE[payload.id] = payload.boundary
 
     # Add to search index if not already present
-    if not any(item["id"] == payload.id for item in village_service.SEARCH_INDEX):
+    if not any(
+            item["id"] == payload.id for item in village_service.SEARCH_INDEX):
         village_service.SEARCH_INDEX.append({
             "id": payload.id,
             "name": payload.name,
@@ -58,6 +59,7 @@ async def search_villages(q: str = Query(..., description="Search query")):
     villages = await village_service.search_villages(q)
     return villages
 
+
 @router.get("/villages/{village_id}", response_model=Village)
 async def get_village(village_id: str):
     """Get a single village by ID."""
@@ -66,6 +68,7 @@ async def get_village(village_id: str):
         raise HTTPException(status_code=404, detail="Village not found")
     return village
 
+
 @router.get("/villages/{village_id}/boundary", response_model=Dict[str, Any])
 async def get_village_boundary(village_id: str):
     """Get the GeoJSON boundary of a village."""
@@ -73,6 +76,7 @@ async def get_village_boundary(village_id: str):
     if not boundary:
         raise HTTPException(status_code=404, detail="Village not found")
     return boundary
+
 
 @router.get("/villages/boundaries/all")
 async def get_all_village_boundaries():

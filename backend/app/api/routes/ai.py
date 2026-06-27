@@ -11,16 +11,18 @@ import json
 
 router = APIRouter()
 
+
 @router.get("/ai/debug-score/{village_id}")
 async def debug_score(village_id: str, year: int = 2024):
     try:
         score = await get_village_score(village_id, year)
         return {
-            "type": str(type(score)),
-            "value": score.model_dump() if hasattr(score, 'model_dump') else score
-        }
+            "type": str(
+                type(score)), "value": score.model_dump() if hasattr(
+                score, 'model_dump') else score}
     except Exception as e:
         return {"error": str(e), "type": str(type(e))}
+
 
 @router.get("/ai/test-gemini")
 async def test_gemini(request: Request):
@@ -29,37 +31,46 @@ async def test_gemini(request: Request):
         return await download_pdf(request, "kolhapur", 2024, True)
     except Exception as e:
         import traceback
-        return {"status": "error", "message": str(e), "trace": traceback.format_exc()}
+        return {
+            "status": "error",
+            "message": str(e),
+            "trace": traceback.format_exc()}
+
 
 class ChatRequest(BaseModel):
     question: str
     language: str = "en"
+
 
 def check_rate_limit(request: Request):
     """
     Simple manual rate limiting: 10 requests per minute per IP.
     """
     client_ip = request.client.host if request.client else "unknown"
-    current_time = int(time.time() // 60) # current minute
+    current_time = int(time.time() // 60)  # current minute
     key = f"rl_{client_ip}_{current_time}"
-    
+
     val = cache.get(key)
     count = val.get("count", 0) if val else 0
-    
+
     if count >= 10:
-        raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again in a minute.")
-        
+        raise HTTPException(
+            status_code=429,
+            detail="Rate limit exceeded. Try again in a minute.")
+
     cache.set(key, {"count": count + 1}, ttl_seconds=60)
+
 
 async def _gather_context_data(village_id: str, year: int):
     village = get_village_by_id(village_id)
     if not village:
         raise HTTPException(status_code=404, detail="Village not found")
-        
+
     metrics = await get_village_metrics(village_id, year)
     score = await get_village_score(village_id, year)
-    
+
     return village, metrics, score
+
 
 @router.post("/ai/{village_id}/summary")
 async def get_ai_summary(
@@ -69,12 +80,12 @@ async def get_ai_summary(
     language: str = Query("en")
 ):
     check_rate_limit(request)
-    
+
     cache_key = cache.build_key(village_id, year, "ai_summary", language)
     cached = cache.get(cache_key)
     if cached:
         return {"summary": cached["text"]}
-        
+
     try:
         village, metrics, score = await _gather_context_data(village_id, year)
         summary = await ai_service.get_summary(village, metrics, score, language=language)
@@ -82,6 +93,7 @@ async def get_ai_summary(
         return {"summary": summary}
     except Exception as e:
         raise HTTPException(status_code=504, detail=str(e))
+
 
 @router.post("/ai/{village_id}/recommendations")
 async def get_ai_recommendations(
@@ -91,12 +103,12 @@ async def get_ai_recommendations(
     language: str = Query("en")
 ):
     check_rate_limit(request)
-    
+
     cache_key = cache.build_key(village_id, year, "ai_recs", language)
     cached = cache.get(cache_key)
     if cached:
         return {"recommendations": cached["recs"]}
-        
+
     try:
         village, metrics, score = await _gather_context_data(village_id, year)
         recs = await ai_service.get_recommendations(village, metrics, score, language=language)
@@ -104,6 +116,7 @@ async def get_ai_recommendations(
         return {"recommendations": recs}
     except Exception as e:
         raise HTTPException(status_code=504, detail=str(e))
+
 
 @router.post("/ai/{village_id}/chat")
 async def chat_with_ai(
@@ -113,13 +126,14 @@ async def chat_with_ai(
     year: int = Query(2024, ge=2022, le=2026)
 ):
     check_rate_limit(request)
-    
+
     try:
         village, metrics, score = await _gather_context_data(village_id, year)
         answer = await ai_service.chat(body.question, village, metrics, score, language=body.language)
         return {"answer": answer}
     except Exception as e:
         raise HTTPException(status_code=504, detail=str(e))
+
 
 @router.get("/ai/{village_id}/report-narrative")
 async def get_report_narrative(
@@ -129,12 +143,12 @@ async def get_report_narrative(
     language: str = Query("en")
 ):
     check_rate_limit(request)
-    
+
     cache_key = cache.build_key(village_id, year, "ai_narrative", language)
     cached = cache.get(cache_key)
     if cached:
         return {"narrative": cached["text"]}
-        
+
     try:
         village, metrics, score = await _gather_context_data(village_id, year)
         narrative = await ai_service.get_report_narrative(village, metrics, score, language=language)

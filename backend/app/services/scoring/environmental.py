@@ -6,6 +6,7 @@ All output values are validated against expected ranges before return.
 """
 from typing import Dict, Any
 
+
 def interpret_ndvi(ndvi_mean: float) -> Dict[str, Any]:
     """
     NDVI health interpretation.
@@ -16,7 +17,7 @@ def interpret_ndvi(ndvi_mean: float) -> Dict[str, Any]:
     Returns: {value, category, description, percent_healthy_vegetation}
     """
     val = max(-1.0, min(1.0, ndvi_mean))
-    
+
     if val > 0.6:
         cat = "excellent"
         desc = "Dense, healthy vegetation coverage."
@@ -33,7 +34,7 @@ def interpret_ndvi(ndvi_mean: float) -> Dict[str, Any]:
         cat = "poor"
         desc = "Bare soil, highly degraded or urbanized."
         phv = 10.0
-        
+
     return {
         "value": val,
         "category": cat,
@@ -41,7 +42,9 @@ def interpret_ndvi(ndvi_mean: float) -> Dict[str, Any]:
         "percent_healthy_vegetation": phv
     }
 
-def interpret_water_stress(ndwi: float, water_area_ha: float, village_area_km2: float) -> Dict[str, Any]:
+
+def interpret_water_stress(
+        ndwi: float, water_area_ha: float, village_area_km2: float) -> Dict[str, Any]:
     """
     Returns: {stress_level, water_coverage_percent, assessment}
     Handles zero-water villages: stress_level "critical", coverage 0.0
@@ -50,7 +53,7 @@ def interpret_water_stress(ndwi: float, water_area_ha: float, village_area_km2: 
     area_km2 = max(0.001, village_area_km2)
     # water area ha to km2 = / 100
     coverage_percent = (water_area_ha / 100.0) / area_km2 * 100.0
-    
+
     if water_area_ha <= 0 or coverage_percent <= 0.1:
         stress_level = "critical"
         assessment = "Severe water scarcity detected."
@@ -64,12 +67,13 @@ def interpret_water_stress(ndwi: float, water_area_ha: float, village_area_km2: 
     else:
         stress_level = "low"
         assessment = "Abundant surface water resources."
-        
+
     return {
         "stress_level": stress_level,
         "water_coverage_percent": min(100.0, max(0.0, coverage_percent)),
         "assessment": assessment
     }
+
 
 def calculate_green_cover(land_cover: Dict[str, float]) -> float:
     """
@@ -78,33 +82,40 @@ def calculate_green_cover(land_cover: Dict[str, float]) -> float:
     """
     if not land_cover:
         return 0.0
-        
+
     total = sum([
         land_cover.get("trees", 0.0),
         land_cover.get("grass", 0.0),
         land_cover.get("crops", 0.0),
         land_cover.get("shrub_and_scrub", 0.0)
     ])
-    
+
     return min(100.0, max(0.0, total))
 
-def assess_flood_risk(terrain: Dict[str, float], land_cover: Dict[str, float], annual_rainfall_mm: float) -> Dict[str, Any]:
+
+def assess_flood_risk(terrain: Dict[str,
+                                    float],
+                      land_cover: Dict[str,
+                                       float],
+                      annual_rainfall_mm: float) -> Dict[str,
+                                                         Any]:
     """
     Flood risk combines: slope < 2° area, flooded_vegetation %, rainfall intensity.
     Returns: {risk_level: "low"|"medium"|"high"|"critical", risk_score: float, explanation: str}
     """
     flat_area = terrain.get("flood_risk_area_percent", 0.0)
     flooded_veg = land_cover.get("flooded_vegetation", 0.0)
-    
-    # Rough scoring heuristic: flat area is risky, existing flooding is very risky, high rainfall multiplies
+
+    # Rough scoring heuristic: flat area is risky, existing flooding is very
+    # risky, high rainfall multiplies
     score = flat_area * 0.5 + flooded_veg * 2.0
     if annual_rainfall_mm > 1500:
         score += 20.0
     elif annual_rainfall_mm > 1000:
         score += 10.0
-        
+
     score = min(100.0, max(0.0, score))
-    
+
     if score > 60:
         risk = "critical"
         exp = "High proportion of flat terrain with historical flooding indicates critical flood vulnerability."
@@ -117,7 +128,7 @@ def assess_flood_risk(terrain: Dict[str, float], land_cover: Dict[str, float], a
     else:
         risk = "low"
         exp = "Low flood risk; good drainage indicated by slopes."
-        
+
     return {
         "risk_level": risk,
         "risk_score": score,

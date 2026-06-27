@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { GeoJSON, Tooltip } from 'react-leaflet';
+import { GeoJSON } from 'react-leaflet';
 import { useRegionalData } from '@/hooks/useRegionalData';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
 
@@ -13,7 +13,7 @@ const NDVI_COLORS = {
 
 export const ChoroplethLayer: React.FC = () => {
   const { selectedYear, selectedVillage, setSelectedVillage, selectedNDVICategory } = useVillageSelection();
-  const { data, isLoading } = useRegionalData(selectedYear);
+  const { data } = useRegionalData(selectedYear);
 
   const geoJsonFeatures = useMemo(() => {
     if (!data?.features) return null;
@@ -65,7 +65,7 @@ export const ChoroplethLayer: React.FC = () => {
           const metric = regionId ? data?.metrics[regionId] : null;
           
           // Construct tooltip HTML
-          let tooltipContent = `<div class="bg-surface-slate p-2 border border-brand-mint rounded">
+          const tooltipContent = `<div class="bg-surface-slate p-2 border border-brand-mint rounded">
             <strong>${regionName}</strong><br/>
             NDVI: ${metric ? metric.ndvi.toFixed(2) : 'N/A'} <br/>
             Category: <span class="capitalize">${metric ? metric.category : 'Unknown'}</span>
@@ -83,8 +83,7 @@ export const ChoroplethLayer: React.FC = () => {
                 setSelectedVillage({
                   id: regionId,
                   name: regionName,
-                  source: 'local'
-                });
+                } as unknown as any);
               }
             }
           });

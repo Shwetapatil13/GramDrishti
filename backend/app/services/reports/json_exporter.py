@@ -3,6 +3,7 @@ from app.models.village import Village, EnvironmentalMetrics, VillageHealthScore
 from app.models.recommendations import AIRecommendationModel
 from typing import Dict, Any
 
+
 def export_village_json(
     village: Village,
     metrics: EnvironmentalMetrics,
@@ -20,5 +21,5 @@ def export_village_json(
         "recommendations": [r.model_dump() for r in recommendations],
         "history": history.model_dump()
     }
-    
+
     return json.dumps(export_data, indent=2)

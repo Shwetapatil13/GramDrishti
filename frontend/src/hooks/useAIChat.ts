@@ -12,7 +12,7 @@ export const useAIChat = (villageId: string | undefined, year: number) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
 
   const sendMessage = useCallback(async (question: string) => {
     if (!villageId || !question.trim()) return;

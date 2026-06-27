@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 const OverviewTab = React.lazy(() => import('./OverviewTab').then(m => ({ default: m.OverviewTab })));
 const EnvironmentTab = React.lazy(() => import('./EnvironmentTab').then(m => ({ default: m.EnvironmentTab })));
 const HistoryTab = React.lazy(() => import('./HistoryTab').then(m => ({ default: m.HistoryTab })));
-const AITab = React.lazy(() => import('./AITab').then(m => ({ default: m.AITab })));
+
 const ReportTab = React.lazy(() => import('./ReportTab').then(m => ({ default: m.ReportTab })));
 
 const TABS = ['OVERVIEW', 'ENVIRONMENT', 'HISTORY', 'REPORT'] as const;

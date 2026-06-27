@@ -12,32 +12,17 @@ const api = axios.create({
 
 // ── Request Interceptor ────────────────────────────────────────────────────────
 api.interceptors.request.use((config) => {
-  console.log(`[API] → ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`, config.params ?? '');
+
   return config;
 });
 
 // ── Response Interceptor ───────────────────────────────────────────────────────
 api.interceptors.response.use(
   (response) => {
-    console.log(`[API] ✅ ${response.status} ${response.config.url}`);
+
     return response.data;
   },
   (error: AxiosError) => {
-    if (error.code === 'ERR_NETWORK' || !error.response) {
-      console.error(
-        `[API] ❌ Network Error — Cannot reach backend at ${API_BASE_URL}`,
-        '\n  → Is the backend running? Start it with: cd backend && uvicorn main:app --reload',
-        '\n  → Error code:', error.code,
-        '\n  → URL:', error.config?.url,
-      );
-    } else {
-      const status = error.response.status;
-      const detail = (error.response.data as any)?.detail || error.message;
-      console.error(
-        `[API] ❌ HTTP ${status} ${error.config?.url}`,
-        '\n  → Detail:', detail,
-      );
-    }
     return Promise.reject(error);
   }
 );

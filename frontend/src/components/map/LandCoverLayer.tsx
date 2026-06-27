@@ -120,8 +120,7 @@ export const LandCoverLayer: React.FC<LandCoverLayerProps> = ({ village, data })
         if (mounted && res?.urlFormat) {
           setTileUrl(res.urlFormat);
         }
-      } catch (err) {
-        console.error('Failed to fetch land cover tiles:', err);
+      } catch {
       }
     };
 

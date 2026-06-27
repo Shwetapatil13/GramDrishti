@@ -107,13 +107,18 @@ MOCK_METRICS: dict[str, dict[int, dict]] = {
     },
 }
 
-async def _call_with_retry(fn, *args, max_retries: int = 3, timeout: int = 120) -> dict:
+
+async def _call_with_retry(
+        fn,
+        *args,
+        max_retries: int = 3,
+        timeout: int = 120) -> dict:
     """
     Retry wrapper with exponential backoff: 2s, 4s, 8s.
     Raises GEETimeoutError after all retries exhausted or timeout reached.
     """
     delays = [2, 4, 8]
-    
+
     for attempt in range(max_retries):
         try:
             # Run blocking GEE calls in a thread
@@ -124,18 +129,28 @@ async def _call_with_retry(fn, *args, max_retries: int = 3, timeout: int = 120) 
             return result
         except asyncio.TimeoutError:
             if attempt == max_retries - 1:
-                raise GEETimeoutError(f"GEE call timed out after {timeout} seconds")
-            logger.warning(f"GEE call timed out, retrying in {delays[attempt]}s...")
+                raise GEETimeoutError(
+                    f"GEE call timed out after {timeout} seconds")
+            logger.warning(
+                f"GEE call timed out, retrying in {
+                    delays[attempt]}s...")
         except Exception as e:
             if attempt == max_retries - 1:
                 raise GEEDataError(f"GEE call failed: {str(e)}")
-            logger.warning(f"GEE call failed: {str(e)}, retrying in {delays[attempt]}s...")
-            
+            logger.warning(
+                f"GEE call failed: {
+                    str(e)}, retrying in {
+                    delays[attempt]}s...")
+
         await asyncio.sleep(delays[attempt])
-        
+
     raise GEEDataError("Maximum retries exhausted")
 
-async def get_all_gee_metrics(village_id: str, boundary: dict, year: int) -> dict:
+
+async def get_all_gee_metrics(
+        village_id: str,
+        boundary: dict,
+        year: int) -> dict:
     """
     Retrieve all GEE metrics for a village and year.
     Cache key: {village_id}_{year}_all
@@ -145,24 +160,33 @@ async def get_all_gee_metrics(village_id: str, boundary: dict, year: int) -> dic
     Falls back to mock data if USE_MOCK_DATA=True.
     """
     cache_key = cache.build_key(village_id, year, "all")
-    
+
     if settings.USE_MOCK_DATA:
         # Simulate slight delay to mimic network response
         await asyncio.sleep(0.5)
-        
+
         # Use a fallback mock data if village is not in hardcoded MOCK_METRICS
         if village_id in MOCK_METRICS and year in MOCK_METRICS[village_id]:
             mock_data = MOCK_METRICS[village_id][year].copy()
         else:
             mock_data = {
-                "ndvi": 0.55, "ndwi": 0.20, "water_area_ha": 100.0, "green_cover_percent": 50.0,
-                "land_cover": {"trees": 25.0, "cropland": 25.0, "water": 5.0, "built": 5.0,
-                               "grassland": 15.0, "bareLand": 24.0, "flooded": 1.0}
-            }
+                "ndvi": 0.55,
+                "ndwi": 0.20,
+                "water_area_ha": 100.0,
+                "green_cover_percent": 50.0,
+                "land_cover": {
+                    "trees": 25.0,
+                    "cropland": 25.0,
+                    "water": 5.0,
+                    "built": 5.0,
+                    "grassland": 15.0,
+                    "bareLand": 24.0,
+                    "flooded": 1.0}}
 
         mock_data["dataSource"] = "mock"
-        
-        # Fetch real weather for mock mode to avoid hardcoding large weather tables
+
+        # Fetch real weather for mock mode to avoid hardcoding large weather
+        # tables
         village = get_village_by_id(village_id)
         if village:
             lat, lon = village.coordinates
@@ -171,8 +195,14 @@ async def get_all_gee_metrics(village_id: str, boundary: dict, year: int) -> dic
                 mock_data["weather"] = weather
             except Exception as e:
                 logger.error(f"Mock weather fetch failed: {str(e)}")
-                mock_data["weather"] = {"annual_rainfall_mm": 800.0, "mean_temp_c": 28.0, "max_temp_c": 38.0, "dry_days_count": 250, "humidity_percent": 50.0, "wind_speed_kmh": 12.0}
-        
+                mock_data["weather"] = {
+                    "annual_rainfall_mm": 800.0,
+                    "mean_temp_c": 28.0,
+                    "max_temp_c": 38.0,
+                    "dry_days_count": 250,
+                    "humidity_percent": 50.0,
+                    "wind_speed_kmh": 12.0}
+
         return mock_data
 
     cached = cache.get(cache_key)
@@ -183,7 +213,7 @@ async def get_all_gee_metrics(village_id: str, boundary: dict, year: int) -> dic
 
     logger.info(f"Cache MISS for {cache_key}. Starting GEE retrieval...")
     start_time = time.time()
-    
+
     village = get_village_by_id(village_id)
     lat, lon = village.coordinates if village else (20.5937, 78.9629)
 
@@ -204,7 +234,7 @@ async def get_all_gee_metrics(village_id: str, boundary: dict, year: int) -> dic
         aggregated: dict[str, Any] = {
             "dataSource": "live"
         }
-        
+
         # Handle partial failures gracefully
         if isinstance(sentinel_res, Exception):
             logger.error(f"Sentinel-2 failed: {sentinel_res}")
@@ -217,13 +247,13 @@ async def get_all_gee_metrics(village_id: str, boundary: dict, year: int) -> dic
             aggregated["land_cover"] = None
         else:
             aggregated["land_cover"] = dw_res
-            
+
         if isinstance(terrain_res, Exception):
             logger.error(f"Terrain failed: {terrain_res}")
             aggregated["terrain"] = None
         else:
             aggregated["terrain"] = terrain_res
-            
+
         if isinstance(water_res, Exception):
             logger.error(f"Water failed: {water_res}")
             aggregated["water"] = None
@@ -236,28 +266,34 @@ async def get_all_gee_metrics(village_id: str, boundary: dict, year: int) -> dic
         else:
             aggregated["weather"] = weather_res
 
-        # Calculate some direct metrics expected by the current mockup structure 
+        # Calculate some direct metrics expected by the current mockup structure
         # (This will be fully refined in Level 4 Environmental Analysis Engine)
         if aggregated.get("sentinel"):
             aggregated["ndvi"] = aggregated["sentinel"]["ndvi_mean"]
             aggregated["ndwi"] = aggregated["sentinel"]["ndwi_mean"]
-            
+
         if aggregated.get("water"):
             aggregated["water_area_ha"] = aggregated["water"]["water_area_ha"]
-            
+
         if aggregated.get("land_cover"):
             # Simple sum for green cover
             lc = aggregated["land_cover"]
-            aggregated["green_cover_percent"] = lc.get("trees", 0) + lc.get("grass", 0) + lc.get("crops", 0) + lc.get("shrub_and_scrub", 0)
+            aggregated["green_cover_percent"] = lc.get(
+                "trees", 0) + lc.get("grass", 0) + lc.get("crops", 0) + lc.get("shrub_and_scrub", 0)
 
         duration = time.time() - start_time
-        logger.info(f"GEE retrieval complete for {cache_key}. Duration: {duration:.2f}s")
-        
+        logger.info(
+            f"GEE retrieval complete for {cache_key}. Duration: {
+                duration:.2f}s")
+
         cache.set(cache_key, aggregated, ttl_seconds=86400)
-        
+
         return aggregated
 
     except Exception as e:
         duration = time.time() - start_time
-        logger.error(f"GEE retrieval failed for {cache_key} after {duration:.2f}s: {str(e)}")
+        logger.error(
+            f"GEE retrieval failed for {cache_key} after {
+                duration:.2f}s: {
+                str(e)}")
         raise
