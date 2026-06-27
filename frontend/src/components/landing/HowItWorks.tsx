@@ -38,7 +38,7 @@ export const HowItWorks: React.FC = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 md:gap-6 relative z-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 md:gap-8 relative z-10">
             {steps.map((step, idx) => {
               const Icon = step.icon;
               return (
@@ -48,25 +48,21 @@ export const HowItWorks: React.FC = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: idx * 0.15 }}
-                  className="flex flex-col items-center md:items-start gap-5 bg-canvas-black md:bg-transparent p-8 md:p-0 rounded-2xl border border-surface-border md:border-none relative group hover:-translate-y-2 transition-transform duration-300"
+                  className="flex flex-col items-center md:items-start gap-6 bg-canvas-black md:bg-transparent p-8 md:p-0 rounded-2xl border border-surface-border md:border-none relative group hover:-translate-y-2 transition-transform duration-300"
                 >
-                  <div className="w-16 h-16 rounded-2xl bg-canvas-black border border-surface-border flex items-center justify-center shrink-0 shadow-lg group-hover:border-brand-mint transition-colors relative z-10 overflow-hidden">
-                    <Icon className="w-8 h-8 text-brand-mint absolute opacity-10 scale-150 group-hover:scale-110 transition-transform duration-500" />
-                    <span className="text-mono font-bold text-text-primary relative z-10 group-hover:text-brand-mint transition-colors">{step.id}</span>
+                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-canvas-black border border-surface-border flex items-center justify-center shrink-0 shadow-lg group-hover:border-brand-mint transition-colors relative z-10 overflow-hidden">
+                    <Icon className="w-10 h-10 md:w-12 md:h-12 text-brand-mint absolute opacity-10 scale-150 group-hover:scale-110 transition-transform duration-500" />
+                    <span className="text-mono font-bold text-text-primary text-xl relative z-10 group-hover:text-brand-mint transition-colors">{step.id}</span>
                   </div>
                   <div className="text-center md:text-left flex-1">
-                    <h4 className="text-heading-md text-text-primary text-lg mb-3 group-hover:text-brand-mint transition-colors">{t(step.titleKey, step.titleDefault)}</h4>
-                    <p className="text-body text-text-secondary text-sm leading-relaxed">{t(step.descKey, step.descDefault)}</p>
+                    <h4 className="text-heading-md text-text-primary text-xl md:text-2xl mb-3 group-hover:text-brand-mint transition-colors">{t(step.titleKey, step.titleDefault)}</h4>
+                    <p className="text-body text-text-secondary text-base leading-relaxed">{t(step.descKey, step.descDefault)}</p>
                   </div>
                 </motion.div>
               );
             })}
           </div>
         </div>
-      </div>
-    </section>
-  );
-};
       </div>
     </section>
   );

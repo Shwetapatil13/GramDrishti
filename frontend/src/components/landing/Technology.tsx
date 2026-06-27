@@ -4,11 +4,10 @@ import { useTranslation } from 'react-i18next';
 
 export const Technology: React.FC = () => {
   const { t } = useTranslation();
-  
   const techs = [
-    'Google Earth Engine', 'Gemini AI', 'FastAPI', 'React',
-    'Leaflet', 'OpenStreetMap', 'Python', 'Machine Learning',
-    'Tailwind CSS', 'PostGIS', 'Celery', 'Framer Motion'
+    'React', 'Vite', 'Tailwind CSS', 'Framer Motion', 
+    'Lucide React', 'i18next', 'Python', 'FastAPI', 
+    'Google Earth Engine', 'Gemini AI', 'Leaflet', 'Uvicorn'
   ];
 
   return (

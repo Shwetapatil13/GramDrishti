@@ -9,7 +9,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen flex bg-canvas-black">
       {/* Left Side - Brand & Mission */}
-      <div className="hidden lg:flex w-1/2 relative bg-surface-slate overflow-hidden border-r border-surface-border flex-col justify-between p-12">
+      <div className="hidden lg:flex lg:w-[40%] relative bg-surface-slate overflow-hidden border-r border-surface-border flex-col justify-between p-12">
         <div className="absolute inset-0 bg-gradient-to-br from-brand-blue/10 via-brand-violet/10 to-brand-mint/10 z-0"></div>
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 z-0 mix-blend-overlay"></div>
         
@@ -21,6 +21,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
         </div>
 
         <div className="relative z-10 max-w-lg mt-auto">
+          <img src="/logo.png" alt="GramDrishti Logo Large" className="h-48 md:h-72 w-auto object-contain mb-8 opacity-90 drop-shadow-xl" />
           <h2 className="text-display text-text-primary text-4xl mb-6">
             Empowering Rural India with Climate Intelligence.
           </h2>
@@ -46,7 +47,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
       </div>
 
       {/* Right Side - Auth Forms */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative">
+      <div className="w-full lg:w-[60%] flex items-center justify-center p-6 sm:p-12 relative">
         <Link to="/" className="absolute top-6 left-6 lg:hidden flex items-center gap-2">
            <img src="/logo.png" alt="Logo" className="h-6 w-auto object-contain" />
            <h1 className="text-heading-lg text-text-primary tracking-tight text-xl pt-0.5">GRAMDRISHTI</h1>

@@ -33,9 +33,9 @@ export const LandingNavbar: React.FC = () => {
 
         {/* Center Links (Desktop) */}
         <div className="hidden lg:flex items-center gap-8">
-          <a href="#features" className="text-body text-text-secondary hover:text-text-primary transition-colors">{t('landing.features', 'Features')}</a>
-          <a href="#how-it-works" className="text-body text-text-secondary hover:text-text-primary transition-colors">{t('landing.howItWorks', 'How It Works')}</a>
+          <a href="#features" className="text-body text-text-secondary hover:text-text-primary transition-colors">{t('landing.features', 'Core Capabilities')}</a>
           <a href="#technology" className="text-body text-text-secondary hover:text-text-primary transition-colors">{t('landing.technology', 'Technology')}</a>
+          <a href="#how-it-works" className="text-body text-text-secondary hover:text-text-primary transition-colors">{t('landing.howItWorks', 'How It Works')}</a>
         </div>
 
         {/* Right Actions */}

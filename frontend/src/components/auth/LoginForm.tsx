@@ -81,21 +81,6 @@ export const LoginForm: React.FC = () => {
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
           Login to Dashboard
         </button>
-
-        <div className="relative flex items-center py-4">
-          <div className="flex-grow border-t border-surface-border"></div>
-          <span className="shrink-0 px-4 text-mono text-text-muted text-xs">OR CONTINUE WITH</span>
-          <div className="flex-grow border-t border-surface-border"></div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <button type="button" className="flex items-center justify-center gap-2 bg-surface-elevated border border-surface-border rounded-lg py-2.5 hover:bg-surface-slate transition-colors text-body text-text-primary text-sm">
-            Google
-          </button>
-          <button type="button" className="flex items-center justify-center gap-2 bg-surface-elevated border border-surface-border rounded-lg py-2.5 hover:bg-surface-slate transition-colors text-body text-text-primary text-sm">
-            GitHub
-          </button>
-        </div>
       </form>
     </motion.div>
   );
