@@ -65,8 +65,9 @@ export const ScoreBreakdown: React.FC<ScoreBreakdownProps> = ({ score, isLoading
   return (
     <div className="w-full flex flex-col gap-4">
       {COMPONENT_CONFIG.map(cfg => {
-        const detail = score[cfg.key];
-        const value  = detail.score;
+        const detail = (score as any)[cfg.key];
+        if (!detail) return null;
+        const value  = detail.score ?? 0;
         const color  = scoreColor(value);
 
         return (

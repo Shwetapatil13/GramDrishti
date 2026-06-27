@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import ReactECharts from 'echarts-for-react';
 import { RegionalData } from '@/hooks/useRegionalData';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
 
@@ -52,22 +52,75 @@ export const NDVIPieChart: React.FC<NDVIPieChartProps> = ({ data, isLoading }) =
         id: key,
         name: CATEGORY_NAMES[key as keyof typeof CATEGORY_NAMES],
         value,
-        color: NDVI_COLORS[key as keyof typeof NDVI_COLORS]
+        itemStyle: {
+          color: NDVI_COLORS[key as keyof typeof NDVI_COLORS],
+          opacity: selectedNDVICategory && selectedNDVICategory !== key ? 0.3 : 1,
+          borderWidth: selectedNDVICategory === key ? 2 : 0,
+          borderColor: selectedNDVICategory === key ? '#ffffff' : 'transparent',
+        }
       }));
-  }, [data]);
+  }, [data, selectedNDVICategory]);
 
-  const onPieEnter = (_: any, index: number) => {
-    // Optional hover logic
-  };
+  const option = useMemo(() => {
+    return {
+      tooltip: {
+        trigger: 'item',
+        formatter: '{b}: {c} regions ({d}%)',
+        backgroundColor: 'var(--surface-bg)',
+        borderColor: 'var(--brand-mint)',
+        textStyle: {
+          color: 'var(--text-primary)'
+        }
+      },
+      legend: {
+        bottom: 0,
+        left: 'center',
+        textStyle: {
+          color: 'var(--text-secondary)',
+          fontSize: 12
+        }
+      },
+      series: [
+        {
+          name: 'NDVI Categories',
+          type: 'pie',
+          radius: ['40%', '70%'],
+          avoidLabelOverlap: false,
+          itemStyle: {
+            borderRadius: 5,
+            borderColor: 'var(--surface-slate)',
+            borderWidth: 2
+          },
+          label: {
+            show: false,
+            position: 'center'
+          },
+          emphasis: {
+            label: {
+              show: false
+            }
+          },
+          labelLine: {
+            show: false
+          },
+          data: chartData
+        }
+      ]
+    };
+  }, [chartData]);
 
-  const onClick = (data: any) => {
-    if (selectedNDVICategory === data.id) {
-      // Toggle off
-      setSelectedNDVICategory(null);
-    } else {
-      setSelectedNDVICategory(data.id);
-    }
-  };
+  const onEvents = useMemo(() => {
+    return {
+      click: (params: any) => {
+        const id = params.data.id;
+        if (selectedNDVICategory === id) {
+          setSelectedNDVICategory(null);
+        } else {
+          setSelectedNDVICategory(id);
+        }
+      }
+    };
+  }, [selectedNDVICategory, setSelectedNDVICategory]);
 
   if (isLoading) {
     return (
@@ -87,46 +140,11 @@ export const NDVIPieChart: React.FC<NDVIPieChartProps> = ({ data, isLoading }) =
 
   return (
     <div className="w-full h-full min-h-[280px] bg-surface-slate rounded-card border border-surface-border p-4">
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={chartData}
-            cx="50%"
-            cy="50%"
-            innerRadius={60}
-            outerRadius={80}
-            paddingAngle={5}
-            dataKey="value"
-            onMouseEnter={onPieEnter}
-            onClick={onClick}
-            cursor="pointer"
-          >
-            {chartData.map((entry, index) => (
-              <Cell 
-                key={`cell-${index}`} 
-                fill={entry.color} 
-                opacity={selectedNDVICategory && selectedNDVICategory !== entry.id ? 0.3 : 1}
-                stroke={selectedNDVICategory === entry.id ? '#ffffff' : 'none'}
-                strokeWidth={selectedNDVICategory === entry.id ? 2 : 0}
-              />
-            ))}
-          </Pie>
-          <Tooltip 
-            contentStyle={{ 
-              backgroundColor: 'var(--surface-bg)',
-              borderColor: 'var(--brand-mint)',
-              borderRadius: '8px',
-              color: 'var(--text-primary)'
-            }}
-            formatter={(value: number) => [`${value} regions`, 'Count']}
-          />
-          <Legend 
-            verticalAlign="bottom" 
-            height={36} 
-            formatter={(value) => <span className="text-text-secondary text-xs">{value}</span>}
-          />
-        </PieChart>
-      </ResponsiveContainer>
+      <ReactECharts 
+        option={option} 
+        style={{ height: '100%', width: '100%', minHeight: '240px' }} 
+        onEvents={onEvents}
+      />
     </div>
   );
 };

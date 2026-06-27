@@ -59,19 +59,17 @@ async def get_village_score(
 
     cache_key = cache.build_key(village_id, year, "score")
     cached = cache.get(cache_key)
+    
     if cached:
         logger.info(f"[Scores] Cache HIT for {cache_key}")
-        # Cached as dict — reconstruct Pydantic model so callers get .overall etc.
         try:
             return VillageHealthScore(**cached)
         except Exception:
-            return cached  # fallback: return raw dict if reconstruction fails
+            return cached
 
     logger.info(f"[Scores] Cache MISS for {cache_key}. Running GEE pipeline (current + prev year concurrently)...")
 
     try:
-        # Run current year and previous year GEE calls CONCURRENTLY (not sequentially)
-        # Hard outer timeout of 90s to prevent indefinite hanging in the dashboard
         current_task = _compute_score(village_id, boundary, year)
         prev_task = _compute_score(village_id, boundary, year - 1) if year > 2022 else asyncio.sleep(0, result=None)
 
@@ -83,7 +81,6 @@ async def get_village_score(
         if not current_score:
             raise HTTPException(status_code=500, detail=f"GEE analysis failed for village '{village_id}' year {year}. Check backend logs.")
 
-        # Re-compute with trend data now that we have both years
         prev_overall = prev_score.overall if prev_score else None
         raw_metrics = await get_all_gee_metrics(village_id, boundary, year)
         metrics = aggregate_environmental_metrics(village_id, year, raw_metrics)
@@ -111,6 +108,45 @@ async def get_village_score(
         raise
     except Exception as e:
         logger.error(f"[Scores] ❌ Unexpected error for {village_id}/{year}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+from pydantic import BaseModel
+class DynamicScoreRequest(BaseModel):
+    village_id: str
+    polygon: dict
+    year: int = 2024
+
+@router.post("/scores/analyze", response_model=VillageHealthScore)
+async def get_dynamic_score(req: DynamicScoreRequest):
+    try:
+        from app.services.village_service import add_dynamic_village
+        add_dynamic_village(req.village_id, req.polygon)
+        
+        cache_key = cache.build_key(req.village_id, req.year, "score")
+        cached = cache.get(cache_key)
+        if cached:
+            try:
+                return VillageHealthScore(**cached)
+            except Exception:
+                return cached
+                
+        raw_metrics = await get_all_gee_metrics(req.village_id, req.polygon, req.year)
+        metrics = aggregate_environmental_metrics(req.village_id, req.year, raw_metrics)
+        components = {
+            "water": calculate_water_score(metrics),
+            "vegetation": calculate_vegetation_score(metrics),
+            "climate": calculate_climate_score(metrics),
+            "flood": calculate_flood_score(metrics),
+            "land": calculate_land_score(metrics)
+        }
+        score = calculate_overall_score(components)
+        score.villageId = req.village_id
+        score.year = req.year
+        cache.set(cache_key, score.model_dump(), ttl_seconds=86400)
+        return score
+    except Exception as e:
+        import traceback
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/scores/{village_id}/component/{component}")

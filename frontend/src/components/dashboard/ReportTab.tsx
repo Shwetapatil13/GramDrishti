@@ -98,7 +98,7 @@ export const ReportTab: React.FC = () => {
         <button 
           onClick={handleDownloadPDF}
           disabled={generatingPDF || !selectedVillage}
-          className="w-full flex items-center justify-center gap-2 bg-brand-mint text-canvas-black rounded-button py-3 font-mono text-xs hover:bg-white transition-colors mt-2 disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-2 bg-brand-mint text-canvas-black rounded-button py-3 font-mono text-xs hover:opacity-90 disabled:hover:opacity-50 transition-all mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {generatingPDF ? (
             <><Loader2 className="w-4 h-4 animate-spin" /> {t('dashboard.generating', 'GENERATING...')}</>

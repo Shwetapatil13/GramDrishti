@@ -44,14 +44,21 @@ async def get_all_regions_metrics(
             elif metrics.ndvi >= 0.4: cat = "good"
             elif metrics.ndvi >= 0.2: cat = "fair"
             
+            # Fetch village area
+            from app.services.village_service import get_village_by_id
+            village = get_village_by_id(vid)
+            area_ha = village.area if village else 50.0
+
             return {
                 "id": vid,
                 "name": v_info["name"],
                 "ndvi": metrics.ndvi,
                 "category": cat,
-                "areaHa": metrics.areaHa
+                "areaHa": area_ha
             }
-        except Exception:
+        except Exception as e:
+            import logging
+            logging.error(f"Error fetching metrics for {vid}: {e}")
             return None
 
     tasks = [fetch_village(v) for v in SEARCH_INDEX]

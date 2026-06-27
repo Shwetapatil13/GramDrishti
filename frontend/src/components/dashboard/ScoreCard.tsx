@@ -20,8 +20,8 @@ export const ScoreCard: React.FC = () => {
     let declining = 0;
     const comps = [score.water, score.vegetation, score.climate, score.flood, score.land];
     comps.forEach(c => {
-      if (c.trend === 'improving') improving++;
-      else if (c.trend === 'declining') declining++;
+      if (c?.trend === 'improving') improving++;
+      else if (c?.trend === 'declining') declining++;
     });
     
     if (improving > declining) return 'improving';

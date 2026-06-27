@@ -17,6 +17,9 @@ class AnalyzeRequest(BaseModel):
 @router.post("/analyze")
 async def analyze_area(request: AnalyzeRequest):
     try:
+        from app.services.village_service import add_dynamic_village
+        add_dynamic_village(request.village_id, request.polygon)
+        
         raw_metrics = await get_all_gee_metrics(request.village_id, request.polygon, request.year)
         metrics = aggregate_environmental_metrics(request.village_id, request.year, raw_metrics)
         

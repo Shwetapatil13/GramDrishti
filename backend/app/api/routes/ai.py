@@ -7,8 +7,33 @@ from app.api.routes.satellite import get_village_metrics
 from app.api.routes.scores import get_village_score
 from app.utils.cache import cache
 import time
+import json
 
 router = APIRouter()
+
+@router.get("/ai/debug-score/{village_id}")
+async def debug_score(village_id: str, year: int = 2024):
+    try:
+        score = await get_village_score(village_id, year)
+        return {
+            "type": str(type(score)),
+            "value": score.model_dump() if hasattr(score, 'model_dump') else score
+        }
+    except Exception as e:
+        return {"error": str(e), "type": str(type(e))}
+
+@router.get("/ai/test-gemini")
+async def test_gemini():
+    try:
+        from app.services.ai.gemini_client import GeminiClient
+        from app.services.ai.ai_service import ai_service
+        
+        if isinstance(ai_service.client, GeminiClient):
+            return {"status": "ok", "message": "Gemini client is initialized properly."}
+        else:
+            return {"status": "warning", "message": f"Using client: {type(ai_service.client).__name__}"}
+    except Exception as e:
+        return {"status": "error", "message": str(e), "type": str(type(e))}
 
 class ChatRequest(BaseModel):
     question: str

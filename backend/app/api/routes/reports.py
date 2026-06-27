@@ -31,7 +31,7 @@ async def download_pdf(
         ai_narrative = ""
         
         if include_ai:
-            recommendations = await get_village_recommendations(request, village_id, year)
+            recommendations = await get_village_recommendations(village_id, year)
             ai_narrative_resp = await get_report_narrative(request, village_id, year)
             if isinstance(ai_narrative_resp, dict):
                 ai_narrative = ai_narrative_resp.get("narrative", "")
@@ -66,7 +66,7 @@ async def download_json(
     try:
         metrics = await get_village_metrics(village_id, year)
         score = await get_village_score(village_id, year)
-        recommendations = await get_village_recommendations(request, village_id, year)
+        recommendations = await get_village_recommendations(village_id, year)
         history = await get_village_history(village_id)
         
         json_str = export_village_json(village, metrics, score, recommendations, history)

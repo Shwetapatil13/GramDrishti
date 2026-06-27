@@ -47,14 +47,20 @@ def load_villages():
                     
                     # Calculate approximate center from coordinates for display purposes
                     coords = geom.get("coordinates", [])
+                    poly_type = geom.get("type", "Polygon")
                     lat = 20.0
                     lon = 78.0
-                    if coords and len(coords) > 0 and len(coords[0]) > 0:
-                        # simple average of first few points
-                        pts = coords[0]
-                        if isinstance(pts[0], list): # Polygon
-                            lon = sum([p[0] for p in pts]) / len(pts)
-                            lat = sum([p[1] for p in pts]) / len(pts)
+                    if coords and len(coords) > 0:
+                        if poly_type == "MultiPolygon":
+                            if len(coords[0]) > 0 and len(coords[0][0]) > 0:
+                                pts = coords[0][0]
+                                lon = sum([p[0] for p in pts]) / len(pts)
+                                lat = sum([p[1] for p in pts]) / len(pts)
+                        elif poly_type == "Polygon":
+                            if len(coords[0]) > 0:
+                                pts = coords[0]
+                                lon = sum([p[0] for p in pts]) / len(pts)
+                                lat = sum([p[1] for p in pts]) / len(pts)
                     
                     village = Village(
                         id=v_id,
@@ -106,3 +112,41 @@ def get_village_by_id(village_id: str) -> Optional[Village]:
 def get_village_boundary(village_id: str) -> Optional[Dict[str, Any]]:
     """Return the GeoJSON boundary for a specific village."""
     return BOUNDARY_CACHE.get(village_id)
+
+def add_dynamic_village(village_id: str, polygon: Dict[str, Any], name: str = None) -> Village:
+    """Add a dynamically fetched polygon (e.g. from Nominatim) to the cache."""
+    # Calculate approximate center
+    lat = 20.0
+    lon = 78.0
+    coords = polygon.get("coordinates", [])
+    poly_type = polygon.get("type", "Polygon")
+    
+    if coords and len(coords) > 0:
+        if poly_type == "MultiPolygon":
+            # For MultiPolygon, coords[0] is a Polygon (list of rings)
+            # coords[0][0] is the exterior ring (list of points)
+            if len(coords[0]) > 0 and len(coords[0][0]) > 0:
+                pts = coords[0][0]
+                lon = sum([p[0] for p in pts]) / len(pts)
+                lat = sum([p[1] for p in pts]) / len(pts)
+        elif poly_type == "Polygon":
+            # For Polygon, coords[0] is the exterior ring (list of points)
+            if len(coords[0]) > 0:
+                pts = coords[0]
+                lon = sum([p[0] for p in pts]) / len(pts)
+                lat = sum([p[1] for p in pts]) / len(pts)
+
+    village = Village(
+        id=village_id,
+        name=name or village_id,
+        nameHindi=name or village_id,
+        district="Dynamic",
+        state="Dynamic",
+        coordinates=(lat, lon),
+        boundary=polygon,
+        area=50.0  # Mock area
+    )
+    
+    SEARCH_CACHE[village_id] = village
+    BOUNDARY_CACHE[village_id] = polygon
+    return village

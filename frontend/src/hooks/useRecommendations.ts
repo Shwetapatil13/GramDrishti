@@ -1,13 +1,24 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiService } from '@/services/api';
 import { AIRecommendation } from '@/types';
+import { useVillageSelection } from './useVillageSelection';
 
 export const useRecommendations = (villageId: string | undefined, year: number) => {
+  const { selectedVillagePolygon } = useVillageSelection();
   const queryClient = useQueryClient();
 
   const queryResult = useQuery<AIRecommendation[], Error>({
-    queryKey: ['recommendations', villageId, year],
-    queryFn: () => apiService.get<AIRecommendation[]>(`/api/v1/recommendations/${villageId}`, { year }),
+    queryKey: ['recommendations', villageId, year, selectedVillagePolygon],
+    queryFn: async () => {
+      if (selectedVillagePolygon) {
+        return apiService.post<AIRecommendation[]>(`/api/v1/recommendations/analyze`, {
+          village_id: villageId,
+          polygon: selectedVillagePolygon,
+          year: year
+        });
+      }
+      return apiService.get<AIRecommendation[]>(`/api/v1/recommendations/${villageId}`, { year });
+    },
     enabled: !!villageId,
     staleTime: Infinity,
     retry: 1,
