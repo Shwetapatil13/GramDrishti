@@ -15,20 +15,35 @@ export const Hero: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
           
-          {/* Text Content */}
+          {/* Hero Image (Now on Left) */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-col gap-6"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8 }}
+            className="relative w-full rounded-3xl overflow-hidden border border-surface-border/50 shadow-[0_0_40px_-15px_rgba(46,204,113,0.3)] group order-first"
+          >
+            <div className="absolute inset-0 bg-gradient-to-tr from-brand-mint/20 via-transparent to-brand-blue/10 mix-blend-overlay z-10 pointer-events-none transition-opacity group-hover:opacity-50"></div>
+            <img 
+              src="/hero_image.png" 
+              alt="GramDrishti Hero Dashboard" 
+              className="w-full h-auto object-cover rounded-3xl transition-transform duration-700 group-hover:scale-[1.02]"
+            />
+          </motion.div>
+          
+          {/* Text Content (Now on Right) */}
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="flex flex-col gap-6 lg:pl-6"
           >
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-mint/10 border border-brand-mint/20 w-fit">
               <span className="w-2 h-2 rounded-full bg-brand-mint animate-pulse"></span>
               <span className="text-mono text-[10px] text-brand-mint">{t('hero.live_monitoring', 'LIVE SATELLITE MONITORING')}</span>
             </div>
             
-            <h1 className="text-display text-text-primary text-4xl md:text-6xl lg:text-[4rem] leading-[1.1]">
-              {t('hero.headline', 'See Every Village Before Problems Become Crises.')}
+            <h1 className="text-display text-text-primary text-4xl md:text-5xl lg:text-6xl leading-[1.1]">
+              {t('hero.headline', 'See Every Village. Solve Problems Before They Become Crises.')}
             </h1>
             
             <p className="text-body text-text-secondary text-lg md:text-xl max-w-xl">
@@ -42,51 +57,6 @@ export const Hero: React.FC = () => {
               <button className="flex items-center gap-2 bg-surface-slate border border-surface-border text-text-primary px-6 py-3.5 rounded-button font-grotesk text-sm hover:bg-surface-elevated transition-colors">
                 <Play className="w-4 h-4" /> {t('hero.watch_demo', 'Watch Demo')}
               </button>
-            </div>
-          </motion.div>
-
-          {/* Animated Mockup */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative h-[400px] md:h-[500px] w-full rounded-2xl border border-surface-border bg-surface-slate p-2 shadow-2xl overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-tr from-brand-mint/5 via-transparent to-brand-blue/5"></div>
-            
-            {/* Mock Dashboard UI */}
-            <div className="w-full h-full rounded-xl border border-surface-border bg-canvas-black flex overflow-hidden">
-              <div className="w-1/3 border-r border-surface-border p-4 flex flex-col gap-3">
-                <div className="h-8 bg-surface-slate rounded-lg w-full"></div>
-                <div className="h-16 bg-surface-slate rounded-lg w-full border-l-2 border-brand-mint"></div>
-                <div className="h-16 bg-surface-slate rounded-lg w-full"></div>
-              </div>
-              <div className="w-2/3 p-4 relative">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border border-brand-mint/30 flex items-center justify-center">
-                  <div className="w-24 h-24 rounded-full border border-brand-mint/50 flex items-center justify-center">
-                    <div className="w-16 h-16 rounded-full bg-brand-mint/20 animate-pulse"></div>
-                  </div>
-                </div>
-                
-                {/* Floating Cards */}
-                <motion.div 
-                  animate={{ y: [0, -10, 0] }}
-                  transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                  className="absolute top-4 right-4 bg-surface-elevated border border-surface-border p-3 rounded-lg shadow-lg"
-                >
-                  <div className="text-mono text-[10px] text-text-secondary">{t('map.layers.ndvi', 'NDVI HEALTH')}</div>
-                  <div className="text-brand-mint font-bold">0.62</div>
-                </motion.div>
-                
-                <motion.div 
-                  animate={{ y: [0, 10, 0] }}
-                  transition={{ repeat: Infinity, duration: 5, ease: "easeInOut", delay: 1 }}
-                  className="absolute bottom-4 left-4 bg-surface-elevated border border-surface-border p-3 rounded-lg shadow-lg flex items-center gap-2"
-                >
-                  <div className="w-8 h-8 rounded-full border-[3px] border-semantic-warning flex items-center justify-center text-xs">68</div>
-                  <div className="text-mono text-[10px] text-text-secondary">{t('dashboard.health_score', 'HEALTH SCORE').toUpperCase()}</div>
-                </motion.div>
-              </div>
             </div>
           </motion.div>
 

@@ -10,10 +10,8 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
-  const { selectedVillage, selectedYear, setSelectedYear } = useVillageSelection();
+  const { selectedVillage } = useVillageSelection();
   const { theme, toggleTheme } = useTheme();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const years = [2026, 2025, 2024, 2023, 2022];
   const { t } = useTranslation();
 
   return (
@@ -46,30 +44,6 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
         >
           {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </button>
-
-        <div 
-          className="text-mono text-text-muted cursor-pointer hover:text-brand-mint transition-colors flex items-center gap-1 bg-surface-slate px-3 py-1.5 rounded-tag border border-surface-border"
-          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        >
-          {selectedYear} <span className="text-[10px]">▼</span>
-        </div>
-        
-        {isDropdownOpen && (
-          <div className="absolute top-full right-0 mt-2 bg-surface-slate border border-surface-border rounded-xl shadow-lg overflow-hidden py-1 w-24">
-            {years.map(year => (
-              <div 
-                key={year}
-                className={`px-4 py-2 text-mono text-sm cursor-pointer hover:bg-surface-elevated transition-colors ${selectedYear === year ? 'text-brand-mint font-bold bg-surface-elevated' : 'text-text-primary'}`}
-                onClick={() => {
-                  setSelectedYear(year);
-                  setIsDropdownOpen(false);
-                }}
-              >
-                {year}
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     </header>
   );

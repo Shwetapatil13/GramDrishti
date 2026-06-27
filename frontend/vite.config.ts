@@ -12,6 +12,12 @@ try {
     }
     fs.copyFileSync(source, dest);
   }
+  
+  const heroSource = path.resolve(__dirname, '../hero image.png');
+  const heroDest = path.resolve(__dirname, './public/hero_image.png');
+  if (fs.existsSync(heroSource)) {
+    fs.copyFileSync(heroSource, heroDest);
+  }
 } catch (e) {
   console.error("Failed to copy logo", e);
 }

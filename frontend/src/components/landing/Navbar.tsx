@@ -49,9 +49,6 @@ export const LandingNavbar: React.FC = () => {
             {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
           <div className="hidden md:flex items-center gap-3">
-            <Link to="/auth" className="text-body text-text-secondary hover:text-text-primary transition-colors px-4 py-2">
-              {t('landing.login', 'Login')}
-            </Link>
             <Link to="/auth?mode=signup" className="bg-text-primary text-canvas-black px-5 py-2.5 rounded-button font-mono text-xs uppercase tracking-wider hover:bg-brand-mint transition-colors">
               {t('landing.getStarted', 'Get Started')}
             </Link>
