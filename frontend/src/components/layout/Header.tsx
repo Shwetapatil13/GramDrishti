@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { Menu, Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
+import { LanguageSwitcher } from './LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
+// @ts-ignore
+import logoUrl from '../../../../../logo.png';
 
 interface HeaderProps {
   onMenuToggle?: () => void;
@@ -12,6 +16,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   const { theme, toggleTheme } = useTheme();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const years = [2026, 2025, 2024, 2023, 2022];
+  const { t } = useTranslation();
 
   return (
     <header className="h-[56px] bg-canvas-black border-b border-surface-border flex items-center justify-between px-4 md:px-6 shrink-0 relative z-[500]">
@@ -21,19 +26,23 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
             <Menu className="w-5 h-5" />
           </button>
         )}
-        <div className="flex items-baseline gap-2 md:gap-3">
-          <h1 className="text-heading-lg text-text-primary tracking-tight text-lg md:text-2xl">GRAMDRISHTI</h1>
-          <span className="text-brand-mint text-xs md:text-sm font-medium">ग्रामदृष्टि</span>
+        <div className="flex items-center gap-2 md:gap-3">
+          <img src={logoUrl} alt="Logo" className="h-6 w-auto object-contain" />
+          <h1 className="text-heading-lg text-text-primary tracking-tight text-lg md:text-2xl pt-1">GRAMDRISHTI</h1>
+          <img src={logoUrl} alt="Logo" className="h-5 w-auto object-contain" />
+          <span className="text-brand-mint text-xs md:text-sm font-medium pt-1">ग्रामदृष्टि</span>
         </div>
       </div>
       
       <div className="hidden md:flex flex-1 justify-center">
         <span className="text-body text-text-secondary">
-          {selectedVillage ? `${selectedVillage.name}, ${selectedVillage.district}` : 'Select a village'}
+          {selectedVillage ? `${selectedVillage.name}, ${selectedVillage.district}` : t('header.select_village', 'Select a village')}
         </span>
       </div>
 
       <div className="flex items-center gap-4 relative">
+        <LanguageSwitcher />
+
         <button 
           onClick={toggleTheme}
           className="text-text-muted hover:text-brand-mint transition-colors p-1"

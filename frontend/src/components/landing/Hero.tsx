@@ -2,8 +2,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Play } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export const Hero: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-canvas-black">
       {/* Subtle grid background */}
@@ -21,23 +24,23 @@ export const Hero: React.FC = () => {
           >
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-mint/10 border border-brand-mint/20 w-fit">
               <span className="w-2 h-2 rounded-full bg-brand-mint animate-pulse"></span>
-              <span className="text-mono text-[10px] text-brand-mint">LIVE SATELLITE MONITORING</span>
+              <span className="text-mono text-[10px] text-brand-mint">{t('hero.live_monitoring', 'LIVE SATELLITE MONITORING')}</span>
             </div>
             
             <h1 className="text-display text-text-primary text-4xl md:text-6xl lg:text-[4rem] leading-[1.1]">
-              See Every Village Before Problems Become Crises.
+              {t('hero.headline', 'See Every Village Before Problems Become Crises.')}
             </h1>
             
             <p className="text-body text-text-secondary text-lg md:text-xl max-w-xl">
-              GramDrishti is an AI-powered rural intelligence platform combining satellite imagery, Google Earth Engine, environmental analytics, and artificial intelligence to monitor villages in real time.
+              {t('hero.description', 'GramDrishti is an AI-powered rural intelligence platform combining satellite imagery, Google Earth Engine, environmental analytics, and artificial intelligence to monitor villages in real time.')}
             </p>
 
             <div className="flex flex-wrap items-center gap-4 mt-4">
               <Link to="/auth" className="flex items-center gap-2 bg-brand-mint text-canvas-black px-6 py-3.5 rounded-button font-mono text-sm uppercase tracking-wider hover:bg-text-primary transition-colors">
-                Get Started <ArrowRight className="w-4 h-4" />
+                {t('landing.getStarted', 'Get Started')} <ArrowRight className="w-4 h-4" />
               </Link>
               <button className="flex items-center gap-2 bg-surface-slate border border-surface-border text-text-primary px-6 py-3.5 rounded-button font-grotesk text-sm hover:bg-surface-elevated transition-colors">
-                <Play className="w-4 h-4" /> Watch Demo
+                <Play className="w-4 h-4" /> {t('hero.watch_demo', 'Watch Demo')}
               </button>
             </div>
           </motion.div>
@@ -71,7 +74,7 @@ export const Hero: React.FC = () => {
                   transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
                   className="absolute top-4 right-4 bg-surface-elevated border border-surface-border p-3 rounded-lg shadow-lg"
                 >
-                  <div className="text-mono text-[10px] text-text-secondary">NDVI HEALTH</div>
+                  <div className="text-mono text-[10px] text-text-secondary">{t('map.layers.ndvi', 'NDVI HEALTH')}</div>
                   <div className="text-brand-mint font-bold">0.62</div>
                 </motion.div>
                 
@@ -81,7 +84,7 @@ export const Hero: React.FC = () => {
                   className="absolute bottom-4 left-4 bg-surface-elevated border border-surface-border p-3 rounded-lg shadow-lg flex items-center gap-2"
                 >
                   <div className="w-8 h-8 rounded-full border-[3px] border-semantic-warning flex items-center justify-center text-xs">68</div>
-                  <div className="text-mono text-[10px] text-text-secondary">HEALTH SCORE</div>
+                  <div className="text-mono text-[10px] text-text-secondary">{t('dashboard.health_score', 'HEALTH SCORE').toUpperCase()}</div>
                 </motion.div>
               </div>
             </div>

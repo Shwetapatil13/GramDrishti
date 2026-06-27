@@ -12,6 +12,7 @@ router = APIRouter()
 
 class ChatRequest(BaseModel):
     question: str
+    language: str = "en"
 
 def check_rate_limit(request: Request):
     """
@@ -43,18 +44,19 @@ async def _gather_context_data(village_id: str, year: int):
 async def get_ai_summary(
     request: Request,
     village_id: str,
-    year: int = Query(2024, ge=2022, le=2026)
+    year: int = Query(2024, ge=2022, le=2026),
+    language: str = Query("en")
 ):
     check_rate_limit(request)
     
-    cache_key = cache.build_key(village_id, year, "ai_summary")
+    cache_key = cache.build_key(village_id, year, "ai_summary", language)
     cached = cache.get(cache_key)
     if cached:
         return {"summary": cached["text"]}
         
     try:
         village, metrics, score = await _gather_context_data(village_id, year)
-        summary = await ai_service.get_summary(village, metrics, score)
+        summary = await ai_service.get_summary(village, metrics, score, language=language)
         cache.set(cache_key, {"text": summary}, ttl_seconds=86400)
         return {"summary": summary}
     except Exception as e:
@@ -64,18 +66,19 @@ async def get_ai_summary(
 async def get_ai_recommendations(
     request: Request,
     village_id: str,
-    year: int = Query(2024, ge=2022, le=2026)
+    year: int = Query(2024, ge=2022, le=2026),
+    language: str = Query("en")
 ):
     check_rate_limit(request)
     
-    cache_key = cache.build_key(village_id, year, "ai_recs")
+    cache_key = cache.build_key(village_id, year, "ai_recs", language)
     cached = cache.get(cache_key)
     if cached:
         return {"recommendations": cached["recs"]}
         
     try:
         village, metrics, score = await _gather_context_data(village_id, year)
-        recs = await ai_service.get_recommendations(village, metrics, score)
+        recs = await ai_service.get_recommendations(village, metrics, score, language=language)
         cache.set(cache_key, {"recs": recs}, ttl_seconds=86400)
         return {"recommendations": recs}
     except Exception as e:
@@ -92,7 +95,7 @@ async def chat_with_ai(
     
     try:
         village, metrics, score = await _gather_context_data(village_id, year)
-        answer = await ai_service.chat(body.question, village, metrics, score)
+        answer = await ai_service.chat(body.question, village, metrics, score, language=body.language)
         return {"answer": answer}
     except Exception as e:
         raise HTTPException(status_code=504, detail=str(e))
@@ -101,18 +104,19 @@ async def chat_with_ai(
 async def get_report_narrative(
     request: Request,
     village_id: str,
-    year: int = Query(2024, ge=2022, le=2026)
+    year: int = Query(2024, ge=2022, le=2026),
+    language: str = Query("en")
 ):
     check_rate_limit(request)
     
-    cache_key = cache.build_key(village_id, year, "ai_narrative")
+    cache_key = cache.build_key(village_id, year, "ai_narrative", language)
     cached = cache.get(cache_key)
     if cached:
         return {"narrative": cached["text"]}
         
     try:
         village, metrics, score = await _gather_context_data(village_id, year)
-        narrative = await ai_service.get_report_narrative(village, metrics, score)
+        narrative = await ai_service.get_report_narrative(village, metrics, score, language=language)
         cache.set(cache_key, {"text": narrative}, ttl_seconds=86400)
         return {"narrative": narrative}
     except Exception as e:

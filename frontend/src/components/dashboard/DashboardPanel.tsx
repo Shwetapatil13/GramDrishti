@@ -7,6 +7,7 @@ import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { Skeleton } from '../ui/Skeleton';
+import { useTranslation } from 'react-i18next';
 
 // Lazy loading tabs for code splitting
 const OverviewTab = React.lazy(() => import('./OverviewTab').then(m => ({ default: m.OverviewTab })));
@@ -23,6 +24,7 @@ export const DashboardPanel: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('OVERVIEW');
   const [isMobileExpanded, setIsMobileExpanded] = useState(false);
   const { geeStatus } = useSatelliteData(selectedVillage?.id, selectedYear);
+  const { t } = useTranslation();
 
   if (!selectedVillage) {
     return (
@@ -102,9 +104,7 @@ export const DashboardPanel: React.FC = () => {
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-center">
                     <p className="text-body text-text-secondary">
-                      Content for <span className="text-brand-mint font-mono uppercase">{activeTab}</span>
-                      <br />
-                      Coming in a later level...
+                      {t('dashboard.coming_soon', 'Content for {{tab}} Coming in a later level...', { tab: activeTab })}
                     </p>
                   </div>
                 )}

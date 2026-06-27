@@ -3,9 +3,11 @@ import { Search, Loader2, WifiOff, MapPin } from 'lucide-react';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { apiService } from '@/services/api';
 import { Village } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 /** Query Nominatim for villages in India when the backend has no results */
 async function searchNominatim(query: string): Promise<Village[]> {
+//...omitted for brevity, assume searchNominatim doesn't need translation hooks as it's outside component
   console.log(`[VillageSearch][Nominatim] Querying OSM Nominatim for: "${query}"`);
   const url = new URL('https://nominatim.openstreetmap.org/search');
   url.searchParams.set('q', `${query}, India`);
@@ -87,6 +89,7 @@ async function searchNominatim(query: string): Promise<Village[]> {
 }
 
 export const VillageSearch: React.FC = () => {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const { setSelectedVillage, flyToVillage } = useVillageSelection();
@@ -224,7 +227,7 @@ export const VillageSearch: React.FC = () => {
           <Search className="w-4 h-4 text-text-secondary mr-2 shrink-0" />
           <input
             type="text"
-            placeholder="Search any village..."
+            placeholder={t('map.search_placeholder', 'Search any village...')}
             className="bg-transparent border-none outline-none text-body text-text-primary w-full placeholder:text-text-secondary text-sm"
             value={query}
             onChange={(e) => {

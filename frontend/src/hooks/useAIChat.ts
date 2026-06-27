@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { apiService } from '@/services/api';
+import { useTranslation } from 'react-i18next';
 
 export interface ChatMessage {
   id: string;
@@ -11,6 +12,7 @@ export const useAIChat = (villageId: string | undefined, year: number) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t, i18n } = useTranslation();
 
   const sendMessage = useCallback(async (question: string) => {
     if (!villageId || !question.trim()) return;
@@ -28,6 +30,7 @@ export const useAIChat = (villageId: string | undefined, year: number) => {
     try {
       const response = await apiService.post<{ answer: string }>(`/api/v1/ai/${villageId}/chat?year=${year}`, {
         question: userMessage.content,
+        language: i18n.language || 'en'
       });
 
       const aiMessage: ChatMessage = {

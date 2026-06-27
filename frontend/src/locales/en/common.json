@@ -1,0 +1,140 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "village": "Village",
+    "map": "Map",
+    "ai_assistant": "AI Assistant"
+  },
+  "hero": {
+    "live_monitoring": "LIVE SATELLITE MONITORING",
+    "headline": "See Every Village Before Problems Become Crises.",
+    "description": "GramDrishti is an AI-powered rural intelligence platform combining satellite imagery, Google Earth Engine, environmental analytics, and artificial intelligence to monitor villages in real time.",
+    "watch_demo": "Watch Demo"
+  },
+  "landing": {
+    "features": "Features",
+    "technology": "Technology",
+    "howItWorks": "How It Works",
+    "login": "Login",
+    "getStarted": "Get Started",
+    "nav": {
+      "features": "Features",
+      "howItWorks": "How It Works",
+      "login": "Dashboard Login"
+    }
+  },
+  "features": {
+    "headline": "Core Capabilities",
+    "subheadline": "Everything you need to monitor and plan for climate resilience at the village level.",
+    "item1": { "title": "Real-time Satellite Analysis", "desc": "Process multispectral imagery on the fly for any village in India." },
+    "item2": { "title": "AI-Powered Insights", "desc": "Translate complex environmental metrics into plain-language actionable intelligence." },
+    "item3": { "title": "Change Detection", "desc": "Track historical trends in vegetation and surface water over five years." },
+    "item4": { "title": "Automated Reports", "desc": "Generate comprehensive PDF assessments with one click for policy making." }
+  },
+  "howItWorks": {
+    "headline": "How It Works",
+    "subheadline": "A seamless pipeline from raw coordinates to actionable intelligence in seconds.",
+    "step1": { "title": "Search Village", "desc": "Find any village in India instantly." },
+    "step2": { "title": "Fetch Satellite Data", "desc": "Pull GEE metrics on the fly." },
+    "step3": { "title": "Environmental Analysis", "desc": "Calculate health and stress scores." },
+    "step4": { "title": "AI Processing", "desc": "Generate actionable insights." },
+    "step5": { "title": "Interactive Dashboard", "desc": "Visualize and export reports." }
+  },
+  "technology": {
+    "headline": "Technology Stack",
+    "subheadline": "Built on a modern, scalable, and powerful geospatial architecture."
+  },
+  "cta": {
+    "headline": "Start Monitoring Villages Intelligently",
+    "subheadline": "Join GramDrishti today and transform how rural environmental planning is executed.",
+    "learn_more": "Learn More"
+  },
+  "footer": {
+    "description": "AI-powered Climate Intelligence Platform for Indian villages.",
+    "quick_links": "QUICK LINKS",
+    "legal": "LEGAL",
+    "documentation": "Documentation",
+    "privacy_policy": "Privacy Policy",
+    "github": "GitHub",
+    "copyright": "© {{year}} GramDrishti. All rights reserved."
+  },
+  "dashboard": {
+    "regional_ndvi": "REGIONAL NDVI DISTRIBUTION",
+    "land_cover": "LAND COVER BREAKDOWN",
+    "climate_assessment": "CLIMATE ASSESSMENT",
+    "history_error": "Historical analysis temporarily unavailable — try refreshing.",
+    "overall_trajectory": "OVERALL TRAJECTORY",
+    "notable_changes": "NOTABLE CHANGES (2022-2026)",
+    "ndvi_trend": "NDVI TREND",
+    "surface_water_trend": "SURFACE WATER (HA)",
+    "village_report": "VILLAGE REPORT",
+    "include_ai": "Include AI Analysis",
+    "includes": "INCLUDES:",
+    "exec_summary": "Executive Summary",
+    "ai_narrative": "(AI Narrative)",
+    "auto_generated": "(Auto)",
+    "health_score": "Village Health Score & Breakdowns",
+    "env_metrics": "Environmental Metrics",
+    "historical_trends": "Historical Trends (2022-2026)",
+    "ai_recs": "AI Recommendations",
+    "methodology": "Methodology",
+    "generating": "GENERATING...",
+    "download_pdf": "DOWNLOAD PDF REPORT",
+    "export_json": "EXPORT JSON",
+    "export_csv": "EXPORT CSV",
+    "last_generated": "LAST GENERATED:",
+    "never": "NEVER",
+    "pdf_error": "Failed to generate PDF report.",
+    "json_error": "Failed to generate JSON export.",
+    "csv_error": "Failed to generate CSV export.",
+    "expected": "Expected",
+    "current_weather": "CURRENT WEATHER",
+    "weather_unavailable": "Weather unavailable",
+    "unavailable": "Unavailable",
+    "score": {
+      "water": "WATER SECURITY",
+      "vegetation": "VEGETATION HEALTH",
+      "climate": "CLIMATE STABILITY",
+      "flood": "FLOOD PREPAREDNESS",
+      "land": "LAND SUSTAINABILITY",
+      "pending": "Score data pending"
+    },
+    "trend": {
+      "improving": "improving",
+      "stable": "stable",
+      "declining": "declining"
+    }
+  },
+  "metrics": {
+    "ndvi_name": "NDVI",
+    "water_area_name": "Water Area"
+  },
+  "map": {
+    "base_map": "BASE MAP",
+    "overlays": "OVERLAYS",
+    "search_placeholder": "Search any village...",
+    "area": "Area",
+    "view_analysis": "VIEW ANALYSIS",
+    "layers": {
+      "dark": "Dark Matter",
+      "satellite": "Satellite",
+      "osm": "Street Map",
+      "ndvi": "NDVI Health",
+      "water": "Surface Water"
+    }
+  },
+  "chat": {
+    "title": "GRAMDRISHTI AI",
+    "empty_state": "Ask GramDrishti AI about {{villageName}}'s environmental health.",
+    "placeholder": "Ask a question..."
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "no_account": "Don't have an account?",
+    "has_account": "Already have an account?"
+  },
+  "errors": {
+    "summary_failed": "Failed to generate summary."
+  }
+}

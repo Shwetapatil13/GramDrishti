@@ -1,6 +1,7 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import { AIChatPanel } from '../ai/AIChatPanel';
+import { useTranslation } from 'react-i18next';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -8,6 +9,7 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
   const sidebarClasses = `
     w-[320px] bg-canvas-black border-r border-surface-border flex flex-col h-full shrink-0
     absolute md:relative z-[600] md:z-auto transition-transform duration-300 ease-in-out
@@ -26,7 +28,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       <aside className={sidebarClasses}>
         {onClose && (
           <div className="flex justify-between items-center md:hidden p-4 border-b border-surface-border">
-            <span className="text-mono text-text-primary">GRAMDRISHTI AI</span>
+            <span className="text-mono text-text-primary">{t('nav.ai_assistant', 'GRAMDRISHTI AI')}</span>
             <button onClick={onClose} className="text-text-muted"><X className="w-5 h-5"/></button>
           </div>
         )}

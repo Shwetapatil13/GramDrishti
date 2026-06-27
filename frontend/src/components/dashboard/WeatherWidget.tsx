@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Cloud, Droplets, ThermometerSun } from 'lucide-react';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { apiService } from '@/services/api';
+import { useTranslation } from 'react-i18next';
 
 interface WeatherData {
   temperature_c?: number;
@@ -11,6 +12,7 @@ interface WeatherData {
 }
 
 export const WeatherWidget: React.FC = () => {
+  const { t } = useTranslation();
   const { selectedVillage } = useVillageSelection();
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -59,7 +61,7 @@ export const WeatherWidget: React.FC = () => {
   return (
     <div className="p-4 border-b border-surface-border bg-surface-slate/30">
       <div className="flex items-center justify-between mb-3">
-        <h4 className="text-mono text-text-secondary text-xs">CURRENT WEATHER</h4>
+        <h4 className="text-mono text-text-secondary text-xs">{t('dashboard.current_weather', 'CURRENT WEATHER')}</h4>
         <Cloud className="w-4 h-4 text-brand-blue" />
       </div>
 
@@ -90,11 +92,11 @@ export const WeatherWidget: React.FC = () => {
         </div>
       ) : weatherError ? (
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] text-semantic-warning font-mono">Weather unavailable</span>
+          <span className="text-[10px] text-semantic-warning font-mono">{t('dashboard.weather_unavailable', 'Weather unavailable')}</span>
           <span className="text-[10px] text-text-muted break-all">{weatherError}</span>
         </div>
       ) : (
-        <span className="text-body text-text-muted">Unavailable</span>
+        <span className="text-body text-text-muted">{t('dashboard.unavailable', 'Unavailable')}</span>
       )}
     </div>
   );

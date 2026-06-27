@@ -1,7 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export const Technology: React.FC = () => {
+  const { t } = useTranslation();
+  
   const techs = [
     'Google Earth Engine', 'Gemini AI', 'FastAPI', 'React',
     'Leaflet', 'OpenStreetMap', 'Python', 'Machine Learning',
@@ -13,10 +16,10 @@ export const Technology: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <h2 className="text-heading-lg text-text-primary text-3xl md:text-4xl mb-4">
-            Technology Stack
+            {t('technology.headline', 'Technology Stack')}
           </h2>
           <p className="text-body text-text-secondary text-lg">
-            Built on a modern, scalable, and powerful geospatial architecture.
+            {t('technology.subheadline', 'Built on a modern, scalable, and powerful geospatial architecture.')}
           </p>
         </div>
 

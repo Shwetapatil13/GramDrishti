@@ -1,56 +1,71 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Satellite, Leaf, FileText, History, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const features = [
   {
     icon: Satellite,
-    title: 'Satellite Monitoring',
-    description: 'Direct integration with Google Earth Engine for real-time high-resolution imagery and analysis.',
+    titleKey: 'features.item1.title',
+    titleDefault: 'Satellite Monitoring',
+    descKey: 'features.item1.desc',
+    descDefault: 'Direct integration with Google Earth Engine for real-time high-resolution imagery and analysis.',
     color: 'var(--brand-blue)'
   },
   {
     icon: Leaf,
-    title: 'Environmental Intelligence',
-    description: 'Track NDVI, NDWI, LST, rainfall and vegetation health dynamically across any region.',
+    titleKey: 'features.item2.title',
+    titleDefault: 'Environmental Intelligence',
+    descKey: 'features.item2.desc',
+    descDefault: 'Track NDVI, NDWI, LST, rainfall and vegetation health dynamically across any region.',
     color: 'var(--score-excellent)'
   },
   {
     icon: FileText,
-    title: 'AI Reports',
-    description: 'Automatically generate comprehensive, actionable insights and village-level executive summaries.',
+    titleKey: 'features.item3.title',
+    titleDefault: 'AI Reports',
+    descKey: 'features.item3.desc',
+    descDefault: 'Automatically generate comprehensive, actionable insights and village-level executive summaries.',
     color: 'var(--brand-violet)'
   },
   {
     icon: History,
-    title: 'Historical Analysis',
-    description: 'Compare multiple years of data to track degradation, recovery, and long-term climate trajectories.',
+    titleKey: 'features.item4.title',
+    titleDefault: 'Historical Analysis',
+    descKey: 'features.item4.desc',
+    descDefault: 'Compare multiple years of data to track degradation, recovery, and long-term climate trajectories.',
     color: 'var(--brand-mint)'
   },
   {
     icon: AlertTriangle,
-    title: 'Risk Prediction',
-    description: 'Predict droughts, crop stress, and land degradation before they become critical emergencies.',
+    titleKey: 'features.item5.title',
+    titleDefault: 'Risk Prediction',
+    descKey: 'features.item5.desc',
+    descDefault: 'Predict droughts, crop stress, and land degradation before they become critical emergencies.',
     color: 'var(--semantic-warning)'
   },
   {
     icon: ShieldCheck,
-    title: 'Decision Support',
-    description: 'Empower governments, NGOs, and Gram Panchayats with data-backed policy recommendations.',
+    titleKey: 'features.item6.title',
+    titleDefault: 'Decision Support',
+    descKey: 'features.item6.desc',
+    descDefault: 'Empower governments, NGOs, and Gram Panchayats with data-backed policy recommendations.',
     color: 'var(--semantic-info)'
   }
 ];
 
 export const Features: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <section id="features" className="py-24 bg-canvas-black">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center max-w-2xl mx-auto mb-16">
           <h2 className="text-heading-lg text-text-primary text-3xl md:text-4xl mb-4">
-            Intelligence at Scale
+            {t('features.headline', 'Intelligence at Scale')}
           </h2>
           <p className="text-body text-text-secondary text-lg">
-            Everything you need to understand rural environments, powered by the most advanced satellite and AI stack.
+            {t('features.subheadline', 'Everything you need to understand rural environments, powered by the most advanced satellite and AI stack.')}
           </p>
         </div>
 
@@ -77,11 +92,11 @@ export const Features: React.FC = () => {
               </div>
               
               <h3 className="text-heading-md text-text-primary mb-3">
-                {feature.title}
+                {t(feature.titleKey, feature.titleDefault)}
               </h3>
               
               <p className="text-body text-text-secondary">
-                {feature.description}
+                {t(feature.descKey, feature.descDefault)}
               </p>
             </motion.div>
           ))}

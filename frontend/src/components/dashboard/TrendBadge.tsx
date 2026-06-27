@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowUpRight, ArrowDownRight, ArrowRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface TrendBadgeProps {
   trend: 'improving' | 'stable' | 'declining';
@@ -7,6 +8,8 @@ interface TrendBadgeProps {
 }
 
 export const TrendBadge: React.FC<TrendBadgeProps> = ({ trend, className = '' }) => {
+  const { t } = useTranslation();
+  
   let colorClass = 'bg-surface-border text-text-muted'; // stable
   let Icon = ArrowRight;
 
@@ -18,9 +21,12 @@ export const TrendBadge: React.FC<TrendBadgeProps> = ({ trend, className = '' })
     Icon = ArrowDownRight;
   }
 
+  // Use a translation key like 'dashboard.trend.improving'
+  const translatedTrend = t(`dashboard.trend.${trend}`, trend);
+
   return (
     <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-tag text-mono text-xs uppercase ${colorClass} ${className}`}>
-      {trend} <Icon className="w-3 h-3" />
+      {translatedTrend} <Icon className="w-3 h-3" />
     </div>
   );
 };

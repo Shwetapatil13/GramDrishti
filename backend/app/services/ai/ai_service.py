@@ -16,23 +16,23 @@ class AIService:
             logger.info("GEMINI_API_KEY not found. Falling back to local Ollama (qwen2.5)")
             self.client = OllamaClient()
 
-    def _build_context(self, village: Village, metrics: EnvironmentalMetrics, score: VillageHealthScore, historical_summary: str | None = None) -> str:
-        return build_village_context(village, metrics, score, historical_summary)
+    def _build_context(self, village: Village, metrics: EnvironmentalMetrics, score: VillageHealthScore, historical_summary: str | None = None, language: str = "en") -> str:
+        return build_village_context(village, metrics, score, historical_summary, language)
 
-    async def get_summary(self, village: Village, metrics: EnvironmentalMetrics, score: VillageHealthScore, historical_summary: str | None = None) -> str:
-        context = self._build_context(village, metrics, score, historical_summary)
+    async def get_summary(self, village: Village, metrics: EnvironmentalMetrics, score: VillageHealthScore, historical_summary: str | None = None, language: str = "en") -> str:
+        context = self._build_context(village, metrics, score, historical_summary, language)
         return await self.client.generate_summary(context)
 
-    async def get_recommendations(self, village: Village, metrics: EnvironmentalMetrics, score: VillageHealthScore) -> list[dict]:
-        context = self._build_context(village, metrics, score)
+    async def get_recommendations(self, village: Village, metrics: EnvironmentalMetrics, score: VillageHealthScore, language: str = "en") -> list[dict]:
+        context = self._build_context(village, metrics, score, None, language)
         return await self.client.generate_recommendations(context)
 
-    async def chat(self, question: str, village: Village, metrics: EnvironmentalMetrics, score: VillageHealthScore) -> str:
-        context = self._build_context(village, metrics, score)
+    async def chat(self, question: str, village: Village, metrics: EnvironmentalMetrics, score: VillageHealthScore, language: str = "en") -> str:
+        context = self._build_context(village, metrics, score, None, language)
         return await self.client.answer_question(question, context)
         
-    async def get_report_narrative(self, village: Village, metrics: EnvironmentalMetrics, score: VillageHealthScore) -> str:
-        context = self._build_context(village, metrics, score)
+    async def get_report_narrative(self, village: Village, metrics: EnvironmentalMetrics, score: VillageHealthScore, language: str = "en") -> str:
+        context = self._build_context(village, metrics, score, None, language)
         return await self.client.generate_report_narrative(context)
 
 # Singleton

@@ -2,10 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
+import { LanguageSwitcher } from '../layout/LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
+// @ts-ignore
+import logoUrl from '../../../../../logo.png';
 
 export const LandingNavbar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -23,20 +28,23 @@ export const LandingNavbar: React.FC = () => {
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-baseline gap-2 md:gap-3">
-          <h1 className="text-heading-lg text-text-primary tracking-tight text-xl md:text-2xl">GRAMDRISHTI</h1>
-          <span className="text-brand-mint text-xs md:text-sm font-medium">ग्रामदृष्टि</span>
+        <div className="flex items-center gap-2 md:gap-3">
+          <img src={logoUrl} alt="Logo" className="h-6 md:h-8 w-auto object-contain" />
+          <h1 className="text-heading-lg text-text-primary tracking-tight text-xl md:text-2xl pt-1">GRAMDRISHTI</h1>
+          <img src={logoUrl} alt="Logo" className="h-5 md:h-6 w-auto object-contain" />
+          <span className="text-brand-mint text-xs md:text-sm font-medium pt-1">ग्रामदृष्टि</span>
         </div>
 
         {/* Center Links (Desktop) */}
         <div className="hidden lg:flex items-center gap-8">
-          <a href="#features" className="text-body text-text-secondary hover:text-text-primary transition-colors">Features</a>
-          <a href="#technology" className="text-body text-text-secondary hover:text-text-primary transition-colors">Technology</a>
-          <a href="#how-it-works" className="text-body text-text-secondary hover:text-text-primary transition-colors">How It Works</a>
+          <a href="#features" className="text-body text-text-secondary hover:text-text-primary transition-colors">{t('landing.features', 'Features')}</a>
+          <a href="#technology" className="text-body text-text-secondary hover:text-text-primary transition-colors">{t('landing.technology', 'Technology')}</a>
+          <a href="#how-it-works" className="text-body text-text-secondary hover:text-text-primary transition-colors">{t('landing.howItWorks', 'How It Works')}</a>
         </div>
 
         {/* Right Actions */}
         <div className="flex items-center gap-4">
+          <LanguageSwitcher />
           <button 
             onClick={toggleTheme}
             className="text-text-muted hover:text-brand-mint transition-colors p-2 rounded-full hover:bg-surface-elevated"
@@ -46,10 +54,10 @@ export const LandingNavbar: React.FC = () => {
           </button>
           <div className="hidden md:flex items-center gap-3">
             <Link to="/auth" className="text-body text-text-secondary hover:text-text-primary transition-colors px-4 py-2">
-              Login
+              {t('landing.login', 'Login')}
             </Link>
             <Link to="/auth?mode=signup" className="bg-text-primary text-canvas-black px-5 py-2.5 rounded-button font-mono text-xs uppercase tracking-wider hover:bg-brand-mint transition-colors">
-              Get Started
+              {t('landing.getStarted', 'Get Started')}
             </Link>
           </div>
         </div>

@@ -1,24 +1,27 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const steps = [
-  { id: '01', title: 'Search Village', desc: 'Find any village in India instantly.' },
-  { id: '02', title: 'Fetch Satellite Data', desc: 'Pull GEE metrics on the fly.' },
-  { id: '03', title: 'Environmental Analysis', desc: 'Calculate health and stress scores.' },
-  { id: '04', title: 'AI Processing', desc: 'Generate actionable insights.' },
-  { id: '05', title: 'Interactive Dashboard', desc: 'Visualize and export reports.' },
+  { id: '01', titleKey: 'howItWorks.step1.title', titleDefault: 'Search Village', descKey: 'howItWorks.step1.desc', descDefault: 'Find any village in India instantly.' },
+  { id: '02', titleKey: 'howItWorks.step2.title', titleDefault: 'Fetch Satellite Data', descKey: 'howItWorks.step2.desc', descDefault: 'Pull GEE metrics on the fly.' },
+  { id: '03', titleKey: 'howItWorks.step3.title', titleDefault: 'Environmental Analysis', descKey: 'howItWorks.step3.desc', descDefault: 'Calculate health and stress scores.' },
+  { id: '04', titleKey: 'howItWorks.step4.title', titleDefault: 'AI Processing', descKey: 'howItWorks.step4.desc', descDefault: 'Generate actionable insights.' },
+  { id: '05', titleKey: 'howItWorks.step5.title', titleDefault: 'Interactive Dashboard', descKey: 'howItWorks.step5.desc', descDefault: 'Visualize and export reports.' },
 ];
 
 export const HowItWorks: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <section id="how-it-works" className="py-24 bg-surface-slate border-y border-surface-border overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
         <div className="mb-16">
           <h2 className="text-heading-lg text-text-primary text-3xl md:text-4xl mb-4">
-            How It Works
+            {t('howItWorks.headline', 'How It Works')}
           </h2>
           <p className="text-body text-text-secondary text-lg max-w-2xl">
-            A seamless pipeline from raw coordinates to actionable intelligence in seconds.
+            {t('howItWorks.subheadline', 'A seamless pipeline from raw coordinates to actionable intelligence in seconds.')}
           </p>
         </div>
 
@@ -48,8 +51,8 @@ export const HowItWorks: React.FC = () => {
                   <span className="text-mono text-brand-mint">{step.id}</span>
                 </div>
                 <div>
-                  <h4 className="text-heading-md text-text-primary text-base mb-1">{step.title}</h4>
-                  <p className="text-body text-text-secondary text-sm leading-snug">{step.desc}</p>
+                  <h4 className="text-heading-md text-text-primary text-base mb-1">{t(step.titleKey, step.titleDefault)}</h4>
+                  <p className="text-body text-text-secondary text-sm leading-snug">{t(step.descKey, step.descDefault)}</p>
                 </div>
               </motion.div>
             ))}

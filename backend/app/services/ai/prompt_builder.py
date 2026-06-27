@@ -24,7 +24,14 @@ Rules:
 - Responses must reference only the village and year provided in context.
 """
 
-def build_village_context(village: Village, metrics: EnvironmentalMetrics, score: VillageHealthScore, historical_summary: str | None = None) -> str:
+def get_language_instruction(language: str) -> str:
+    if language == "hi":
+        return "Always respond in Hindi using natural, grammatically correct Hindi."
+    elif language == "mr":
+        return "Always respond in fluent Marathi using natural agricultural terminology."
+    return "Always respond in English."
+
+def build_village_context(village: Village, metrics: EnvironmentalMetrics, score: VillageHealthScore, historical_summary: str | None = None, language: str = "en") -> str:
     """
     Build human-readable context string.
     """
@@ -51,6 +58,10 @@ def build_village_context(village: Village, metrics: EnvironmentalMetrics, score
         lines.append("")
         lines.append("--- HISTORICAL CONTEXT ---")
         lines.append(historical_summary)
+        
+    lines.append("")
+    lines.append("--- LANGUAGE REQUIREMENT ---")
+    lines.append(f"CRITICAL: {get_language_instruction(language)}")
         
     return "\n".join(lines)
 

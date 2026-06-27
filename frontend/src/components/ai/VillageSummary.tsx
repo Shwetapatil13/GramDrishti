@@ -3,26 +3,28 @@ import { RefreshCcw } from 'lucide-react';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { apiService } from '@/services/api';
 import { Skeleton } from '../ui/Skeleton';
+import { useTranslation } from 'react-i18next';
 
 export const VillageSummary: React.FC = () => {
   const { selectedVillage, selectedYear } = useVillageSelection();
   const [summary, setSummary] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t, i18n } = useTranslation();
 
   const fetchSummary = useCallback(async () => {
     if (!selectedVillage) return;
     setIsLoading(true);
     setError(null);
     try {
-      const data = await apiService.post<{ summary: string }>(`/api/v1/ai/${selectedVillage.id}/summary?year=${selectedYear}`);
+      const data = await apiService.post<{ summary: string }>(`/api/v1/ai/${selectedVillage.id}/summary?year=${selectedYear}&language=${i18n.language || 'en'}`);
       setSummary(data.summary);
     } catch {
-      setError('Failed to generate summary.');
+      setError(t('errors.summary_failed', 'Failed to generate summary.'));
     } finally {
       setIsLoading(false);
     }
-  }, [selectedVillage, selectedYear]);
+  }, [selectedVillage, selectedYear, i18n.language, t]);
 
   useEffect(() => {
     const timer = setTimeout(() => {

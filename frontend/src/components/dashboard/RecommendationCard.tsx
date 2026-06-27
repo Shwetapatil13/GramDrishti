@@ -1,12 +1,15 @@
 import React from 'react';
 import { AIRecommendation } from '@/types';
 import { Clock } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface RecommendationCardProps {
   recommendation: AIRecommendation;
 }
 
 export const RecommendationCard: React.FC<RecommendationCardProps> = ({ recommendation }) => {
+  const { t } = useTranslation();
+  
   const urgencyColors = {
     critical: 'bg-semantic-danger text-white',
     high: 'bg-semantic-danger opacity-80 text-white',
@@ -52,7 +55,7 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({ recommen
       </p>
 
       <div className="bg-surface-elevated rounded-lg p-3 text-sm border border-surface-border mt-1">
-        <span className="text-text-muted">Expected: </span>
+        <span className="text-text-muted">{t('dashboard.expected', 'Expected')}: </span>
         <span className="text-text-primary">{recommendation.expectedImpact}</span>
       </div>
 

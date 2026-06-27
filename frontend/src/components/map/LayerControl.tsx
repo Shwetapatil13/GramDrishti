@@ -1,6 +1,7 @@
 import React from 'react';
 import { Layers } from 'lucide-react';
 import { useMapLayers, BaseLayer } from '@/hooks/useMapLayers';
+import { useTranslation } from 'react-i18next';
 
 interface LayerControlProps {
   layers: ReturnType<typeof useMapLayers>;
@@ -8,11 +9,12 @@ interface LayerControlProps {
 
 export const LayerControl: React.FC<LayerControlProps> = ({ layers }) => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const { t } = useTranslation();
 
-  const baseLayers: { id: BaseLayer; label: string }[] = [
-    { id: 'dark', label: 'Dark Matter' },
-    { id: 'satellite', label: 'Satellite' },
-    { id: 'osm', label: 'Street Map' },
+  const baseLayers: { id: BaseLayer; labelKey: string; labelDefault: string }[] = [
+    { id: 'dark', labelKey: 'map.layers.dark', labelDefault: 'Dark Matter' },
+    { id: 'satellite', labelKey: 'map.layers.satellite', labelDefault: 'Satellite' },
+    { id: 'osm', labelKey: 'map.layers.osm', labelDefault: 'Street Map' },
   ];
 
   return (
@@ -29,7 +31,7 @@ export const LayerControl: React.FC<LayerControlProps> = ({ layers }) => {
         {isOpen && (
           <div className="p-4 flex flex-col gap-3 min-w-[160px]">
             <div>
-              <h4 className="text-mono text-text-secondary mb-2">BASE MAP</h4>
+              <h4 className="text-mono text-text-secondary mb-2">{t('map.base_map', 'BASE MAP')}</h4>
               {baseLayers.map((layer) => (
                 <label key={layer.id} className="flex items-center gap-2 cursor-pointer mb-2">
                   <input
@@ -39,7 +41,7 @@ export const LayerControl: React.FC<LayerControlProps> = ({ layers }) => {
                     onChange={() => layers.setActiveBaseLayer(layer.id)}
                     className="accent-brand-mint"
                   />
-                  <span className="text-body text-text-primary">{layer.label}</span>
+                  <span className="text-body text-text-primary">{t(layer.labelKey, layer.labelDefault)}</span>
                 </label>
               ))}
             </div>
@@ -47,7 +49,7 @@ export const LayerControl: React.FC<LayerControlProps> = ({ layers }) => {
             <div className="h-px bg-surface-border w-full my-1"></div>
             
             <div>
-              <h4 className="text-mono text-text-secondary mb-2">OVERLAYS</h4>
+              <h4 className="text-mono text-text-secondary mb-2">{t('map.overlays', 'OVERLAYS')}</h4>
               <label className="flex items-center gap-2 cursor-pointer mb-2">
                 <input
                   type="checkbox"
@@ -55,7 +57,7 @@ export const LayerControl: React.FC<LayerControlProps> = ({ layers }) => {
                   onChange={layers.toggleNDVI}
                   className="accent-brand-mint"
                 />
-                <span className="text-body text-text-primary">NDVI Health</span>
+                <span className="text-body text-text-primary">{t('map.layers.ndvi', 'NDVI Health')}</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer mb-2">
                 <input
@@ -64,7 +66,7 @@ export const LayerControl: React.FC<LayerControlProps> = ({ layers }) => {
                   onChange={layers.toggleWater}
                   className="accent-brand-mint"
                 />
-                <span className="text-body text-text-primary">Surface Water</span>
+                <span className="text-body text-text-primary">{t('map.layers.water', 'Surface Water')}</span>
               </label>
             </div>
           </div>

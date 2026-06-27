@@ -2,8 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export const CTA: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <section className="py-24 px-6 bg-canvas-black">
       <div className="max-w-5xl mx-auto relative rounded-[2rem] overflow-hidden">
@@ -19,18 +22,15 @@ export const CTA: React.FC = () => {
             transition={{ duration: 0.5 }}
           >
             <h2 className="text-heading-lg text-text-primary text-3xl md:text-5xl mb-6 max-w-2xl">
-              Start Monitoring Villages Intelligently
+              {t('cta.headline', 'Start Monitoring Villages Intelligently')}
             </h2>
             <p className="text-body text-text-secondary text-lg mb-10 max-w-xl mx-auto">
-              Join GramDrishti today and transform how rural environmental planning is executed.
+              {t('cta.subheadline', 'Join GramDrishti today and transform how rural environmental planning is executed.')}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <Link to="/auth?mode=signup" className="flex items-center gap-2 bg-text-primary text-canvas-black px-8 py-4 rounded-button font-mono text-sm uppercase tracking-wider hover:bg-brand-mint transition-colors shadow-lg">
-                Get Started <ArrowRight className="w-4 h-4" />
+                {t('landing.getStarted', 'Get Started')} <ArrowRight className="w-4 h-4" />
               </Link>
-              <button className="flex items-center gap-2 bg-transparent border border-surface-border text-text-primary px-8 py-4 rounded-button font-grotesk text-sm hover:bg-surface-elevated transition-colors">
-                Learn More
-              </button>
             </div>
           </motion.div>
         </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Download, FileJson, FileText, Loader2 } from 'lucide-react';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { downloadPDF, downloadJSON, downloadCSV } from '@/services/report.service';
+import { useTranslation } from 'react-i18next';
 
 export const ReportTab: React.FC = () => {
   const { selectedVillage, selectedYear } = useVillageSelection();
@@ -12,6 +13,7 @@ export const ReportTab: React.FC = () => {
   const [generatingCSV, setGeneratingCSV] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastGenerated, setLastGenerated] = useState<Date | null>(null);
+  const { t } = useTranslation();
 
   const handleDownloadPDF = async () => {
     if (!selectedVillage) return;
@@ -21,7 +23,7 @@ export const ReportTab: React.FC = () => {
       await downloadPDF(selectedVillage.id, selectedYear, includeAI);
       setLastGenerated(new Date());
     } catch {
-      setError('Failed to generate PDF report.');
+      setError(t('dashboard.pdf_error', 'Failed to generate PDF report.'));
     } finally {
       setGeneratingPDF(false);
     }
@@ -34,7 +36,7 @@ export const ReportTab: React.FC = () => {
     try {
       await downloadJSON(selectedVillage.id, selectedYear);
     } catch {
-      setError('Failed to generate JSON export.');
+      setError(t('dashboard.json_error', 'Failed to generate JSON export.'));
     } finally {
       setGeneratingJSON(false);
     }
@@ -47,7 +49,7 @@ export const ReportTab: React.FC = () => {
     try {
       await downloadCSV(selectedVillage.id);
     } catch {
-      setError('Failed to generate CSV export.');
+      setError(t('dashboard.csv_error', 'Failed to generate CSV export.'));
     } finally {
       setGeneratingCSV(false);
     }
@@ -58,7 +60,7 @@ export const ReportTab: React.FC = () => {
       <div className="flex flex-col gap-3">
         <h3 className="text-mono text-text-primary flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-semantic-warning"></span>
-          VILLAGE REPORT
+          {t('dashboard.village_report', 'VILLAGE REPORT')}
         </h3>
         
         {error && (
@@ -69,7 +71,7 @@ export const ReportTab: React.FC = () => {
         
         <div className="bg-surface-slate border border-surface-border rounded-xl p-5 flex flex-col gap-4">
           <div className="flex justify-between items-center pb-4 border-b border-surface-border">
-            <span className="text-body text-text-primary">Include AI Analysis</span>
+            <span className="text-body text-text-primary">{t('dashboard.include_ai', 'Include AI Analysis')}</span>
             <label className="relative inline-flex items-center cursor-pointer">
               <input 
                 type="checkbox" 
@@ -82,13 +84,13 @@ export const ReportTab: React.FC = () => {
           </div>
 
           <div className="flex flex-col gap-3">
-            <h4 className="text-mono text-text-secondary text-xs">INCLUDES:</h4>
+            <h4 className="text-mono text-text-secondary text-xs">{t('dashboard.includes', 'INCLUDES:')}</h4>
             <ul className="text-body text-text-secondary text-sm flex flex-col gap-2 list-disc pl-4">
-              <li>Executive Summary {includeAI ? '(AI Narrative)' : '(Auto)'}</li>
-              <li>Village Health Score & Breakdowns</li>
-              <li>Environmental Metrics</li>
-              <li>Historical Trends (2022-2026)</li>
-              <li>{includeAI ? 'AI Recommendations' : 'Methodology'}</li>
+              <li>{t('dashboard.exec_summary', 'Executive Summary')} {includeAI ? t('dashboard.ai_narrative', '(AI Narrative)') : t('dashboard.auto_generated', '(Auto)')}</li>
+              <li>{t('dashboard.health_score', 'Village Health Score & Breakdowns')}</li>
+              <li>{t('dashboard.env_metrics', 'Environmental Metrics')}</li>
+              <li>{t('dashboard.historical_trends', 'Historical Trends (2022-2026)')}</li>
+              <li>{includeAI ? t('dashboard.ai_recs', 'AI Recommendations') : t('dashboard.methodology', 'Methodology')}</li>
             </ul>
           </div>
         </div>
@@ -99,9 +101,9 @@ export const ReportTab: React.FC = () => {
           className="w-full flex items-center justify-center gap-2 bg-brand-mint text-canvas-black rounded-button py-3 font-mono text-xs hover:bg-white transition-colors mt-2 disabled:opacity-50"
         >
           {generatingPDF ? (
-            <><Loader2 className="w-4 h-4 animate-spin" /> GENERATING...</>
+            <><Loader2 className="w-4 h-4 animate-spin" /> {t('dashboard.generating', 'GENERATING...')}</>
           ) : (
-            <><Download className="w-4 h-4" /> DOWNLOAD PDF REPORT</>
+            <><Download className="w-4 h-4" /> {t('dashboard.download_pdf', 'DOWNLOAD PDF REPORT')}</>
           )}
         </button>
         
@@ -111,20 +113,20 @@ export const ReportTab: React.FC = () => {
             disabled={generatingJSON || !selectedVillage}
             className="flex items-center justify-center gap-2 bg-surface-border text-text-primary rounded-button py-3 font-mono text-xs hover:bg-surface-elevated transition-colors disabled:opacity-50"
           >
-            {generatingJSON ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileJson className="w-4 h-4" />} EXPORT JSON
+            {generatingJSON ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileJson className="w-4 h-4" />} {t('dashboard.export_json', 'EXPORT JSON')}
           </button>
           <button 
             onClick={handleDownloadCSV}
             disabled={generatingCSV || !selectedVillage}
             className="flex items-center justify-center gap-2 bg-surface-border text-text-primary rounded-button py-3 font-mono text-xs hover:bg-surface-elevated transition-colors disabled:opacity-50"
           >
-            {generatingCSV ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />} EXPORT CSV
+            {generatingCSV ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />} {t('dashboard.export_csv', 'EXPORT CSV')}
           </button>
         </div>
         
         <div className="text-center mt-2">
           <span className="text-mono text-text-muted text-[10px]">
-            LAST GENERATED: {lastGenerated ? lastGenerated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'NEVER'}
+            {t('dashboard.last_generated', 'LAST GENERATED:')} {lastGenerated ? lastGenerated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : t('dashboard.never', 'NEVER')}
           </span>
         </div>
       </div>

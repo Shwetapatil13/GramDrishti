@@ -4,11 +4,13 @@ import { AuthLayout } from '@/components/auth/AuthLayout';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { SignupForm } from '@/components/auth/SignupForm';
 import { AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export const AuthPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const modeParam = searchParams.get('mode');
   const [isLogin, setIsLogin] = useState(modeParam !== 'signup');
+  const { t } = useTranslation();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -30,13 +32,13 @@ export const AuthPage: React.FC = () => {
              className={`flex-1 py-1.5 text-sm font-grotesk z-10 transition-colors ${isLogin ? 'text-text-primary' : 'text-text-secondary'}`}
              onClick={() => setIsLogin(true)}
            >
-             Login
+             {t('auth.login', 'Login')}
            </button>
            <button 
              className={`flex-1 py-1.5 text-sm font-grotesk z-10 transition-colors ${!isLogin ? 'text-text-primary' : 'text-text-secondary'}`}
              onClick={() => setIsLogin(false)}
            >
-             Sign Up
+             {t('auth.signup', 'Sign Up')}
            </button>
         </div>
 
@@ -51,12 +53,12 @@ export const AuthPage: React.FC = () => {
         </div>
         
         <p className="text-body text-text-muted text-sm mt-8 text-center">
-          {isLogin ? "Don't have an account?" : "Already have an account?"}
+          {isLogin ? t('auth.no_account', "Don't have an account?") : t('auth.has_account', "Already have an account?")}
           <button 
             className="text-text-primary hover:text-brand-mint transition-colors ml-2 font-medium"
             onClick={() => setIsLogin(!isLogin)}
           >
-            {isLogin ? 'Sign up' : 'Login'}
+            {isLogin ? t('auth.signup', 'Sign up') : t('auth.login', 'Login')}
           </button>
         </p>
       </div>

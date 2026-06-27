@@ -3,12 +3,14 @@ import { Send } from 'lucide-react';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { useAIChat } from '@/hooks/useAIChat';
 import { SuggestedQuestions } from './SuggestedQuestions';
+import { useTranslation } from 'react-i18next';
 
 export const AIChatPanel: React.FC = () => {
   const { selectedVillage, selectedYear } = useVillageSelection();
   const { messages, isLoading, sendMessage } = useAIChat(selectedVillage?.id, selectedYear);
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -30,7 +32,7 @@ export const AIChatPanel: React.FC = () => {
       {/* Header */}
       <div className="p-4 border-b border-surface-border flex items-center gap-2 bg-surface-elevated">
         <div className="w-2 h-2 rounded-full bg-brand-mint"></div>
-        <h3 className="text-mono text-text-primary text-sm">GRAMDRISHTI AI</h3>
+        <h3 className="text-mono text-text-primary text-sm">{t('chat.title', 'GRAMDRISHTI AI')}</h3>
       </div>
 
       {/* Messages Area */}
@@ -38,7 +40,7 @@ export const AIChatPanel: React.FC = () => {
         {messages.length === 0 && !isLoading && (
           <div className="flex-1 flex items-center justify-center text-center">
             <span className="text-body text-text-muted">
-              Ask GramDrishti AI about {selectedVillage?.name}'s environmental health.
+              {t('chat.empty_state', "Ask GramDrishti AI about {{villageName}}'s environmental health.", { villageName: selectedVillage?.name })}
             </span>
           </div>
         )}
@@ -81,7 +83,7 @@ export const AIChatPanel: React.FC = () => {
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Ask a question..."
+            placeholder={t('chat.placeholder', 'Ask a question...')}
             disabled={isLoading}
             className="w-full bg-canvas-black border border-surface-border rounded-button py-3 pl-4 pr-12 text-body text-text-primary placeholder:text-text-secondary focus:outline-none focus:border-brand-mint transition-colors disabled:opacity-50"
           />
