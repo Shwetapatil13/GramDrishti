@@ -33,12 +33,27 @@
   },
   "howItWorks": {
     "headline": "How It Works",
-    "subheadline": "A seamless pipeline from raw coordinates to actionable intelligence in seconds.",
-    "step1": { "title": "Search Village", "desc": "Find any village in India instantly." },
-    "step2": { "title": "Fetch Satellite Data", "desc": "Pull GEE metrics on the fly." },
-    "step3": { "title": "Environmental Analysis", "desc": "Calculate health and stress scores." },
-    "step4": { "title": "AI Processing", "desc": "Generate actionable insights." },
-    "step5": { "title": "Interactive Dashboard", "desc": "Visualize and export reports." }
+    "subheadline": "A seamless pipeline from raw coordinates to actionable intelligence in seconds. Discover how we process satellite data to deliver insights.",
+    "step1": {
+      "title": "Search Village",
+      "desc": "Find any village in India instantly using our comprehensive geographic database."
+    },
+    "step2": {
+      "title": "Fetch Satellite Data",
+      "desc": "Pull live GEE metrics including NDVI, NDWI, and LST on the fly."
+    },
+    "step3": {
+      "title": "Environmental Analysis",
+      "desc": "Calculate precise health indices and identify early stress indicators."
+    },
+    "step4": {
+      "title": "AI Processing",
+      "desc": "Generate actionable insights and automated mitigation strategies."
+    },
+    "step5": {
+      "title": "Interactive Dashboard",
+      "desc": "Visualize data clearly and export comprehensive PDF reports."
+    }
   },
   "technology": {
     "headline": "Technology Stack",

@@ -11,7 +11,6 @@ export const Footer: React.FC = () => {
         <div className="mb-12">
           <div className="flex items-center gap-2 md:gap-3 mb-4">
             <h2 className="text-heading-lg text-text-primary tracking-tight text-xl">GRAMDRISHTI</h2>
-            <span className="text-brand-mint text-xs font-medium">ग्रामदृष्टि</span>
           </div>
           <p className="text-body text-text-secondary max-w-md">
             {t('footer.description', 'AI-powered Climate Intelligence Platform for Indian villages.')}

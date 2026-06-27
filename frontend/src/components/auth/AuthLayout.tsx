@@ -1,7 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-// @ts-ignore
-import logoUrl from '../../../../logo.png';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -17,10 +15,8 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
         
         <div className="relative z-10">
           <Link to="/" className="flex items-center gap-3 inline-block">
-            <img src={logoUrl} alt="Logo" className="h-8 w-auto object-contain" />
+            <img src="/logo.png" alt="Logo" className="h-8 w-auto object-contain" />
             <h1 className="text-heading-lg text-text-primary tracking-tight text-3xl pt-1">GRAMDRISHTI</h1>
-            <img src={logoUrl} alt="Logo" className="h-6 w-auto object-contain" />
-            <span className="text-brand-mint text-sm font-medium pt-1">ग्रामदृष्टि</span>
           </Link>
         </div>
 
@@ -52,7 +48,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
       {/* Right Side - Auth Forms */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative">
         <Link to="/" className="absolute top-6 left-6 lg:hidden flex items-center gap-2">
-           <img src={logoUrl} alt="Logo" className="h-6 w-auto object-contain" />
+           <img src="/logo.png" alt="Logo" className="h-6 w-auto object-contain" />
            <h1 className="text-heading-lg text-text-primary tracking-tight text-xl pt-0.5">GRAMDRISHTI</h1>
         </Link>
         <div className="w-full max-w-md">

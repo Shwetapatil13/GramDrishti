@@ -22,8 +22,8 @@ export const LandingPage: React.FC = () => {
         <Hero />
         <Stats />
         <Features />
-        <HowItWorks />
         <Technology />
+        <HowItWorks />
         <CTA />
         <Footer />
       </motion.div>

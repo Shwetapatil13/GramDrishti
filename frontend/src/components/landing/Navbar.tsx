@@ -4,8 +4,6 @@ import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 import { LanguageSwitcher } from '../layout/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
-// @ts-ignore
-import logoUrl from '../../../../../logo.png';
 
 export const LandingNavbar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
@@ -29,17 +27,15 @@ export const LandingNavbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-2 md:gap-3">
-          <img src={logoUrl} alt="Logo" className="h-6 md:h-8 w-auto object-contain" />
+          <img src="/logo.png" alt="Logo" className="h-6 md:h-8 w-auto object-contain" />
           <h1 className="text-heading-lg text-text-primary tracking-tight text-xl md:text-2xl pt-1">GRAMDRISHTI</h1>
-          <img src={logoUrl} alt="Logo" className="h-5 md:h-6 w-auto object-contain" />
-          <span className="text-brand-mint text-xs md:text-sm font-medium pt-1">ग्रामदृष्टि</span>
         </div>
 
         {/* Center Links (Desktop) */}
         <div className="hidden lg:flex items-center gap-8">
           <a href="#features" className="text-body text-text-secondary hover:text-text-primary transition-colors">{t('landing.features', 'Features')}</a>
-          <a href="#technology" className="text-body text-text-secondary hover:text-text-primary transition-colors">{t('landing.technology', 'Technology')}</a>
           <a href="#how-it-works" className="text-body text-text-secondary hover:text-text-primary transition-colors">{t('landing.howItWorks', 'How It Works')}</a>
+          <a href="#technology" className="text-body text-text-secondary hover:text-text-primary transition-colors">{t('landing.technology', 'Technology')}</a>
         </div>
 
         {/* Right Actions */}

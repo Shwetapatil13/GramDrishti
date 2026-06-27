@@ -4,8 +4,6 @@ import { Menu, Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
-// @ts-ignore
-import logoUrl from '../../../../../logo.png';
 
 interface HeaderProps {
   onMenuToggle?: () => void;
@@ -27,10 +25,8 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
           </button>
         )}
         <div className="flex items-center gap-2 md:gap-3">
-          <img src={logoUrl} alt="Logo" className="h-6 w-auto object-contain" />
+          <img src="/logo.png" alt="Logo" className="h-6 w-auto object-contain" />
           <h1 className="text-heading-lg text-text-primary tracking-tight text-lg md:text-2xl pt-1">GRAMDRISHTI</h1>
-          <img src={logoUrl} alt="Logo" className="h-5 w-auto object-contain" />
-          <span className="text-brand-mint text-xs md:text-sm font-medium pt-1">ग्रामदृष्टि</span>
         </div>
       </div>
       
