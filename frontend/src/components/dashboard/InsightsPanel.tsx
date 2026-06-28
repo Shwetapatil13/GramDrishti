@@ -23,7 +23,7 @@ export const InsightsPanel: React.FC = () => {
             try {
                 // In a real app, this might hit a specific /insights endpoint. 
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const res = await apiService.post<unknown>(`/api/v1/ai/${selectedVillage.id}/recommendations?year=${selectedYear}`, { language: 'en' });
+                await apiService.post<unknown>(`/api/v1/ai/${selectedVillage.id}/recommendations?year=${selectedYear}`, { language: 'en' });
                 // Simulate getting top insights
                 setInsights({
                     healthScore: 84,

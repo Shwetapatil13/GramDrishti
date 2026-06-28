@@ -6,30 +6,42 @@ import { Village } from '@/types';
 import { useTranslation } from 'react-i18next';
 
 /** Query Nominatim for villages in India when the backend has no results */
-async function searchNominatim(query: string): Promise<Village[]> {
-//...omitted for brevity, assume searchNominatim doesn't need translation hooks as it's outside component
+interface NominatimResult {
+  place_id: number;
+  lat: string;
+  lon: string;
+  display_name: string;
+  name?: string;
+  address?: {
+    country_code?: string;
+    village?: string;
+    town?: string;
+    city?: string;
+    municipality?: string;
+    county?: string;
+    district?: string;
+    state_district?: string;
+    state?: string;
+  };
+  geojson?: GeoJSON.Geometry;
+}
 
-  const url = new URL('https://nominatim.openstreetmap.org/search');
-  url.searchParams.set('q', `${query}, India`);
-  url.searchParams.set('format', 'json');
-  url.searchParams.set('addressdetails', '1');
-  url.searchParams.set('polygon_geojson', '1');
-  url.searchParams.set('limit', '8');
-  url.searchParams.set('featuretype', 'settlement');
+async function searchNominatim(searchQuery: string): Promise<Village[]> {
+  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+    searchQuery
+  )}&format=jsonv2&addressdetails=1&polygon_geojson=1&countrycodes=in&limit=5`;
 
-  const res = await fetch(url.toString(), {
+  const res = await fetch(url, {
     headers: {
-      'Accept-Language': 'en',
-      // Nominatim requires a valid User-Agent per usage policy
-      'User-Agent': 'GramDrishti/1.0 (agricultural analytics platform)',
+      'User-Agent': 'GramDrishtiApp/1.0',
     },
   });
 
   if (!res.ok) {
-    throw new Error(`Nominatim HTTP ${res.status}: ${res.statusText}`);
+    throw new Error(`Nominatim API returned ${res.status}`);
   }
 
-  const data: { display_name: string; lat: string; lon: string }[] = await res.json();
+  const data: NominatimResult[] = await res.json();
 
   return data
     .filter((item) => {
@@ -116,7 +128,8 @@ export const VillageSearch: React.FC = () => {
       localResults = Array.isArray(res) ? res : [];
       backendOnline = true;
 
-    } catch (err: unknown) {
+    } catch (error: unknown) {
+      const err = error as any;
       const isNetworkError =
         err?.code === 'ERR_NETWORK' ||
         err?.code === 'ECONNREFUSED' ||
@@ -177,8 +190,8 @@ export const VillageSearch: React.FC = () => {
           setError(`No villages found for "${searchQuery}". Try a different spelling.`);
           setErrorType('notfound');
         }
-      } catch (nominatimErr: unknown) {
-
+      } catch (error: unknown) {
+        const nominatimErr = error as any;
         if (localResults.length > 0) {
           setResults(localResults);
         } else {

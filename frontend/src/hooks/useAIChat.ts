@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { apiService } from '@/services/api';
+
 import { useTranslation } from 'react-i18next';
 import { useVillageSelection } from './useVillageSelection';
 

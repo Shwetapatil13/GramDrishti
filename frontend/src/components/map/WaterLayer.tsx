@@ -23,9 +23,7 @@ export const WaterLayer: React.FC<WaterLayerProps> = ({ village, data }) => {
     const fetchTiles = async () => {
       try {
         const boundary = village.boundary as GeoJSON.Geometry;
-        const geometry = (boundary?.type === 'Feature')
-          ? boundary.geometry
-          : boundary;
+        const geometry = boundary;
 
         const res = await apiService.post<{ urlFormat: string }>(
           `/api/v1/satellite/water/tiles`,
@@ -47,13 +45,7 @@ export const WaterLayer: React.FC<WaterLayerProps> = ({ village, data }) => {
   if (!village || !village.boundary) return null;
 
   const boundary = village.boundary as GeoJSON.Geometry;
-  const geoJsonData = boundary.type === 'Feature' || boundary.type === 'FeatureCollection'
-    ? boundary
-    : {
-        type: "Feature",
-        properties: {},
-        geometry: boundary
-      };
+  const geoJsonData: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [{ type: 'Feature', properties: {}, geometry: boundary }] };
 
   // Show blue fill when no raster tiles; fade it out once tiles render
   const polygonFillOpacity = tilesLoaded ? 0.05 : 0.45;

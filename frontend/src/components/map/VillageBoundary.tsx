@@ -40,14 +40,7 @@ export const VillageBoundary: React.FC<VillageBoundaryProps> = ({ polygon }) => 
 
   // Normalize: ensure it's a Feature or FeatureCollection so Leaflet handles it correctly.
   // This also handles bare Geometry objects (Polygon, MultiPolygon).
-  const geoJsonData =
-    polygon.type === 'Feature' || polygon.type === 'FeatureCollection'
-      ? polygon
-      : {
-          type: 'Feature' as const,
-          properties: {},
-          geometry: polygon,
-        };
+  const geoJsonData: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [{ type: 'Feature', properties: {}, geometry: polygon }] };
 
   // Use green for the boundary (spec requirement: green outline, semi-transparent fill)
   const boundaryColor = '#22c55e'; // Tailwind green-500

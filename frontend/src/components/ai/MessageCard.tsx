@@ -4,7 +4,7 @@ import { DynamicChart } from './DynamicChart';
 import { ActionPanel } from './ActionPanel';
 import { FollowUpChips } from './FollowUpChips';
 import { motion } from 'framer-motion';
-import { Info, TrendingDown, TrendingUp, AlertTriangle, CheckCircle, Database } from 'lucide-react';
+import { AlertTriangle, Database } from 'lucide-react';
 
 interface Props {
   message: ChatMessage;

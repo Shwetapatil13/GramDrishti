@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { GeoJSON } from 'react-leaflet';
 import { useRegionalData } from '@/hooks/useRegionalData';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
+import type { Village } from '@/types';
 
 const NDVI_COLORS = {
   excellent: '#10b981', // > 0.6
@@ -83,7 +84,7 @@ export const ChoroplethLayer: React.FC = () => {
                 setSelectedVillage({
                   id: regionId,
                   name: regionName,
-                } as unknown as GeoJSON.FeatureCollection);
+                } as unknown as Village);
               }
             }
           });

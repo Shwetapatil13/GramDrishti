@@ -129,9 +129,7 @@ export const LandCoverLayer: React.FC<LandCoverLayerProps> = ({ village, data })
   }, [village?.id, data?.year]);
 
   const boundary = village.boundary as GeoJSON.Geometry;
-  const geoJsonData = boundary.type === 'Feature' || boundary.type === 'FeatureCollection'
-    ? boundary
-    : { type: 'Feature', properties: {}, geometry: boundary };
+  const geoJsonData: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [{ type: 'Feature', properties: {}, geometry: boundary }] };
 
   // Build tooltip HTML from all land-cover classes
   const buildTooltipContent = () => {

@@ -29,9 +29,7 @@ export const NDVILayer: React.FC<NDVILayerProps> = ({ village, data, isLoading }
       try {
         // Extract raw GeoJSON geometry from the village boundary
         const boundary = village.boundary as GeoJSON.Geometry;
-        const geometry = (boundary?.type === 'Feature')
-          ? boundary.geometry
-          : boundary; // already a Geometry object
+        const geometry = boundary;
 
         const res = await apiService.post<{ urlFormat: string }>(
           `/api/v1/satellite/ndvi/tiles`,
