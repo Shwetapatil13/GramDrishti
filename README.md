@@ -107,6 +107,6 @@ See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for a complete system diagram, data 
 ## 🌐 Live Demo
 
 🚀 **Try GramDrishti here:**  
-https://gram-drishti-r1syt95ru-shwetapatil1322007-7095s-projects.vercel.app/
+https://gram-drishti.vercel.app/
 
 ---
