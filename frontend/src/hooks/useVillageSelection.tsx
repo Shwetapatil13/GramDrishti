@@ -10,9 +10,13 @@ interface VillageContextType {
   clearSelection: () => void;
   flyToVillage: (village: Village) => void;
   setMapInstance: (map: L.Map) => void;
-  selectedVillagePolygon: any | null;
+  selectedVillagePolygon: GeoJSON.Polygon | GeoJSON.MultiPolygon | null;
   selectedNDVICategory: string | null;
   setSelectedNDVICategory: (category: string | null) => void;
+  clickedLocation: { lat: number; lng: number } | null;
+  setClickedLocation: (location: { lat: number; lng: number } | null) => void;
+  activeLayers: string[];
+  setActiveLayers: (layers: string[]) => void;
 }
 
 const VillageContext = createContext<VillageContextType | undefined>(undefined);
@@ -21,8 +25,11 @@ export const VillageProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [selectedVillage, setSelectedVillage] = useState<Village | null>(null);
   const [selectedYear, setSelectedYear] = useState<number>(2024);
   const [_mapInstance, setMapInstance] = useState<L.Map | null>(null);
-  const [selectedVillagePolygon, setSelectedVillagePolygon] = useState<any | null>(null);
+  const [selectedVillagePolygon, setSelectedVillagePolygon] = useState<GeoJSON.Polygon | GeoJSON.MultiPolygon | null>(null);
   const [selectedNDVICategory, setSelectedNDVICategory] = useState<string | null>(null);
+  const [clickedLocation, setClickedLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [activeLayers, setActiveLayers] = useState<string[]>([]);
+
 
 
   const handleSetSelectedVillage = useCallback(async (village: Village | null) => {
@@ -113,6 +120,10 @@ export const VillageProvider: React.FC<{ children: React.ReactNode }> = ({ child
         selectedVillagePolygon,
         selectedNDVICategory,
         setSelectedNDVICategory,
+        clickedLocation,
+        setClickedLocation,
+        activeLayers,
+        setActiveLayers,
       }}
     >
       {children}

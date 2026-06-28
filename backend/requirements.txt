@@ -14,4 +14,3 @@ google-generativeai
 reportlab
 Pillow
 python-multipart
-pytest

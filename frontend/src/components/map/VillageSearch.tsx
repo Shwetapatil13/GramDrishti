@@ -29,7 +29,7 @@ async function searchNominatim(query: string): Promise<Village[]> {
     throw new Error(`Nominatim HTTP ${res.status}: ${res.statusText}`);
   }
 
-  const data: any[] = await res.json();
+  const data: { display_name: string; lat: string; lon: string }[] = await res.json();
 
   return data
     .filter((item) => {
@@ -116,7 +116,7 @@ export const VillageSearch: React.FC = () => {
       localResults = Array.isArray(res) ? res : [];
       backendOnline = true;
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       const isNetworkError =
         err?.code === 'ERR_NETWORK' ||
         err?.code === 'ECONNREFUSED' ||
@@ -177,7 +177,7 @@ export const VillageSearch: React.FC = () => {
           setError(`No villages found for "${searchQuery}". Try a different spelling.`);
           setErrorType('notfound');
         }
-      } catch (nominatimErr: any) {
+      } catch (nominatimErr: unknown) {
 
         if (localResults.length > 0) {
           setResults(localResults);

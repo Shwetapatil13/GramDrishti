@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { MapContainer as LeafletMap, TileLayer, useMap } from 'react-leaflet';
+import { MapContainer as LeafletMap, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { useMapLayers } from '@/hooks/useMapLayers';
@@ -30,11 +30,29 @@ const MapInstanceBinder: React.FC = () => {
   return null;
 };
 
+const MapClickHandler: React.FC = () => {
+  const { setClickedLocation } = useVillageSelection();
+  useMapEvents({
+    click(e) {
+      setClickedLocation({ lat: e.latlng.lat, lng: e.latlng.lng });
+    },
+  });
+  return null;
+};
+
 export const MapContainer: React.FC = React.memo(() => {
-  const { selectedVillage, selectedYear, selectedVillagePolygon } = useVillageSelection();
+  const { selectedVillage, selectedYear, selectedVillagePolygon, setActiveLayers } = useVillageSelection();
   const layers = useMapLayers();
   const { data, geeStatus } = useSatelliteData(selectedVillage?.id, selectedYear);
   const { theme } = useTheme();
+
+  useEffect(() => {
+    const active = [];
+    if (layers.showNDVI) active.push('NDVI');
+    if (layers.showWater) active.push('Water Bodies');
+    if (layers.showLandCover) active.push('Land Cover');
+    setActiveLayers(active);
+  }, [layers.showNDVI, layers.showWater, layers.showLandCover, setActiveLayers]);
 
   const getTileUrl = () => {
     switch (layers.activeBaseLayer) {
@@ -64,6 +82,7 @@ export const MapContainer: React.FC = React.memo(() => {
         className="w-full h-full"
       >
         <MapInstanceBinder />
+        <MapClickHandler />
         
         <TileLayer
           attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'

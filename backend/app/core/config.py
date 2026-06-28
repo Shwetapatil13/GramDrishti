@@ -1,6 +1,9 @@
+import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ENV_PATH = os.path.join(BASE_DIR, ".env")
 
 class Settings(BaseSettings):
     GEE_PROJECT_ID: str = ""
@@ -12,7 +15,7 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     USE_MOCK_DATA: bool = False
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=ENV_PATH, extra="ignore")
 
     @property
     def cors_origins(self) -> List[str]:

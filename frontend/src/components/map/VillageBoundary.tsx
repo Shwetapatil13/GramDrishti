@@ -4,7 +4,7 @@ import L from 'leaflet';
 import { useTheme } from '@/hooks/useTheme';
 
 interface VillageBoundaryProps {
-  polygon: any | null;
+  polygon: GeoJSON.Polygon | GeoJSON.MultiPolygon | null;
 }
 
 export const VillageBoundary: React.FC<VillageBoundaryProps> = ({ polygon }) => {

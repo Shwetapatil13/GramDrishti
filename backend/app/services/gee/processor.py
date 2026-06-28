@@ -297,3 +297,24 @@ async def get_all_gee_metrics(
                 duration:.2f}s: {
                 str(e)}")
         raise
+
+async def sample_point_metrics(lat: float, lon: float, year: int) -> dict:
+    """
+    Simulates fetching raster values at a specific lat/lon coordinate for the given year.
+    In a real implementation, this would call ee.ImageCollection.reduceRegion 
+    with ee.Geometry.Point(lon, lat).
+    """
+    logger.info(f"Sampling GEE Point Metrics at lat={lat}, lon={lon} for year {year}")
+    
+    # Simulate network delay for GEE
+    await asyncio.sleep(0.3)
+    
+    # Return mock sampled pixel values
+    return {
+        "ndvi_pixel_value": 0.58,
+        "ndwi_pixel_value": 0.12,
+        "elevation_m": 620,
+        "slope_deg": 4.5,
+        "land_cover_class": "cropland",
+        "soil_moisture_index": 0.42
+    }

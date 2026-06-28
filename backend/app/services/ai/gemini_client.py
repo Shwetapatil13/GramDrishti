@@ -9,7 +9,7 @@ logger = get_logger(__name__)
 class GeminiClient:
     def __init__(self):
         self.api_key = settings.GEMINI_API_KEY
-        self.model = 'gemini-1.5-flash'
+        self.model = 'gemini-2.5-flash'
         self.url = f"https://generativelanguage.googleapis.com/v1beta/models/{
             self.model}:generateContent?key={
             self.api_key}"
@@ -113,6 +113,55 @@ class GeminiClient:
         except Exception as e:
             logger.error(f"Gemini QA failed: {e}. Using fallback.")
             return "Based on the environmental data for this village, the vegetation and water levels are relatively stable compared to previous years. There is a slight decrease in overall green cover, but water availability has marginally improved. I recommend focusing on water conservation to sustain agricultural output."
+
+    async def answer_question_rag(self, question: str, system_context: str, history: list[dict] = None) -> str:
+        contents = []
+        
+        # We can simulate system context by putting it in the very first user message.
+        # Ideally, we'd use 'system_instruction' if supported by the v1beta API,
+        # but for safety across API versions we'll just prepend it to the history or the first message.
+        
+        if not history:
+            contents.append({
+                "role": "user",
+                "parts": [{"text": f"SYSTEM INSTRUCTIONS AND CONTEXT:\n{system_context}\n\nUSER QUESTION:\n{question}"}]
+            })
+        else:
+            # Reconstruct history
+            first_user_msg = True
+            for msg in history:
+                role = "user" if msg["role"] == "user" else "model"
+                text = msg["content"]
+                
+                if role == "user" and first_user_msg:
+                    text = f"SYSTEM INSTRUCTIONS AND CONTEXT:\n{system_context}\n\nUSER MESSAGE:\n{text}"
+                    first_user_msg = False
+                    
+                contents.append({
+                    "role": role,
+                    "parts": [{"text": text}]
+                })
+                
+            # Finally add the new question
+            contents.append({
+                "role": "user",
+                "parts": [{"text": question}]
+            })
+            
+        payload = {"contents": contents}
+        
+        try:
+            async with httpx.AsyncClient(timeout=45.0) as client:
+                response = await client.post(self.url, json=payload)
+                response.raise_for_status()
+                data = response.json()
+                text = data['candidates'][0]['content']['parts'][0]['text']
+                return text.strip()
+        except Exception as e:
+            logger.error(f"Gemini RAG QA failed: {e}")
+            import traceback
+            traceback.print_exc()
+            return "### Summary\nThis information is currently unavailable due to an analysis error.\n\n### Evidence\nAnalysis engine failure.\n\n### Analysis\nN/A\n\n### Recommendations\nPlease try again later."
 
     async def generate_report_narrative(self, context: str) -> str:
         prompt = __import__('app.services.ai.prompt_builder', fromlist=[

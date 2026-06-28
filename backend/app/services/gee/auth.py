@@ -20,7 +20,8 @@ def initialize_gee() -> None:
         logger.info("Mock mode enabled — skipping GEE initialization")
         return
 
-    credentials_path = Path(settings.GEE_CREDENTIALS_PATH)
+    base_dir = Path(__file__).parent.parent.parent.parent
+    credentials_path = base_dir / settings.GEE_CREDENTIALS_PATH
     if not credentials_path.exists():
         raise RuntimeError(f"GEE credentials not found at {credentials_path}")
 

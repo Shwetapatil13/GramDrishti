@@ -22,7 +22,7 @@ export const WaterLayer: React.FC<WaterLayerProps> = ({ village, data }) => {
     
     const fetchTiles = async () => {
       try {
-        const boundary: any = village.boundary;
+        const boundary = village.boundary as GeoJSON.Geometry;
         const geometry = (boundary?.type === 'Feature')
           ? boundary.geometry
           : boundary;
@@ -46,7 +46,7 @@ export const WaterLayer: React.FC<WaterLayerProps> = ({ village, data }) => {
 
   if (!village || !village.boundary) return null;
 
-  const boundary: any = village.boundary;
+  const boundary = village.boundary as GeoJSON.Geometry;
   const geoJsonData = boundary.type === 'Feature' || boundary.type === 'FeatureCollection'
     ? boundary
     : {
@@ -72,7 +72,7 @@ export const WaterLayer: React.FC<WaterLayerProps> = ({ village, data }) => {
       )}
       <GeoJSON
         key={`water-${village.id}`}
-        data={geoJsonData as any}
+        data={geoJsonData as GeoJSON.FeatureCollection}
         style={{
           color: '#3b82f6',
           weight: 2,

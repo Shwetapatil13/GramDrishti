@@ -128,7 +128,7 @@ export const LandCoverLayer: React.FC<LandCoverLayerProps> = ({ village, data })
     return () => { mounted = false; };
   }, [village?.id, data?.year]);
 
-  const boundary: any = village.boundary;
+  const boundary = village.boundary as GeoJSON.Geometry;
   const geoJsonData = boundary.type === 'Feature' || boundary.type === 'FeatureCollection'
     ? boundary
     : { type: 'Feature', properties: {}, geometry: boundary };
@@ -170,7 +170,7 @@ export const LandCoverLayer: React.FC<LandCoverLayerProps> = ({ village, data })
     </div>`;
   };
 
-  const onEachFeature = (_feature: any, layer: L.Layer) => {
+  const onEachFeature = (_feature: GeoJSON.Feature, layer: L.Layer) => {
     const polygonLayer = layer as L.Path;
 
     polygonLayer.bindTooltip(buildTooltipContent(), {
@@ -202,7 +202,7 @@ export const LandCoverLayer: React.FC<LandCoverLayerProps> = ({ village, data })
       )}
       <GeoJSON
         key={`lc-${village.id}-${dominantKey}`}
-        data={geoJsonData as any}
+        data={geoJsonData as GeoJSON.FeatureCollection}
         style={{
           color: dominantColor,
           weight: 2,

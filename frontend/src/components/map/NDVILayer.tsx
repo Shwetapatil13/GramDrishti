@@ -28,7 +28,7 @@ export const NDVILayer: React.FC<NDVILayerProps> = ({ village, data, isLoading }
     const fetchTiles = async () => {
       try {
         // Extract raw GeoJSON geometry from the village boundary
-        const boundary: any = village.boundary;
+        const boundary = village.boundary as GeoJSON.Geometry;
         const geometry = (boundary?.type === 'Feature')
           ? boundary.geometry
           : boundary; // already a Geometry object

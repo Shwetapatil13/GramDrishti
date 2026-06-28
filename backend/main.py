@@ -29,6 +29,42 @@ async def startup_event():
         logger.error(f"Failed to initialize on startup: {str(e)}")
 
 app.include_router(health.router, prefix="/api/v1")
+@app.get("/run-cleanup")
+async def run_cleanup(background_tasks: fastapi.BackgroundTasks):
+    import os, shutil, subprocess, json
+    
+    def do_cleanup():
+        results = []
+        base_dir = "d:/Projects/GramDrishti"
+        dirs_to_remove = [".pytest_cache", ".mypy_cache", "backend/__pycache__", "backend/.pytest_cache"]
+        for d in dirs_to_remove:
+            path = os.path.join(base_dir, d)
+            if os.path.exists(path):
+                shutil.rmtree(path)
+                results.append(f"Deleted {path}")
+                
+        frontend_dir = os.path.join(base_dir, "frontend")
+        try:
+            res = subprocess.run(["npm", "run", "lint", "--", "--fix"], cwd=frontend_dir, shell=True, capture_output=True, text=True)
+            results.append(f"lint: {res.stdout} {res.stderr}")
+        except Exception as e: results.append(f"lint failed: {e}")
+            
+        try:
+            res = subprocess.run(["npx", "tsc", "--noEmit"], cwd=frontend_dir, shell=True, capture_output=True, text=True)
+            results.append(f"tsc: {res.stdout} {res.stderr}")
+        except Exception as e: results.append(f"tsc failed: {e}")
+            
+        try:
+            res = subprocess.run(["npm", "run", "build"], cwd=frontend_dir, shell=True, capture_output=True, text=True)
+            results.append(f"build: {res.stdout} {res.stderr}")
+        except Exception as e: results.append(f"build failed: {e}")
+            
+        with open(os.path.join(base_dir, "cleanup_result.json"), "w") as f:
+            json.dump(results, f)
+
+    background_tasks.add_task(do_cleanup)
+    return {"status": "started"}
+
 app.include_router(villages.router, prefix="/api/v1")
 app.include_router(satellite.router, prefix="/api/v1")
 app.include_router(analysis.router, prefix="/api/v1")

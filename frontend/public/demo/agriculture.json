@@ -1,0 +1,56 @@
+{
+  "answer": "The agricultural health in this village shows a marked improvement over the last year. \n\n### Evidence\nNDVI has increased from 0.45 to 0.61. \n\n### Reasoning\nThis is primarily due to better irrigation practices introduced last season, resulting in less crop stress.\n\n### Recommendation\nContinue expanding the micro-irrigation network.",
+  "structured_data": {
+    "retrieved_data": {
+      "confidence": {
+        "overall_label": "High"
+      }
+    },
+    "processor_insights": {
+      "agriculture": {
+        "metrics": [
+          {
+            "name": "NDVI",
+            "value": 0.61,
+            "unit": "",
+            "trend": "Improving",
+            "status": "Good",
+            "source": "Google Earth Engine",
+            "timestamp": "2024-06-28"
+          }
+        ],
+        "charts": [
+          {
+            "type": "line",
+            "title": "NDVI Trend (2020-2024)",
+            "x": [2020, 2021, 2022, 2023, 2024],
+            "y": [0.42, 0.40, 0.45, 0.50, 0.61]
+          }
+        ],
+        "actions": [
+          {
+            "type": "toggle_layer",
+            "layer": "ndvi"
+          }
+        ]
+      },
+      "schemes": {
+        "recommendations": [
+          {
+            "title": "Pradhan Mantri Krishi Sinchayee Yojana (PMKSY)",
+            "reason": "Triggered by expansion of micro-irrigation network."
+          }
+        ],
+        "actions": [
+          {
+            "type": "generate_report"
+          }
+        ]
+      }
+    }
+  },
+  "follow_up_questions": [
+    "Show me the drought risk",
+    "What schemes apply here?"
+  ]
+}

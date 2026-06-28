@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import List, Dict, Any
 from app.services.ai.ai_service import ai_service
@@ -7,39 +8,22 @@ from app.api.routes.satellite import get_village_metrics
 from app.api.routes.scores import get_village_score
 from app.utils.cache import cache
 import time
-import json
+
 
 router = APIRouter()
 
 
-@router.get("/ai/debug-score/{village_id}")
-async def debug_score(village_id: str, year: int = 2024):
-    try:
-        score = await get_village_score(village_id, year)
-        return {
-            "type": str(
-                type(score)), "value": score.model_dump() if hasattr(
-                score, 'model_dump') else score}
-    except Exception as e:
-        return {"error": str(e), "type": str(type(e))}
-
-
-@router.get("/ai/test-gemini")
-async def test_gemini(request: Request):
-    try:
-        from app.api.routes.reports import download_pdf
-        return await download_pdf(request, "kolhapur", 2024, True)
-    except Exception as e:
-        import traceback
-        return {
-            "status": "error",
-            "message": str(e),
-            "trace": traceback.format_exc()}
-
+class ChatMessage(BaseModel):
+    id: str
+    role: str
+    content: str
 
 class ChatRequest(BaseModel):
     question: str
     language: str = "en"
+    history: List[ChatMessage] = []
+    mapState: Dict[str, Any] = {}
+    clickedLocation: Dict[str, Any] | None = None
 
 
 def check_rate_limit(request: Request):
@@ -69,7 +53,7 @@ async def _gather_context_data(village_id: str, year: int):
     metrics = await get_village_metrics(village_id, year)
     score = await get_village_score(village_id, year)
 
-    return village, metrics, score
+# We removed _gather_rag_context since it is now handled by RetrievalEngine in ai_service
 
 
 @router.post("/ai/{village_id}/summary")
@@ -128,10 +112,24 @@ async def chat_with_ai(
     check_rate_limit(request)
 
     try:
-        village, metrics, score = await _gather_context_data(village_id, year)
-        answer = await ai_service.chat(body.question, village, metrics, score, language=body.language)
-        return {"answer": answer}
+        # Convert Pydantic models in history to dicts if needed
+        history_dicts = [{"role": msg.role, "content": msg.content} for msg in body.history] if body.history else []
+        
+        return StreamingResponse(
+            ai_service.chat_stream(
+                question=body.question,
+                village_id=village_id,
+                year=year,
+                language=body.language,
+                history=history_dicts,
+                map_state=body.mapState,
+                clicked_location=body.clickedLocation
+            ),
+            media_type="text/event-stream"
+        )
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=504, detail=str(e))
 
 

@@ -83,7 +83,7 @@ export const ChoroplethLayer: React.FC = () => {
                 setSelectedVillage({
                   id: regionId,
                   name: regionName,
-                } as unknown as any);
+                } as unknown as GeoJSON.FeatureCollection);
               }
             }
           });

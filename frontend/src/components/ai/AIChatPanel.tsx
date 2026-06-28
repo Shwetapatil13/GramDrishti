@@ -4,10 +4,11 @@ import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { useAIChat } from '@/hooks/useAIChat';
 import { SuggestedQuestions } from './SuggestedQuestions';
 import { useTranslation } from 'react-i18next';
+import { MessageCard } from './MessageCard';
 
 export const AIChatPanel: React.FC = () => {
   const { selectedVillage, selectedYear } = useVillageSelection();
-  const { messages, isLoading, sendMessage } = useAIChat(selectedVillage?.id, selectedYear);
+  const { messages, isLoading, loadingStatus, sendMessage } = useAIChat(selectedVillage?.id, selectedYear);
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
@@ -46,28 +47,22 @@ export const AIChatPanel: React.FC = () => {
         )}
 
         {messages.map((msg) => (
-          <div 
-            key={msg.id} 
-            className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div 
-              className={`max-w-[85%] p-3 text-body ${
-                msg.role === 'user' 
-                  ? 'bg-surface-border text-text-primary rounded-[16px_16px_4px_16px] text-right' 
-                  : 'bg-transparent border border-brand-console text-text-primary rounded-[16px_16px_16px_4px]'
-              }`}
-            >
-              {msg.content}
-            </div>
-          </div>
+          <MessageCard key={msg.id} message={msg} onFollowUpClick={sendMessage} />
         ))}
 
         {isLoading && (
           <div className="flex w-full justify-start">
-            <div className="max-w-[85%] p-4 bg-transparent border border-brand-console rounded-[16px_16px_16px_4px] flex items-center gap-1">
-              <span className="w-1.5 h-1.5 bg-brand-mint rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-              <span className="w-1.5 h-1.5 bg-brand-mint rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-              <span className="w-1.5 h-1.5 bg-brand-mint rounded-full animate-bounce"></span>
+            <div className="max-w-[85%] p-4 bg-transparent border border-brand-console rounded-[16px_16px_16px_4px] flex flex-col items-start gap-2">
+              <div className="flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-brand-mint rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                  <span className="w-1.5 h-1.5 bg-brand-mint rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                  <span className="w-1.5 h-1.5 bg-brand-mint rounded-full animate-bounce"></span>
+              </div>
+              {loadingStatus && (
+                <span className="text-xs text-brand-mint font-mono uppercase tracking-widest animate-pulse">
+                  {loadingStatus}...
+                </span>
+              )}
             </div>
           </div>
         )}
