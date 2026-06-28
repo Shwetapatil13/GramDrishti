@@ -109,3 +109,14 @@ See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for a complete system diagram, data 
 <div align="center">
   <p>Built for the <strong>Build for Good Hackathon 2026</strong></p>
 </div>
+
+<div align="center">
+  <img src="frontend/public/logo.png" alt="GramDrishti Logo" width="120" />
+  <h1>GramDrishti (ग्रामदृष्टि)</h1>
+  <p><strong>AI-Powered Climate Intelligence Platform for Indian Villages</strong></p>
+
+  ### 🌐 Live Demo
+  **https://gram-drishti-r1syt95ru-shwetapatil1322007-7095s-projects.vercel.app/**
+</div>
+
+---
