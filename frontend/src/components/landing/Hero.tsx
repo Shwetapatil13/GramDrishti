@@ -54,9 +54,14 @@ export const Hero: React.FC = () => {
               <Link to="/auth" className="flex items-center gap-2 bg-brand-mint text-canvas-black px-6 py-3.5 rounded-button font-mono text-sm uppercase tracking-wider hover:bg-text-primary transition-colors">
                 {t('landing.getStarted', 'Get Started')} <ArrowRight className="w-4 h-4" />
               </Link>
-              <button className="flex items-center gap-2 bg-surface-slate border border-surface-border text-text-primary px-6 py-3.5 rounded-button font-grotesk text-sm hover:bg-surface-elevated transition-colors">
+              <a
+                href="https://youtu.be/g-fqo-nGJoQ?si=1nMoQmWFnBggIdav"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 bg-surface-slate border border-surface-border text-text-primary px-6 py-3.5 rounded-button font-grotesk text-sm hover:bg-surface-elevated transition-colors"
+              >
                 <Play className="w-4 h-4" /> {t('hero.watch_demo', 'Watch Demo')}
-              </button>
+              </a>
             </div>
           </motion.div>
 
