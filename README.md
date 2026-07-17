@@ -1,4 +1,5 @@
 <div align="center">
+<<<<<<< HEAD
   <img src="frontend/public/logo.png" alt="GramDrishti Logo" width="120" />
   <h1>GramDrishti &nbsp;·&nbsp; ग्रामदृष्टि</h1>
   <p><strong>AI-Powered Environmental Intelligence Platform for Indian Villages</strong></p>
@@ -11,10 +12,26 @@
   [![Google Earth Engine](https://img.shields.io/badge/Google%20Earth%20Engine-Sentinel--2-4285F4?style=flat-square&logo=google&logoColor=white)](https://earthengine.google.com)
   [![Gemini](https://img.shields.io/badge/Google%20Gemini-2.5%20Flash-8E75B2?style=flat-square&logo=google&logoColor=white)](https://ai.google.dev)
   [![License](https://img.shields.io/badge/License-MIT-22C55E?style=flat-square)](LICENSE)
+=======
+  <img src="frontend/public/logo.png" alt="GramDrishti Logo" width="140" />
+
+  # GramDrishti (ग्रामदृष्टि)
+  ### **AI-Powered Climate Intelligence & Geospatial Analytics for Rural India**
+
+  [![Live Demo](https://img.shields.io/badge/Live%20Demo-gram--drishti.vercel.app-2ecc71?style=for-the-badge&logo=vercel&logoColor=white)](https://gram-drishti.vercel.app/)
+  [![Demo Video](https://img.shields.io/badge/Demo%20Video-Watch%20on%20YouTube-ff0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/g-fqo-nGJoQ?si=1nMoQmWFnBggIdav)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-f39c12?style=for-the-badge)](LICENSE)
+  
+  <br />
+
+  ![GramDrishti Dashboard Preview](frontend/public/hero_image.png)
+
+>>>>>>> 6de2e97 (Describe the changes you made)
 </div>
 
 ---
 
+<<<<<<< HEAD
 | | |
 |---|---|
 | **Live Application** | [gram-drishti.vercel.app](https://gram-drishti.vercel.app/) |
@@ -75,11 +92,43 @@ The AI pipeline separates computation from narration. Python processors compute 
 **3. Interactive GIS and AI Feedback Loop**
 
 Users can click any point on the map. Those coordinates — along with the currently active GIS layers — are sent to the AI as context, enabling spatially-aware, location-specific responses.
+=======
+## 🌍 Vision & Impact
+
+Over **640,000 Indian villages** face rapid and complex climate stress—ranging from water depletion and crop degradation to extreme weather events. While satellite and climate datasets exist, local administrative bodies (**Gram Panchayats**) and grassroot organizations lack the tools to interpret this complex spatial data and translate it into actionable local mitigation steps.
+
+**GramDrishti (ग्रामदृष्टि)** bridges this intelligence gap. It is a comprehensive, production-grade **Geographic Decision Support System (GDSS)** that ingests raw satellite imagery, processes real-time weather analytics, and runs a zero-hallucination, agentic RAG pipeline to generate village-level health metrics, interactive choropleth layers, and localized policy recommendations in native Indian languages.
 
 ---
 
-## Key Features
+## ✨ Core Capabilities
 
+### 🛰️ Dynamic Remote Sensing (GIS)
+Processes raw satellite bands on-the-fly using the **Google Earth Engine API** (Sentinel-2, Dynamic World land cover, SRTM DEM, and JRC Global Surface Water). It visualizes vegetation index (NDVI), water index (NDWI), Land Surface Temperature (LST), and slope models dynamically.
+
+### 🧠 Zero-Hallucination Agentic RAG
+Employs an intelligent **Agentic Deterministic Processor** architecture. Instead of feeding raw context directly to the LLM, the system processes geospatial queries through structured mathematical calculators (calculating indices, trends, and risk thresholds) before generating the narrative via **Google Gemini (with Ollama Qwen2.5 fallback)**.
+
+### 📊 Village Health Indexing
+Calculates a multi-dimensional health score across **five critical environmental pillars**:
+*   💧 **Water Security** (Surface water dynamics, NDWI)
+*   🌱 **Vegetation Health** (NDVI growth curves, agriculture vigor)
+*   🌤️ **Climate Stability** (Temperature anomalies, seasonal precipitation)
+*   🌊 **Flood & Terrain Risk** (Slope elevation models, water bodies)
+*   🌾 **Land Sustainability** (Dynamic land cover classification)
+
+### 🗺️ Rich Geospatial Interfaces
+Renders localized village boundaries with high-precision choropleth maps built with **React Leaflet**. Users can toggle raster layers, select custom regions, and click coordinates to sample exact pixel values.
+
+### 🌐 Multilingual Accessibility
+Fully localized interface supporting **English**, **हिन्दी (Hindi)**, and **मराठी (Marathi)** to democratize climate intelligence for rural panchayats and local decision-makers.
+>>>>>>> 6de2e97 (Describe the changes you made)
+
+---
+
+## ⚙️ Technical Architecture & Data Flow
+
+<<<<<<< HEAD
 | Feature | What It Does |
 |---|---|
 | Village Search | Local GeoJSON DB with automatic fallback to OpenStreetMap Nominatim for any Indian village |
@@ -198,11 +247,54 @@ GramDrishti/
 ├── CHANGELOG.md                    # Version history
 └── LICENSE                         # MIT
 ```
+=======
+GramDrishti decouples intensive spatial computations from the UI rendering layer to ensure sub-second rendering. Below is the system flow showing how a user request is handled:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as User Interface
+    participant FE as React Dashboard (Frontend)
+    participant BE as FastAPI API Server (Backend)
+    participant GEE as Google Earth Engine / APIs
+    participant LLM as Google Gemini / Ollama fallback
+
+    User->>FE: Selects Village & Asks Question
+    FE->>BE: POST /api/v1/ai/{village_id}/chat (SSE Stream)
+    activate BE
+    BE->>BE: Intent Classification (agriculture, water, disaster, etc.)
+    BE->>GEE: Retrieval Engine fetches raw satellite indices & Open-Meteo weather
+    GEE-->>BE: Spatial Data & Historical Weather
+    BE->>BE: Run Deterministic Processor (Calculates metrics, charts & actions)
+    BE->>LLM: Prompt Builder compiles data + confidence constraints
+    LLM-->>BE: Streamed Narrative response
+    BE-->>FE: SSE Stream (JSON payloads containing Charts, Map Actions & Markdown Text)
+    deactivate BE
+    FE->>User: Renders rich cards, updates Map Layers & streams markdown text
+```
 
 ---
 
-## Quick Start
+## 🚀 Interactive Walkthrough (Demo Villages)
 
+To test the live platform or local setup, query the following coordinates which have pre-configured scenarios and data caches:
+
+| Village | District | Coordinates | Climate & Ecological Status |
+| :--- | :--- | :--- | :--- |
+| **Mulshi** | Pune | `[18.5204, 73.5297]` | **Critical Decline**: Major reduction in water levels and forest cover. |
+| **Maval** | Pune | `[18.7667, 73.5833]` | **Steadily Improving**: Positive trend in vegetation indices and soil moisture. |
+| **Ambegaon** | Pune | `[19.1167, 73.7167]` | **Moderate Stress**: Gradual drying of seasonal water bodies. |
+| **Khed** | Pune | `[18.8333, 73.8667]` | **Severe Aridity**: Faster temperature rise, low agricultural yield indicators. |
+| **Junnar** | Pune | `[19.2000, 73.8833]` | **Ecological Recovery**: Reforestation and rainwater harvesting impact visible. |
+
+> **Pro-Tip**: Warm up the local database cache for these villages by running `python scripts/demo_setup.py` from the root directory while the backend is running.
+>>>>>>> 6de2e97 (Describe the changes you made)
+
+---
+
+## 🛠️ Stack & Architecture Overview
+
+<<<<<<< HEAD
 ### Prerequisites
 
 | Tool | Version | Purpose |
@@ -213,14 +305,88 @@ GramDrishti/
 | Google Earth Engine | Service Account | Live satellite data (optional — mock data available) |
 
 ### Backend
+=======
+The system is built on a robust, decoupled, and production-ready tech stack.
+
+*   **Frontend**: React 18, Vite, TypeScript, Tailwind CSS, React Leaflet, ECharts, Framer Motion, and TanStack Query.
+*   **Backend**: Python 3.11+, FastAPI (Asynchronous SSE), GeoPandas (Spatial queries), Shapely & Rasterio (Raster analysis), and Pydantic (Data validation).
+*   **AI Stack**: Google Gemini 1.5 Flash API with local Ollama fallback, customized RAG architecture.
+*   **PDF Engine**: ReportLab to export dynamic, village-specific physical reports.
+
+---
+
+<details>
+<summary>📂 Codebase Structure & Directory Layout</summary>
+
+```text
+GramDrishti/
+├── frontend/                     # React + Vite Frontend App
+│   ├── public/                   # Static assets (logos, hero screenshot)
+│   ├── src/
+│   │   ├── components/           # Modularized UI component system
+│   │   │   ├── ai/               # AI chatbot, dynamic visual elements
+│   │   │   ├── dashboard/        # Village index and analytical scores
+│   │   │   ├── map/              # Leaflet integration, spatial layers
+│   │   │   └── layout/           # Sidebar, navbar, language switcher
+│   │   ├── hooks/                # useAIChat (SSE streaming engine)
+│   │   └── services/             # Axios clients and API configurations
+├── backend/                      # FastAPI Backend App
+│   ├── app/
+│   │   ├── api/routes/           # API routes for maps, AI endpoints, reports
+│   │   ├── core/                 # Configuration and security settings
+│   │   └── services/
+│   │       ├── ai/               # Intent Routing, Fallbacks, Prompt Builders
+│   │       │   └── processors/   # Agriculture, water, schemes, & disaster engines
+│   │       └── village_service.py# GeoPandas and boundary management
+└── docs/                         # Technical system blueprints & documentation
+```
+</details>
+
+<details>
+<summary>⚙️ Environment Setup & Configuration</summary>
+
+### 1. Backend Config (`backend/.env`)
+
+Copy backend `.env.example` to `.env` and configure:
+
+| Key | Purpose | Default / Example |
+| :--- | :--- | :--- |
+| `GEE_PROJECT_ID` | Project ID on Google Cloud Console for GEE | `your-gee-project-id` |
+| `GEE_SERVICE_ACCOUNT_EMAIL`| Service Account with Earth Engine Access | `service-acc@example.gserviceaccount.com` |
+| `GEE_CREDENTIALS_PATH` | Path to downloaded GEE service account JSON key | `./credentials/gee_credentials.json` |
+| `GEMINI_API_KEY` | Google Gemini API Key | `AIzaSy...` |
+| `OPENMETEO_BASE_URL` | Open-Meteo weather API base url | `https://api.open-meteo.com/v1` |
+| `USE_MOCK_DATA` | Deterministic local data fallback if GEE offline | `false` |
+
+### 2. Frontend Config (`frontend/.env`)
+
+Copy frontend `.env.example` to `.env`:
+
+```env
+VITE_API_BASE_URL=http://localhost:8000
+```
+</details>
+
+<details>
+<summary>💻 Local Development Installation</summary>
+
+### Backend Installation
+>>>>>>> 6de2e97 (Describe the changes you made)
 
 ```bash
 cd backend
 python -m venv venv
 
+<<<<<<< HEAD
 # Windows
 venv\Scripts\activate
 # macOS / Linux
+=======
+# Activate venv:
+# Windows:
+venv\Scripts\activate
+# macOS/Linux:
+>>>>>>> 6de2e97 (Describe the changes you made)
 source venv/bin/activate
 
 pip install -r requirements.txt
@@ -231,7 +397,13 @@ uvicorn main:app --reload
 # API docs: http://localhost:8000/docs
 ```
 
+<<<<<<< HEAD
 ### Frontend
+=======
+The interactive OpenAPI documentation will be running at [http://localhost:8000/docs](http://localhost:8000/docs).
+
+### Frontend Installation
+>>>>>>> 6de2e97 (Describe the changes you made)
 
 ```bash
 cd frontend
@@ -241,13 +413,19 @@ npm run dev
 # App: http://localhost:5173
 ```
 
+<<<<<<< HEAD
 ### Cache Warmup (for demos)
+=======
+The dashboard will be active at [http://localhost:5173](http://localhost:5173).
+</details>
+>>>>>>> 6de2e97 (Describe the changes you made)
 
 ```bash
 # With the backend running:
 python scripts/demo_setup.py
 ```
 
+<<<<<<< HEAD
 This pre-fetches all satellite metrics, health scores, AI summaries, and recommendations for the 5 demo villages across 5 years — reducing first-load time from ~45 seconds to under 2 seconds.
 
 ### Environment Variables
@@ -382,9 +560,21 @@ The system falls back to Ollama (local Qwen 2.5). If both are unavailable, hardc
 | [FUTURE_SCOPE.md](FUTURE_SCOPE.md) | Roadmap, scaling plan, business model |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Contribution guide, coding standards, PR checklist |
 | [CHANGELOG.md](CHANGELOG.md) | Version history |
+=======
+## 🔮 Roadmap & Future Vision
+
+1.  **Predictive ML Pipelines**: Deploy localized Random Forest regressors to predict crop yield and drought hazards 3 months in advance.
+2.  **Advanced GIS Layers**: Integrate radar soil moisture indices (using Sentinel-1 SAR imagery) and flood risk susceptibility.
+3.  **Direct Government API Integrations**: Link recommendations to live scheme budgets via Ministry of Panchayati Raj APIs.
+4.  **Offline-First Mobile Companion**: Build a React Native app with cached GIS boundaries for rural officers in connectivity-scarce zones.
+>>>>>>> 6de2e97 (Describe the changes you made)
 
 ---
 
 <div align="center">
+<<<<<<< HEAD
   <sub>GramDrishti — ग्रामदृष्टि — "Vision for Villages"</sub>
+=======
+  <sub>Built for the <strong>Build for Good Hackathon 2026</strong> — Empowering Indian Villages through Spatial AI</sub>
+>>>>>>> 6de2e97 (Describe the changes you made)
 </div>
