@@ -20,7 +20,7 @@ This document describes the technical architecture of GramDrishti, a Geographic 
 - [Deployment Architecture](#deployment-architecture)
 - [Security Architecture](#security-architecture)
 - [Performance Considerations](#performance-considerations)
-- [Design Decisions & Tradeoffs](#design-decisions--tradeoffs)
+- [Design Decisions and Tradeoffs](#design-decisions-and-tradeoffs)
 
 ---
 
@@ -30,9 +30,9 @@ GramDrishti follows a **decoupled client-server architecture** with three distin
 
 | Layer | Technology | Responsibility |
 |---|---|---|
-| **Presentation** | React 18 + Vite + TypeScript | Map rendering, dashboard UI, AI chat, report downloads |
-| **Application** | FastAPI + Python 3.11 | API routing, GEE orchestration, AI pipeline, scoring, reports |
-| **Data** | Google Earth Engine, Open-Meteo, In-Memory Cache | Satellite imagery, weather data, computed metrics |
+| Presentation | React 18 + Vite + TypeScript | Map rendering, dashboard UI, AI chat, report downloads |
+| Application | FastAPI + Python 3.11 | API routing, GEE orchestration, AI pipeline, scoring, reports |
+| Data | Google Earth Engine, Open-Meteo, In-Memory Cache | Satellite imagery, weather data, computed metrics |
 
 There is **no traditional database**. All geospatial data is fetched on-demand from external APIs and cached in-memory with TTL expiration. Village boundaries are loaded from local GeoJSON files at startup.
 
@@ -49,14 +49,14 @@ graph TB
     end
 
     subgraph "Backend (FastAPI)"
-        Router[API Router<br/>10 route modules]
-        AI[AI Service<br/>Orchestrator]
-        GEE[GEE Service<br/>Satellite Processing]
-        Scoring[Scoring Engine<br/>5 Dimensions]
-        Weather[Weather Service<br/>Open-Meteo]
-        Reports[Report Service<br/>PDF / JSON / CSV]
-        Cache[(TTL Cache<br/>In-Memory)]
-        VillageDB[(Village Index<br/>GeoJSON Files)]
+        Router[API Router\n10 route modules]
+        AI[AI Service\nOrchestrator]
+        GEE[GEE Service\nSatellite Processing]
+        Scoring[Scoring Engine\n5 Dimensions]
+        Weather[Weather Service\nOpen-Meteo]
+        Reports[Report Service\nPDF / JSON / CSV]
+        Cache[(TTL Cache\nIn-Memory)]
+        VillageDB[(Village Index\nGeoJSON Files)]
     end
 
     subgraph "External Services"
@@ -123,12 +123,12 @@ graph TD
     App --> ProtectedRoute[ProtectedRoute]
     ProtectedRoute --> AppLayout[AppLayout]
 
-    AppLayout --> Header[Header<br/>LanguageSwitcher + VillageScoreBadge]
+    AppLayout --> Header[Header\nLanguageSwitcher + VillageScoreBadge]
     AppLayout --> MapContainer[MapContainer]
     AppLayout --> DashboardPanel[DashboardPanel]
     AppLayout --> AIChatPanel[AIChatPanel]
 
-    MapContainer --> VillageSearch[VillageSearch<br/>Local + Nominatim]
+    MapContainer --> VillageSearch[VillageSearch\nLocal + Nominatim]
     MapContainer --> ChoroplethLayer[ChoroplethLayer]
     MapContainer --> NDVILayer[NDVILayer]
     MapContainer --> WaterLayer[WaterLayer]
@@ -136,14 +136,14 @@ graph TD
     MapContainer --> VillageBoundary[VillageBoundary]
     MapContainer --> LayerControl[LayerControl]
 
-    DashboardPanel --> OverviewTab[OverviewTab<br/>HealthScoreRing + ScoreBreakdown]
-    DashboardPanel --> EnvironmentTab[EnvironmentTab<br/>MetricsPanel + WeatherWidget]
-    DashboardPanel --> HistoryTab[HistoryTab<br/>TrendCharts]
-    DashboardPanel --> ReportTab[ReportTab<br/>PDF/JSON/CSV Downloads]
+    DashboardPanel --> OverviewTab[OverviewTab\nHealthScoreRing + ScoreBreakdown]
+    DashboardPanel --> EnvironmentTab[EnvironmentTab\nMetricsPanel + WeatherWidget]
+    DashboardPanel --> HistoryTab[HistoryTab\nTrendCharts]
+    DashboardPanel --> ReportTab[ReportTab\nPDF/JSON/CSV Downloads]
 
-    AIChatPanel --> MessageCard[MessageCard<br/>Markdown + Structured Data]
-    AIChatPanel --> DynamicChart[DynamicChart<br/>ECharts from AI JSON]
-    AIChatPanel --> ActionPanel[ActionPanel<br/>Map Layer Toggles]
+    AIChatPanel --> MessageCard[MessageCard\nMarkdown + Structured Data]
+    AIChatPanel --> DynamicChart[DynamicChart\nECharts from AI JSON]
+    AIChatPanel --> ActionPanel[ActionPanel\nMap Layer Toggles]
     AIChatPanel --> FollowUpChips[FollowUpChips]
 
     style AppLayout fill:#2ecc71,stroke:#27ae60,color:#000
@@ -152,7 +152,7 @@ graph TD
 
 ### Key Design Patterns
 
-**1. Context-Based State Management**
+**Context-Based State Management**
 
 The `VillageProvider` (in `useVillageSelection.tsx`) provides shared state to the entire app via React Context:
 - `selectedVillage`, `selectedYear` — current selection
@@ -160,17 +160,17 @@ The `VillageProvider` (in `useVillageSelection.tsx`) provides shared state to th
 - `activeLayers` — currently visible GIS layers (sent to AI)
 - `selectedVillagePolygon` — GeoJSON geometry for boundary rendering
 
-**2. Lazy Loading + Code Splitting**
+**Lazy Loading and Code Splitting**
 
 Dashboard tabs (`OverviewTab`, `EnvironmentTab`, `HistoryTab`, `ReportTab`) are loaded via `React.lazy()` and rendered inside `<Suspense>` with skeleton placeholders.
 
-**3. SSE Streaming for AI Chat**
+**SSE Streaming for AI Chat**
 
-The `useAIChat` hook uses the Fetch API's `ReadableStream` to parse line-delimited JSON from the SSE stream. Pipeline status updates (`initializing`, `retrieving`, `processors`, `llm`) are displayed in real-time before the final response.
+The `useAIChat` hook uses the Fetch API's `ReadableStream` to parse line-delimited JSON from the SSE stream. Pipeline status updates are displayed in real-time before the final response arrives.
 
-**4. Decoupled AI Rendering**
+**Decoupled AI Rendering**
 
-AI responses contain both Markdown narrative text and a `structured_data` JSON payload. The frontend's `MessageCard` renders the Markdown, while `DynamicChart` and `ActionPanel` parse the structured JSON to render native ECharts charts and map-interaction buttons.
+AI responses contain both Markdown narrative text and a `structured_data` JSON payload. The frontend's `MessageCard` renders the Markdown, while `DynamicChart` and `ActionPanel` parse the structured JSON to render ECharts visualizations and map-interaction buttons.
 
 ---
 
@@ -191,18 +191,18 @@ AI responses contain both Markdown narrative text and a `structured_data` JSON p
 
 All routes are mounted under `/api/v1/` from `main.py`:
 
-| Route Module | Prefix | Endpoints | Purpose |
-|---|---|---|---|
-| `health.py` | `/health` | `GET /` | Health check |
-| `villages.py` | `/villages` | `GET /search`, `GET /{id}`, `GET /{id}/boundary`, `POST /register`, `GET /boundaries/all` | Village CRUD + dynamic registration |
-| `satellite.py` | `/satellite` | `GET /{id}/metrics`, `GET /{id}/ndvi`, `GET /{id}/water`, `GET /{id}/landcover`, `GET|POST /{id}/*/tiles`, `GET /regions/metrics` | GEE satellite data + tile URLs |
-| `weather.py` | `/weather` | Weather endpoints | Open-Meteo data |
-| `scores.py` | `/scores` | `GET /{id}` | 5-dimension health scores |
-| `history.py` | `/history` | `GET /{id}` | Multi-year historical data |
-| `analysis.py` | `/analysis` | Analysis endpoints | Climate assessment + change detection |
-| `ai.py` | `/ai` | `POST /{id}/chat`, `POST /{id}/summary`, `POST /{id}/recommendations`, `GET /{id}/report-narrative` | AI services (SSE + REST) |
-| `recommendations.py` | `/recommendations` | `GET /{id}` | Proactive insights |
-| `reports.py` | `/reports` | `GET /{id}/pdf`, `GET /{id}/json`, `GET /{id}/csv` | Report downloads |
+| Route Module | Prefix | Purpose |
+|---|---|---|
+| `health.py` | `/health` | Health check endpoint |
+| `villages.py` | `/villages` | Search, CRUD, dynamic registration, boundaries |
+| `satellite.py` | `/satellite` | GEE metrics, NDVI, water, land cover, tile URLs |
+| `weather.py` | `/weather` | Open-Meteo current and historical data |
+| `scores.py` | `/scores` | 5-dimension health scores |
+| `history.py` | `/history` | Multi-year historical data |
+| `analysis.py` | `/analysis` | Climate assessment, change detection |
+| `ai.py` | `/ai` | Chat (SSE), summary, recommendations, report narrative |
+| `recommendations.py` | `/recommendations` | Proactive AI-generated insights |
+| `reports.py` | `/reports` | PDF, JSON, CSV downloads |
 
 ### Startup Lifecycle
 
@@ -214,7 +214,7 @@ sequenceDiagram
 
     App->>VS: load_villages()
     VS->>VS: Glob backend/data/*.geojson
-    VS->>VS: Parse features → SEARCH_CACHE, BOUNDARY_CACHE, SEARCH_INDEX
+    VS->>VS: Parse features into SEARCH_CACHE, BOUNDARY_CACHE, SEARCH_INDEX
     VS-->>App: Villages indexed
 
     App->>GEE: initialize_gee()
@@ -228,7 +228,7 @@ sequenceDiagram
 
 ## AI Pipeline Architecture
 
-The AI pipeline is the core innovation. It uses an **Agentic Deterministic Processor** pattern rather than dumping raw data into an LLM.
+The AI pipeline uses an **Agentic Deterministic Processor** pattern. Computation is separated from narration.
 
 ### Pipeline Sequence
 
@@ -255,13 +255,10 @@ sequenceDiagram
     AIService->>Classifier: classify(question)
     Classifier->>Gemini: Classify intent
     Gemini-->>Classifier: ["agriculture"]
-    AIService-->>Frontend: {"status": "retrieving", "details": "Intents: agriculture"}
+    AIService-->>Frontend: {"status": "retrieving"}
 
     AIService->>Retrieval: fetch(village_id, intents)
-    Retrieval->>Retrieval: Fetch village, metrics, score
-    Retrieval->>Retrieval: Fetch weather (if intent matches)
-    Retrieval->>Retrieval: Fetch history (if intent matches)
-    Retrieval-->>AIService: context_blocks (with source attribution)
+    Retrieval-->>AIService: context_blocks with source attribution
 
     AIService->>Confidence: calculate_confidence(context_blocks)
     Confidence-->>AIService: {overall: 0.80, label: "High"}
@@ -269,7 +266,7 @@ sequenceDiagram
     AIService-->>Frontend: {"status": "processors"}
 
     AIService->>Processors: agriculture.process(context_blocks)
-    Processors-->>AIService: {metrics: [...], charts: [...], actions: [...]}
+    Processors-->>AIService: {metrics, charts, actions}
 
     AIService->>PromptBuilder: assemble_dynamic_prompt()
     PromptBuilder-->>AIService: Structured prompt with hallucination guards
@@ -286,25 +283,25 @@ sequenceDiagram
 
 ### Component Responsibilities
 
-| Component | File | What It Does | What It Doesn't Do |
+| Component | File | Responsibility | What It Does Not Do |
 |---|---|---|---|
-| **Intent Classifier** | `classifier.py` | Routes queries to domain processors using Gemini + keyword fallback | Doesn't generate any user-facing content |
-| **Retrieval Engine** | `retrieval_engine.py` | Fetches only the data relevant to classified intents, with source tags | Doesn't process or interpret data |
-| **Confidence Calculator** | `confidence.py` | Scores data availability: `0.35×GIS + 0.25×Weather + 0.20×History + 0.20×Predictions` | Doesn't affect what data is fetched |
-| **Processors** | `processors/*.py` | Deterministically computes metrics, charts, actions, and threshold-based recommendations | Never calls an LLM |
-| **Prompt Builder** | `prompt_builder.py` | Assembles structured JSON + hallucination guards + language instructions into a system prompt | Doesn't generate the response |
-| **Gemini Client** | `gemini_client.py` | Calls Gemini 2.5 Flash API with timeout handling and fallback responses | Only generates narrative text |
-| **Audit Logger** | `audit.py` | Logs every query with: intents, datasets, processors, JSON size, confidence, execution time | Doesn't affect pipeline behavior |
+| Intent Classifier | `classifier.py` | Route queries to processors using Gemini + keyword fallback | Does not generate user-facing content |
+| Retrieval Engine | `retrieval_engine.py` | Fetch only data relevant to classified intents, with source tags | Does not interpret data |
+| Confidence Calculator | `confidence.py` | Score data availability: `0.35xGIS + 0.25xWeather + 0.20xHistory + 0.20xPredictions` | Does not affect what data is fetched |
+| Processors | `processors/*.py` | Deterministically compute metrics, charts, actions, and recommendations | Never calls an LLM |
+| Prompt Builder | `prompt_builder.py` | Assemble structured JSON context + hallucination guards + language instructions | Does not generate the response |
+| Gemini Client | `gemini_client.py` | Call Gemini 2.5 Flash with timeout handling and fallback responses | Only generates narrative text |
+| Audit Logger | `audit.py` | Log every query with intents, datasets, processors, JSON size, confidence, execution time | Does not affect pipeline behavior |
 
 ### Supported Intents
 
-| Intent | Processor | Retrieves | Outputs |
+| Intent | Processor | Data Retrieved | Output |
 |---|---|---|---|
 | `agriculture` | `agriculture.py` | GEE metrics, historical NDVI | NDVI metric card, trend chart, toggle_layer action |
-| `water` | `water.py` | GEE metrics, weather, historical NDWI | NDWI metric, rainfall metric, trend chart, toggle_layer |
-| `disaster` | `disaster.py` | Weather, health scores | Flood risk assessment, toggle flood zone layer |
-| `general` | All processors | All datasets | Combined output from agriculture + water + disaster |
-| `schemes` | `schemes.py` | GEE metrics, weather | Matched government schemes (PMKSY, Soil Health Card, etc.) |
+| `water` | `water.py` | GEE metrics, weather, historical NDWI | NDWI and rainfall metrics, trend chart |
+| `disaster` | `disaster.py` | Weather, health scores | Flood risk assessment, terrain analysis |
+| `general` | All processors | All datasets | Combined output from all processors |
+| `schemes` | `schemes.py` | GEE metrics, weather | Matched government schemes |
 
 ---
 
@@ -314,10 +311,10 @@ sequenceDiagram
 
 | Dataset | Source | Resolution | Metrics Extracted |
 |---|---|---|---|
-| **Sentinel-2** | `COPERNICUS/S2_SR_HARMONIZED` | 10m | NDVI, NDWI, Red, NIR, SWIR |
-| **Dynamic World** | `GOOGLE/DYNAMICWORLD/V1` | 10m | Land cover classification (9 classes) |
-| **SRTM DEM** | `USGS/SRTMGL1_003` | 30m | Elevation, Slope, Flood risk area |
-| **JRC Water** | `JRC/GSW1_4/GlobalSurfaceWater` | 30m | Water area, seasonal water, occurrence |
+| Sentinel-2 | `COPERNICUS/S2_SR_HARMONIZED` | 10m | NDVI, NDWI, Red, NIR, SWIR |
+| Dynamic World | `GOOGLE/DYNAMICWORLD/V1` | 10m | Land cover classification (9 classes) |
+| SRTM DEM | `USGS/SRTMGL1_003` | 30m | Elevation, slope, flood risk area |
+| JRC Water | `JRC/GSW1_4/GlobalSurfaceWater` | 30m | Water area, seasonal water, occurrence |
 
 ### Tile Generation Flow
 
@@ -326,16 +323,16 @@ flowchart LR
     A[Frontend requests tile URL] --> B[Backend route]
     B --> C[asyncio.to_thread]
     C --> D[GEE compute on Google servers]
-    D --> E[getMapId → Tile URL template]
-    E --> F[Return {urlFormat, bounds}]
+    D --> E[getMapId returns Tile URL template]
+    E --> F[Return urlFormat + bounds]
     F --> G[Leaflet TileLayer renders tiles]
 ```
 
-The backend generates **GEE tile URLs** (not raw images) — the browser fetches tiles directly from Google's tile servers, keeping the backend lightweight.
+The backend generates GEE tile URLs — not raw images. The browser fetches tiles directly from Google's tile servers, keeping the backend lightweight.
 
 ### Mock Data System
 
-For demo/offline use, `processor.py` contains `MOCK_METRICS` — a dictionary of deterministic data for 5 villages × 5 years. When `USE_MOCK_DATA=true` or GEE is unavailable, the system returns this data with `dataSource: "mock"`.
+For demo and offline use, `processor.py` contains `MOCK_METRICS` — deterministic data for 5 villages across 5 years. When `USE_MOCK_DATA=true` or GEE is unavailable, the system returns this data with `dataSource: "mock"`.
 
 ---
 
@@ -343,51 +340,51 @@ For demo/offline use, `processor.py` contains `MOCK_METRICS` — a dictionary of
 
 ### Scoring Formula
 
-Each dimension is scored 0–100, then combined using weighted average:
+Each dimension is scored 0–100, then combined using a weighted average:
 
 ```
-Overall = (0.25 × Water) + (0.25 × Vegetation) + (0.20 × Climate) + (0.15 × Flood) + (0.15 × Land)
+Overall = (0.25 x Water) + (0.25 x Vegetation) + (0.20 x Climate) + (0.15 x Flood) + (0.15 x Land)
 ```
 
 ### Dimension Formulas
 
-| Dimension | Components | Formula |
+| Dimension | Components | Formula Basis |
 |---|---|---|
-| **Water Security** | Water coverage + NDWI + Rainfall | `min(waterAreaHa/(area×100)×500, 40) + min((ndwi+1)/2×100, 30) + min(rainfall/800×30, 30)` |
-| **Vegetation Health** | NDVI + Green cover + Tree cover | `min(ndvi×100, 50) + min(greenCover/60×30, 30) + min(trees/30×20, 20)` |
-| **Climate Stability** | Base 100, minus penalties | `100 - tempPenalty - rainfallDeficit - heatStress - droughtRisk` |
-| **Flood Preparedness** | Base 100, minus penalties | `100 - floodAreaPenalty - floodedLandPenalty - flatRainfallPenalty` |
-| **Land Sustainability** | Base 100, minus penalties | `100 - bareLandPenalty - builtAreaPenalty - degradationPenalty` |
+| Water Security | Water coverage + NDWI + Rainfall | Surface water area, NDWI index, annual rainfall |
+| Vegetation Health | NDVI + Green cover + Tree cover | NDVI magnitude, green cover percent, tree cover percent |
+| Climate Stability | Base 100 minus penalties | Temperature anomaly, rainfall deficit, heat stress, drought risk |
+| Flood Preparedness | Base 100 minus penalties | Flood area ratio, flooded land percent, flat terrain with high rainfall |
+| Land Sustainability | Base 100 minus penalties | Bare land percent, built area expansion, land degradation indicators |
 
 ### Trend Detection
 
 ```python
 delta = current_score - previous_year_score
-if delta > 2.0: "improving"
+if delta > 2.0:   "improving"
 elif delta < -2.0: "declining"
-else: "stable"
+else:              "stable"
 ```
 
 ---
 
 ## Database Design
 
-GramDrishti uses **no traditional database**. Data storage is handled through:
+GramDrishti uses no traditional database. Storage is handled through:
 
 | Store | Type | Lifetime | Contents |
 |---|---|---|---|
 | `SEARCH_CACHE` | Python dict | Server process | `{village_id: Village}` — Pydantic models |
 | `BOUNDARY_CACHE` | Python dict | Server process | `{village_id: GeoJSON geometry}` |
-| `SEARCH_INDEX` | Python list | Server process | `[{id, name, district, state}]` — searchable metadata |
-| `TTLCache` | Python dict with TTL | Configurable (default 24h) | `{cache_key: {value, expires_at}}` — GEE metrics, AI responses |
-| `data/*.geojson` | GeoJSON files | Persistent | Pre-loaded village boundaries (Maharashtra) |
-| `logs/ai_audits/*.jsonl` | JSONL files | Persistent | AI pipeline audit trail |
+| `SEARCH_INDEX` | Python list | Server process | Searchable metadata: id, name, district, state |
+| `TTLCache` | Python dict with TTL | Configurable (default 24h) | GEE metrics, AI responses |
+| `data/*.geojson` | GeoJSON files | Persistent on disk | Pre-loaded village boundaries (Maharashtra) |
+| `logs/ai_audits/*.jsonl` | JSONL files | Persistent on disk | AI pipeline audit trail |
 
 ---
 
 ## Authentication Flow
 
-Authentication is **client-side only** using Zustand with `persist` middleware:
+Authentication is client-side only, using Zustand with `persist` middleware:
 
 ```mermaid
 flowchart TD
@@ -396,7 +393,7 @@ flowchart TD
     B -->|Signup| D[Enter name + email + password]
     C --> E[Zustand: set isAuthenticated=true]
     D --> E
-    E --> F[Persist to localStorage<br/>key: gramdrishti-auth]
+    E --> F[Persist to localStorage\nkey: gramdrishti-auth]
     F --> G[Redirect to /dashboard]
 
     H[User visits /dashboard] --> I{ProtectedRoute check}
@@ -404,7 +401,7 @@ flowchart TD
     I -->|isAuthenticated=false| K[Redirect to /auth]
 ```
 
-> **Note:** There is no server-side authentication. This is a client-side session suitable for a hackathon demo. See [FUTURE_SCOPE.md](FUTURE_SCOPE.md) for planned authentication improvements.
+> There is no server-side authentication. This is a client-side session suitable for hackathon demo use. See [FUTURE_SCOPE.md](FUTURE_SCOPE.md) for planned improvements.
 
 ---
 
@@ -412,13 +409,11 @@ flowchart TD
 
 ### REST Endpoints
 
-Standard request-response for data fetching:
-- Village search, metrics, scores, weather, history, recommendations
-- Report downloads (PDF/JSON/CSV)
+Standard request-response for data fetching: village search, metrics, scores, weather, history, recommendations, report downloads.
 
 ### Server-Sent Events (SSE)
 
-The AI chat endpoint (`POST /ai/{village_id}/chat`) uses `StreamingResponse` with `text/event-stream` media type. The response is a sequence of newline-delimited JSON objects:
+The AI chat endpoint (`POST /ai/{village_id}/chat`) uses `StreamingResponse` with `text/event-stream`. The response is a sequence of newline-delimited JSON objects:
 
 ```
 {"status": "initializing"}
@@ -428,21 +423,21 @@ The AI chat endpoint (`POST /ai/{village_id}/chat`) uses `StreamingResponse` wit
 {"status": "completed", "answer": "...", "structured_data": {...}, "follow_up_questions": [...]}
 ```
 
-The frontend reads this with `ReadableStream` + `TextDecoder`, displaying pipeline status indicators in real-time.
+The frontend reads this with `ReadableStream` + `TextDecoder`, displaying status indicators in real-time.
 
-### Request Payload Example (AI Chat)
+### AI Chat Request Payload
 
 ```json
 {
   "question": "How is the agriculture?",
   "language": "en",
-  "history": [{"id": "1", "role": "user", "content": "Previous question"}],
+  "history": [{"id": "1", "role": "user", "content": "..."}],
   "mapState": {"visibleLayers": ["ndvi", "boundary"]},
   "clickedLocation": {"lat": 18.52, "lng": 73.53}
 }
 ```
 
-The AI receives the user's visible map layers and clicked location as context, enabling spatially-aware responses.
+The AI receives the user's active map layers and clicked location as context, enabling spatially-aware responses.
 
 ---
 
@@ -462,7 +457,7 @@ flowchart TD
     H --> J[Health Score Table]
     H --> K[Environmental Metrics Table]
     H --> L[Priority Recommendations]
-    H --> M[Data Sources & Methodology]
+    H --> M[Data Sources and Methodology]
     I --> N[Return PDF bytes as attachment]
     J --> N
     K --> N
@@ -470,31 +465,30 @@ flowchart TD
     M --> N
 ```
 
-Reports are generated **on-demand** — no pre-computation or storage required.
+Reports are generated on-demand — no pre-computation or storage required.
 
 ---
 
 ## Deployment Architecture
 
-### Current (Development)
+### Development
 
 ```
-Frontend: npm run dev → Vite dev server on :5173
-Backend:  uvicorn main:app --reload → FastAPI on :8000
+Frontend: npm run dev  -->  Vite dev server on :5173
+Backend:  uvicorn main:app --reload  -->  FastAPI on :8000
 ```
 
 ### Production (Vercel)
 
 Both frontend and backend include `vercel.json` configs:
-
-- **Frontend**: Standard Vite static build (`npm run build → dist/`)
-- **Backend**: Python serverless function with 60-second max duration
+- **Frontend:** Vite static build (`npm run build` → `dist/`)
+- **Backend:** Python serverless function, 60-second max duration, Python 3.11 runtime
 
 ### Alternative Production Stack
 
 ```mermaid
 graph LR
-    CDN[CDN / Vercel Edge] --> FE[Static Frontend<br/>dist/]
+    CDN[CDN / Vercel Edge] --> FE[Static Frontend\ndist/]
     LB[Load Balancer] --> BE1[Uvicorn Worker 1]
     LB --> BE2[Uvicorn Worker 2]
     LB --> BE3[Uvicorn Worker N]
@@ -509,13 +503,13 @@ graph LR
 
 | Layer | Mechanism | Implementation |
 |---|---|---|
-| **CORS** | Configurable allowed origins | `CORSMiddleware` with `ALLOWED_ORIGINS` env var |
-| **Rate Limiting** | 10 requests/minute per IP on AI endpoints | Manual implementation in `ai.py` using TTL cache |
-| **Input Validation** | Pydantic models on all endpoints | Request body validation, query parameter constraints |
-| **GEE Credentials** | Service account JSON, gitignored | `backend/credentials/` directory in `.gitignore` |
-| **API Keys** | Environment variables, not hardcoded | `.env` files excluded from git |
-| **AI Safety** | Hallucination guards in system prompt | Structured context + explicit "unavailable" fallback |
-| **Error Handling** | Custom exceptions + HTTP error codes | `GEETimeoutError` (504), `GEEDataError` (422), standard 404/429/500 |
+| CORS | Configurable allowed origins | `CORSMiddleware` with `ALLOWED_ORIGINS` env var |
+| Rate Limiting | 10 requests/minute per IP on AI endpoints | TTL cache-based counter in `ai.py` |
+| Input Validation | Pydantic models on all endpoints | Request body and query parameter validation |
+| GEE Credentials | Service account JSON, gitignored | `backend/credentials/` excluded from git |
+| API Keys | Environment variables only | `.env` files excluded from git |
+| AI Safety | Hallucination guards in system prompt | Structured context + explicit unavailable fallback |
+| Error Handling | Custom exception types with HTTP codes | `GEETimeoutError` (504), `GEEDataError` (422), 404/429/500 |
 
 ---
 
@@ -523,27 +517,27 @@ graph LR
 
 | Concern | Current Approach | Impact |
 |---|---|---|
-| **GEE Latency** | In-memory TTL cache (24h default) | First load ~45s, subsequent <2s |
-| **AI Response Time** | SSE streaming with status updates | User sees progress; perceived wait is shorter |
-| **Frontend Bundle** | Lazy-loaded tabs, code splitting | Initial load only includes map + shell |
-| **Map Tiles** | Browser fetches directly from GEE tile servers | Backend serves only tile URLs, not pixel data |
-| **Village Search** | In-memory linear search on SEARCH_INDEX | Fast for <1000 villages; needs indexing at scale |
-| **Report Generation** | Synchronous PDF build per request | Adequate for low concurrency; needs queue at scale |
+| GEE Latency | In-memory TTL cache (24h) | First load ~45s; subsequent requests <2s |
+| AI Response Time | SSE streaming with pipeline status updates | User sees progress; perceived wait is shorter |
+| Frontend Bundle | Lazy-loaded tabs, Vite code splitting | Initial load includes only map and shell |
+| Map Tiles | Browser fetches directly from GEE tile servers | Backend serves only tile URLs, not pixel data |
+| Village Search | In-memory linear scan of SEARCH_INDEX | Fast for <1000 villages; needs indexing at scale |
+| Report Generation | Synchronous PDF build per request | Adequate for low concurrency; needs queue at scale |
 
 ---
 
-## Design Decisions & Tradeoffs
+## Design Decisions and Tradeoffs
 
 | Decision | Rationale | Tradeoff |
 |---|---|---|
-| **No database** | Eliminates setup complexity for hackathon; all data is on-demand from APIs | Cache lost on restart; no persistent user data |
-| **In-memory cache** | Zero infrastructure dependency; works in serverless | Not shared across workers; limited by process memory |
-| **Deterministic processors over LLM** | Guarantees accurate numbers and charts; LLM only handles narrative | More code to maintain; adding a new domain requires a new processor |
-| **Gemini for intent classification** | More accurate than keyword matching for ambiguous queries | Adds an API call; keyword fallback ensures resilience |
-| **Client-side auth only** | No backend auth simplifies architecture for demo | Not suitable for production; any user can access all data |
-| **SSE instead of WebSocket** | Simpler to implement; one-directional data flow matches the use case | No server push for non-chat events |
-| **GeoJSON files instead of PostGIS** | No database setup required; works offline | Doesn't scale beyond a few hundred pre-loaded villages |
-| **Mock data fallback** | Full app demo without any API credentials | Mock data doesn't reflect real satellite conditions |
+| No database | Eliminates setup complexity; all data fetched on-demand | Cache lost on restart; no persistent user data |
+| In-memory cache | Zero infrastructure dependency; works in serverless | Not shared across workers; limited by process memory |
+| Deterministic processors over LLM | Guarantees accurate numbers and charts | More code to maintain; adding a domain requires a new processor |
+| Gemini for intent classification | More accurate than keyword matching for ambiguous queries | Adds an API call; keyword fallback provides resilience |
+| Client-side auth only | No backend auth simplifies the demo architecture | Not suitable for production |
+| SSE instead of WebSocket | Simpler to implement; matches one-directional use case | No server push for non-chat events |
+| GeoJSON files instead of PostGIS | No database setup required; works offline | Does not scale beyond a few hundred pre-loaded villages |
+| Mock data fallback | Full demo without any API credentials | Mock data does not reflect real satellite conditions |
 
 ---
 

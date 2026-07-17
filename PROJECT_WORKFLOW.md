@@ -29,26 +29,26 @@ flowchart TD
     Landing --> CTA{Get Started}
     CTA --> Auth[Auth Page]
     Auth --> Login{Login or Signup}
-    Login -->|Email + Password| Session[Zustand session persisted<br/>to localStorage]
-    Session --> Dashboard[Dashboard<br/>Map + Sidebar]
+    Login -->|Email + Password| Session[Zustand session persisted\nto localStorage]
+    Session --> Dashboard[Dashboard\nMap + Sidebar]
 
     Dashboard --> Search[Search for a village]
     Search --> Results{Results found?}
     Results -->|Local DB match| Select[Select Village]
     Results -->|No local match| Nominatim[Fallback to Nominatim]
-    Nominatim --> Register[POST /villages/register<br/>Dynamic backend registration]
+    Nominatim --> Register[POST /villages/register\nDynamic backend registration]
     Register --> Select
 
-    Select --> Load[Map zooms to boundary<br/>Dashboard loads metrics]
+    Select --> Load[Map zooms to boundary\nDashboard loads metrics]
 
     Load --> Explore{What does the user want?}
 
-    Explore -->|View Scores| Overview[Overview Tab<br/>Health Score Ring + Breakdown]
-    Explore -->|See Environment| EnvTab[Environment Tab<br/>Metrics + Weather + Land Cover]
-    Explore -->|Track Trends| History[History Tab<br/>Year-over-year charts]
-    Explore -->|Toggle Layers| Layers[NDVI / NDWI / Land Cover<br/>on the map]
+    Explore -->|View Scores| Overview[Overview Tab\nHealth Score Ring + Breakdown]
+    Explore -->|See Environment| EnvTab[Environment Tab\nMetrics + Weather + Land Cover]
+    Explore -->|Track Trends| History[History Tab\nYear-over-year charts]
+    Explore -->|Toggle Layers| Layers[NDVI / NDWI / Land Cover\non the map]
     Explore -->|Ask a Question| AI[AI Chat Panel]
-    Explore -->|Generate Report| Report[Report Tab<br/>PDF / JSON / CSV download]
+    Explore -->|Generate Report| Report[Report Tab\nPDF / JSON / CSV download]
 
     AI --> FollowUp{Follow-up question?}
     FollowUp -->|Yes| AI
@@ -95,7 +95,7 @@ sequenceDiagram
 
     alt Village source is 'nominatim'
         VillageCtx->>API: POST /api/v1/villages/register
-        Note over API: Adds to SEARCH_CACHE,<br/>BOUNDARY_CACHE, SEARCH_INDEX
+        Note over API: Adds to SEARCH_CACHE,\nBOUNDARY_CACHE, SEARCH_INDEX
         API-->>VillageCtx: {"status": "registered"}
     end
 
@@ -103,7 +103,7 @@ sequenceDiagram
     API-->>VillageCtx: Full village data + boundary
 
     VillageCtx->>Map: Set selectedVillagePolygon
-    Map->>Map: Render GeoJSON boundary<br/>Fly to bounds
+    Map->>Map: Render GeoJSON boundary\nFly to bounds
 
     VillageCtx->>Sidebar: Trigger re-render
     Sidebar->>API: GET /api/v1/satellite/{id}/metrics
@@ -121,22 +121,22 @@ Parallel data fetching when a village is selected.
 flowchart TD
     Select[Village Selected] --> Par{Parallel API Calls}
 
-    Par --> Metrics[GET /satellite/{id}/metrics<br/>NDVI, NDWI, Land Cover, Weather]
-    Par --> Scores[GET /scores/{id}<br/>5-dimension health scores]
-    Par --> Weather[GET /weather/{id}<br/>Current conditions]
-    Par --> Recs[POST /ai/{id}/recommendations<br/>AI-generated insights]
+    Par --> Metrics[GET /satellite/{id}/metrics\nNDVI, NDWI, Land Cover, Weather]
+    Par --> Scores[GET /scores/{id}\n5-dimension health scores]
+    Par --> Weather[GET /weather/{id}\nCurrent conditions]
+    Par --> Recs[POST /ai/{id}/recommendations\nAI-generated insights]
 
     Metrics --> Cache1{In cache?}
-    Cache1 -->|Yes| Fast1[Return cached<br/>~50ms]
-    Cache1 -->|No| GEE[Call Google Earth Engine<br/>~45 seconds]
-    GEE --> Aggregate[Aggregator: raw GEE → EnvironmentalMetrics]
-    Aggregate --> Store1[Store in TTLCache<br/>24h expiry]
+    Cache1 -->|Yes| Fast1[Return cached\n~50ms]
+    Cache1 -->|No| GEE[Call Google Earth Engine\n~45 seconds]
+    GEE --> Aggregate[Aggregator: raw GEE into EnvironmentalMetrics]
+    Aggregate --> Store1[Store in TTLCache\n24h expiry]
     Store1 --> Fast1
 
-    Scores --> Calc[Scoring Engine<br/>Depends on metrics]
+    Scores --> Calc[Scoring Engine\nDepends on metrics]
     Calc --> Score[5 ScoreDetails + Overall]
 
-    Fast1 --> Render[Dashboard renders:<br/>Overview, Environment, History tabs]
+    Fast1 --> Render[Dashboard renders:\nOverview, Environment, History tabs]
     Score --> Render
     Weather --> Render
     Recs --> Render
@@ -153,14 +153,14 @@ The complete AI pipeline from question to rendered response.
 
 ```mermaid
 flowchart TD
-    Q[User types question] --> Payload[Build payload:<br/>question, language, history,<br/>mapState, clickedLocation]
-    Payload --> SSE[POST /ai/{village_id}/chat<br/>SSE Stream]
+    Q[User types question] --> Payload[Build payload:\nquestion, language, history,\nmapState, clickedLocation]
+    Payload --> SSE[POST /ai/{village_id}/chat\nSSE Stream]
 
-    SSE --> Init["▶ {status: initializing}"]
-    Init --> Classify[Intent Classifier<br/>Gemini or keyword fallback]
-    Classify --> Intents["Intents: [agriculture, water, ...]"]
+    SSE --> Init["status: initializing"]
+    Init --> Classify[Intent Classifier\nGemini or keyword fallback]
+    Classify --> Intents["Intents: agriculture, water, ..."]
 
-    Intents --> Retrieve["▶ {status: retrieving}"]
+    Intents --> Retrieve["status: retrieving"]
     Retrieve --> RE[Retrieval Engine]
     RE --> VillageData[Fetch village + metrics + score]
     RE --> WeatherData{Intent needs weather?}
@@ -173,35 +173,32 @@ flowchart TD
     PointData -->|Yes| SamplePoint[Sample raster at coordinates]
     PointData -->|No| Skip3[Skip]
 
-    VillageData --> ContextBlocks[context_blocks<br/>with source attribution]
+    VillageData --> ContextBlocks[context_blocks\nwith source attribution]
     FetchWeather --> ContextBlocks
     FetchHistory --> ContextBlocks
     SamplePoint --> ContextBlocks
-    Skip1 --> ContextBlocks
-    Skip2 --> ContextBlocks
-    Skip3 --> ContextBlocks
 
-    ContextBlocks --> Confidence[Confidence Calculator<br/>0.35×GIS + 0.25×Weather +<br/>0.20×History + 0.20×Predictions]
+    ContextBlocks --> Confidence[Confidence Calculator\n0.35xGIS + 0.25xWeather +\n0.20xHistory + 0.20xPredictions]
 
-    Confidence --> Process["▶ {status: processors}"]
-    Process --> AgricProc[Agriculture Processor<br/>NDVI metrics, charts, actions]
-    Process --> WaterProc[Water Processor<br/>NDWI, rainfall metrics]
-    Process --> DisasterProc[Disaster Processor<br/>Flood risk assessment]
-    Process --> SchemeProc[Scheme Engine<br/>Government scheme matching]
+    Confidence --> Process["status: processors"]
+    Process --> AgricProc[Agriculture Processor\nNDVI metrics, charts, actions]
+    Process --> WaterProc[Water Processor\nNDWI, rainfall metrics]
+    Process --> DisasterProc[Disaster Processor\nFlood risk assessment]
+    Process --> SchemeProc[Scheme Engine\nGovernment scheme matching]
 
-    AgricProc --> StructJSON[structured_json =<br/>{retrieved_data, processor_insights}]
+    AgricProc --> StructJSON[structured_json]
     WaterProc --> StructJSON
     DisasterProc --> StructJSON
     SchemeProc --> StructJSON
 
-    StructJSON --> LLM["▶ {status: llm}"]
-    LLM --> Prompt[Prompt Builder<br/>Hallucination guards +<br/>Structured JSON context]
-    Prompt --> Gemini[Gemini 2.5 Flash<br/>Generate narrative]
+    StructJSON --> LLM["status: llm"]
+    LLM --> Prompt[Prompt Builder\nHallucination guards +\nStructured JSON context]
+    Prompt --> Gemini[Gemini 2.5 Flash\nGenerate narrative]
 
-    Gemini --> Complete["▶ {status: completed}"]
-    Complete --> Response["{answer, structured_data,<br/>follow_up_questions}"]
+    Gemini --> Complete["status: completed"]
+    Complete --> Response["answer, structured_data,\nfollow_up_questions"]
 
-    Response --> Render[Frontend renders:<br/>MessageCard + DynamicChart<br/>+ ActionPanel + FollowUpChips]
+    Response --> Render[Frontend renders:\nMessageCard + DynamicChart\n+ ActionPanel + FollowUpChips]
 
     style Q fill:#2ecc71,stroke:#27ae60,color:#000
     style Gemini fill:#8e75b2,stroke:#7c5fad,color:#fff
@@ -233,17 +230,17 @@ sequenceDiagram
 
     alt include_ai = true
         API->>AI: get_village_recommendations()
-        AI-->>API: [AIRecommendation × 3]
+        AI-->>API: [AIRecommendation x 3]
         API->>AI: get_report_narrative()
         AI-->>API: Narrative text
     end
 
     API->>PDF: generate_pdf(village, metrics, score, recs, narrative)
     PDF->>PDF: Build A4 document with ReportLab
-    PDF->>PDF: Cover → Executive Summary → Score Table →<br/>Metrics Table → Recommendations → Methodology
+    PDF->>PDF: Cover → Executive Summary → Score Table →\nMetrics Table → Recommendations → Methodology
     PDF-->>API: PDF bytes
 
-    API-->>Frontend: Content-Disposition: attachment<br/>application/pdf
+    API-->>Frontend: Content-Disposition: attachment / application/pdf
     Frontend-->>User: Browser download dialog
 ```
 
@@ -255,10 +252,10 @@ How a typical API request flows through the backend.
 
 ```mermaid
 flowchart TD
-    Req[Incoming HTTP Request] --> CORS[CORS Middleware<br/>Check allowed origins]
-    CORS --> Router[FastAPI Router<br/>Match route + validate params]
+    Req[Incoming HTTP Request] --> CORS[CORS Middleware\nCheck allowed origins]
+    CORS --> Router[FastAPI Router\nMatch route + validate params]
 
-    Router --> RateLimit{Rate limit check<br/>AI endpoints only}
+    Router --> RateLimit{Rate limit check\nAI endpoints only}
     RateLimit -->|Over limit| R429[429 Too Many Requests]
     RateLimit -->|OK| Handler[Route Handler]
 
@@ -267,9 +264,9 @@ flowchart TD
     CacheCheck -->|Miss| Process[Process request]
 
     Process --> External{External API call needed?}
-    External -->|GEE| GEE[Google Earth Engine<br/>asyncio.to_thread]
-    External -->|Weather| OM[Open-Meteo<br/>httpx.AsyncClient]
-    External -->|AI| Gemini[Gemini API<br/>httpx.AsyncClient]
+    External -->|GEE| GEE[Google Earth Engine\nasyncio.to_thread]
+    External -->|Weather| OM[Open-Meteo\nhttpx.AsyncClient]
+    External -->|AI| Gemini[Gemini API\nhttpx.AsyncClient]
     External -->|No| Compute[Local computation]
 
     GEE --> CacheStore[Store in TTLCache]
@@ -279,8 +276,8 @@ flowchart TD
 
     Gemini --> Return
 
-    GEE -->|Timeout| E504[504 Gateway Timeout<br/>GEETimeoutError]
-    GEE -->|Bad Data| E422[422 Unprocessable<br/>GEEDataError]
+    GEE -->|Timeout| E504[504 Gateway Timeout\nGEETimeoutError]
+    GEE -->|Bad Data| E422[422 Unprocessable\nGEEDataError]
     Gemini -->|Error| Fallback[Fallback response]
 
     style Req fill:#2ecc71,stroke:#27ae60,color:#000
@@ -295,33 +292,33 @@ How satellite data is fetched and cached.
 
 ```mermaid
 flowchart TD
-    Req[Request for village metrics] --> Key[Build cache key:<br/>village_id + year + dataset]
+    Req[Request for village metrics] --> Key[Build cache key:\nvillage_id + year + dataset]
     Key --> Check{TTLCache hit?}
 
-    Check -->|Hit + Not expired| Cached[Return cached data<br/>dataSource: cached]
+    Check -->|Hit and not expired| Cached[Return cached data\ndataSource: cached]
 
     Check -->|Miss| Mock{USE_MOCK_DATA?}
-    Mock -->|Yes| MockData[Return MOCK_METRICS<br/>dataSource: mock]
+    Mock -->|Yes| MockData[Return MOCK_METRICS\ndataSource: mock]
 
     Mock -->|No| GEE[Call GEE APIs in parallel]
 
-    GEE --> S2[Sentinel-2<br/>NDVI, NDWI]
-    GEE --> DW[Dynamic World<br/>Land Cover]
-    GEE --> SRTM[SRTM DEM<br/>Terrain]
-    GEE --> JRC[JRC Water<br/>Surface Water]
+    GEE --> S2[Sentinel-2\nNDVI, NDWI]
+    GEE --> DW[Dynamic World\nLand Cover]
+    GEE --> SRTM[SRTM DEM\nTerrain]
+    GEE --> JRC[JRC Water\nSurface Water]
 
     S2 --> Merge[Merge all results]
     DW --> Merge
     SRTM --> Merge
     JRC --> Merge
 
-    Merge --> Weather[Fetch Open-Meteo<br/>Temperature, Rainfall, Humidity]
-    Weather --> Aggregate[aggregate_environmental_metrics<br/>→ EnvironmentalMetrics model]
+    Merge --> Weather[Fetch Open-Meteo\nTemperature, Rainfall, Humidity]
+    Weather --> Aggregate[aggregate_environmental_metrics\ninto EnvironmentalMetrics model]
 
-    Aggregate --> Store[Store in TTLCache<br/>TTL: 24 hours]
-    Store --> Return[Return data<br/>dataSource: live]
+    Aggregate --> Store[Store in TTLCache\nTTL: 24 hours]
+    Store --> Return[Return data\ndataSource: live]
 
-    GEE -->|Error| Incomplete[Return partial data<br/>dataSource: incomplete]
+    GEE -->|Error| Incomplete[Return partial data\ndataSource: incomplete]
 
     style Cached fill:#2ecc71,stroke:#27ae60,color:#000
     style MockData fill:#ff6b35,stroke:#e55d2b,color:#fff
@@ -336,13 +333,13 @@ flowchart TD
 flowchart TD
     Error[Error occurs] --> Type{Error type}
 
-    Type -->|GEETimeoutError| T504[HTTP 504<br/>Gateway Timeout]
-    Type -->|GEEDataError| T422[HTTP 422<br/>Unprocessable Entity]
-    Type -->|Village not found| T404[HTTP 404<br/>Not Found]
-    Type -->|Rate limit exceeded| T429[HTTP 429<br/>Too Many Requests]
-    Type -->|Gemini API failure| Fallback[Return fallback response<br/>Hardcoded safe text]
+    Type -->|GEETimeoutError| T504[HTTP 504\nGateway Timeout]
+    Type -->|GEEDataError| T422[HTTP 422\nUnprocessable Entity]
+    Type -->|Village not found| T404[HTTP 404\nNot Found]
+    Type -->|Rate limit exceeded| T429[HTTP 429\nToo Many Requests]
+    Type -->|Gemini API failure| Fallback[Return fallback response\nHardcoded safe text]
     Type -->|Ollama unavailable| FallbackMock[Return mock response]
-    Type -->|General exception| T500[HTTP 500<br/>Internal Server Error]
+    Type -->|General exception| T500[HTTP 500\nInternal Server Error]
 
     Fallback --> Log[Log error to stderr + error.log]
     FallbackMock --> Log
@@ -352,9 +349,9 @@ flowchart TD
     T500 --> Log
 
     subgraph "Frontend Error Handling"
-        FE_Error[API call fails] --> ErrorBoundary[ErrorBoundary component<br/>Catch render errors]
-        FE_Error --> ChatError[AI Chat: Display error message<br/>in conversation]
-        FE_Error --> GEEProgress[GEE Loading: Show<br/>progress indicator]
+        FE_Error[API call fails] --> ErrorBoundary[ErrorBoundary component]
+        FE_Error --> ChatError[AI Chat: display error message in conversation]
+        FE_Error --> GEEProgress[GEE Loading: show progress indicator]
     end
 ```
 
@@ -369,22 +366,21 @@ flowchart TD
     Clone --> BE[Backend Setup]
     Clone --> FE[Frontend Setup]
 
-    BE --> Venv[python -m venv venv<br/>activate venv]
+    BE --> Venv[python -m venv venv\nactivate venv]
     Venv --> Pip[pip install -r requirements.txt]
-    Pip --> Env[cp .env.example .env<br/>Add API keys]
-    Env --> Uvicorn[uvicorn main:app --reload<br/>→ localhost:8000]
+    Pip --> Env[cp .env.example .env\nAdd API keys]
+    Env --> Uvicorn[uvicorn main:app --reload\nlocalhost:8000]
 
     FE --> Npm[npm install]
     Npm --> FEnv[cp .env.example .env]
-    FEnv --> ViteDev[npm run dev<br/>→ localhost:5173]
+    FEnv --> ViteDev[npm run dev\nlocalhost:5173]
 
-    Uvicorn --> Docs[FastAPI Swagger UI<br/>localhost:8000/docs]
-
-    ViteDev --> App[Open localhost:5173<br/>Full app running]
+    Uvicorn --> Docs[FastAPI Swagger UI\nlocalhost:8000/docs]
+    ViteDev --> App[Open localhost:5173]
 
     subgraph "Optional"
-        Warm[python scripts/demo_setup.py<br/>Pre-warm GEE cache]
-        MockMode[Set USE_MOCK_DATA=true<br/>No API keys needed]
+        Warm[python scripts/demo_setup.py\nPre-warm GEE cache]
+        MockMode[Set USE_MOCK_DATA=true\nNo API keys needed]
     end
 ```
 
@@ -398,11 +394,11 @@ flowchart TD
 flowchart LR
     Push[git push to main] --> Vercel[Vercel CI/CD]
 
-    Vercel --> FE_Build[Frontend Build<br/>npm run build → dist/]
-    Vercel --> BE_Deploy[Backend Deploy<br/>Python serverless function]
+    Vercel --> FE_Build[Frontend Build\nnpm run build into dist/]
+    Vercel --> BE_Deploy[Backend Deploy\nPython serverless function]
 
-    FE_Build --> CDN[Vercel Edge CDN<br/>Static files served globally]
-    BE_Deploy --> Serverless[Vercel Serverless<br/>Python 3.11, 60s timeout]
+    FE_Build --> CDN[Vercel Edge CDN\nStatic files served globally]
+    BE_Deploy --> Serverless[Vercel Serverless\nPython 3.11, 60s timeout]
 
     CDN --> Users[Users]
     Serverless --> Users
@@ -413,11 +409,11 @@ flowchart LR
 ```mermaid
 flowchart TD
     Build[Build Frontend] --> Dist[dist/ folder]
-    Dist --> NGINX[Serve via NGINX<br/>or any static server]
+    Dist --> NGINX[Serve via NGINX\nor any static server]
 
-    Backend[Start Backend] --> Workers[uvicorn main:app<br/>--host 0.0.0.0<br/>--port 8000<br/>--workers 4]
+    Backend[Start Backend] --> Workers[uvicorn main:app\n--host 0.0.0.0\n--port 8000\n--workers 4]
 
-    NGINX --> Proxy[NGINX proxies /api/*<br/>to Uvicorn workers]
+    NGINX --> Proxy[NGINX proxies /api/*\nto Uvicorn workers]
     Workers --> Proxy
 ```
 
