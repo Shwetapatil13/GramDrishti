@@ -61,7 +61,7 @@ GramDrishti resolves this through a three-part engineering framework:
 ### 1. Satellite-to-Score Pipeline
 Aggregates spatial raster layers and meteorological streams into a weighted composite **Village Health Score (0–100)**:
 
-| Indicator Pillar | Weight | Underlying Datasets | Metrics Captured |
+| Indicator Pillar | Weight | Underlying Datasets | Metrics Measured |
 | :--- | :--- | :--- | :--- |
 | 💧 **Water Security** | 25% | Sentinel-2 NDWI, JRC Global Water | Surface water volume, soil moisture trends |
 | 🌱 **Vegetation Health** | 25% | Sentinel-2 NDVI, Dynamic World | Crop canopy density, forest cover index |
@@ -77,12 +77,12 @@ Unlike traditional AI wrappers, GramDrishti decouples intensive spatial computat
 
 ```mermaid
 flowchart TD
-    UserQuery([User Query / Map Click]) --> IntentClassifier[Intent Classifier (FastAPI Router)]
-    IntentClassifier -->|Agriculture, Water, Disaster, Schemes| RetrievalEngine[Retrieval Engine (GIS & Weather APIs)]
-    RetrievalEngine --> DeterministicProcessors[Deterministic Processors (Python Math Engines)]
-    DeterministicProcessors -->|Numeric JSON Metrics, Charts, Actions| PromptBuilder[Prompt Builder (Confidence & Integrity Constraints)]
-    PromptBuilder --> LLMEngine[Gemini 1.5 Flash / Ollama fallback]
-    LLMEngine -->|Narrative streaming via SSE| UnifiedResponse[Unified UI Response (Charts, Maps, Markdown)]
+    UserQuery([User Query / Map Click]) --> IntentClassifier["Intent Classifier (FastAPI Router)"]
+    IntentClassifier -->|Agriculture, Water, Disaster, Schemes| RetrievalEngine["Retrieval Engine (GIS & Weather APIs)"]
+    RetrievalEngine --> DeterministicProcessors["Deterministic Processors (Python Math Engines)"]
+    DeterministicProcessors -->|Numeric JSON Metrics, Charts, Actions| PromptBuilder["Prompt Builder (Confidence & Integrity Constraints)"]
+    PromptBuilder --> LLMEngine["Gemini 1.5 Flash / Ollama Fallback"]
+    LLMEngine -->|Narrative streaming via SSE| UnifiedResponse["Unified UI Response (Charts, Maps, Markdown)"]
 ```
 
 ### 3. Interactive GIS and AI Feedback Loop
@@ -94,7 +94,7 @@ Users can select coordinates directly on the map overlays. The spatial context (
 
 *   🔍 **Arbitrary Village Geocoding**: Localized database of village coordinates, with automatic fallback to OSM Nominatim API to register and query **any village in India**.
 *   📊 **Multitemporal Analysis**: Year-over-year progress metrics and score badges from **2022 to 2026** to visualize historical degradation.
-*   💬 **Streaming Status Indicators**: Real-time SSE channel showing pipeline execution phases (`initializing` $\rightarrow$ `retrieving` $\rightarrow$ `processing` $\rightarrow$ `generating`).
+*   💬 **Streaming Status Indicators**: Real-time SSE channel showing pipeline execution phases (initializing → retrieving → processing → generating).
 *   🏛️ **Automatic Scheme Matching**: Evaluates local soil, terrain, and water conditions to match villages with government programs like **PMKSY (Irrigation)**, **Soil Health Card**, and **MGNREGA**.
 *   📄 **Administrative Reports**: Generate dynamic, styled **PDF summaries (using ReportLab)** along with raw JSON and CSV exports for submission to district headquarters.
 *   🌐 **Native Multilingual Engine**: Dynamic translations in English, हिन्दी (Hindi), and मराठी (Marathi) for grassroot accessibility.
@@ -107,7 +107,7 @@ To run a demonstration immediately without active Google Earth Engine credential
 
 | Village | District | Coordinates | Ecological Scenario Preset |
 | :--- | :--- | :--- | :--- |
-| **Mulshi** | Pune | `[18.5204, 73.5297]` | **Critical Decline**: Major reduction in water levels and forest cover (NDVI: 0.61 $\rightarrow$ 0.48). |
+| **Mulshi** | Pune | `[18.5204, 73.5297]` | **Critical Decline**: Major reduction in water levels and forest cover (NDVI: 0.61 → 0.48). |
 | **Maval** | Pune | `[18.7667, 73.5833]` | **Steadily Improving**: Consistent rise in soil moisture and crop canopy health. |
 | **Ambegaon** | Pune | `[19.1167, 73.7167]` | **Moderate Stress**: Gradual drying of seasonal reservoirs. |
 | **Khed** | Pune | `[18.8333, 73.8667]` | **Severe Aridity**: Rising land temperatures, sparse baseline vegetation indices. |
