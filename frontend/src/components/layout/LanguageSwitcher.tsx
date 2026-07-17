@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { Languages, ChevronDown } from 'lucide-react';
 
 const LANGUAGES = [
-  { code: 'en', label: 'English', symbol: '🇬🇧' },
-  { code: 'hi', label: 'हिन्दी', symbol: '🇮🇳' },
-  { code: 'mr', label: 'मराठी', symbol: '🇮🇳' },
+  { code: 'en', label: 'English' },
+  { code: 'hi', label: 'हिन्दी' },
+  { code: 'mr', label: 'मराठी' },
 ];
 
 export const LanguageSwitcher: React.FC = () => {

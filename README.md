@@ -22,6 +22,18 @@
 
 ---
 
+## Quick Links
+
+| | |
+|---|---|
+| **Live Application** | [https://gram-drishti.vercel.app/](https://gram-drishti.vercel.app/) |
+| **Demo Video** | [https://youtu.be/g-fqo-nGJoQ?si=1nMoQmWFnBggIdav](https://youtu.be/g-fqo-nGJoQ?si=1nMoQmWFnBggIdav) |
+| **Architecture Docs** | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) |
+
+---
+
+## The Problem & Solution
+
 ## 📋 Table of Contents
 
 - [Elevator Pitch](#-elevator-pitch)
@@ -393,7 +405,7 @@ GramDrishti/
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -451,6 +463,8 @@ cp .env.example .env
 # Start development server
 npm run dev
 ```
+
+> App available at: `http://localhost:5173`
 
 > App: [http://localhost:5173](http://localhost:5173)
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Check } from 'lucide-react';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -31,15 +32,15 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
           
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3 text-body text-text-primary">
-              <div className="w-6 h-6 rounded-full bg-brand-mint/20 border border-brand-mint/50 flex items-center justify-center shrink-0">✓</div>
+              <div className="w-6 h-6 rounded-full bg-brand-mint/20 border border-brand-mint/50 flex items-center justify-center shrink-0"><Check className="w-3.5 h-3.5 text-brand-mint" /></div>
               <span>Google Earth Engine Integration</span>
             </div>
             <div className="flex items-center gap-3 text-body text-text-primary">
-              <div className="w-6 h-6 rounded-full bg-brand-mint/20 border border-brand-mint/50 flex items-center justify-center shrink-0">✓</div>
+              <div className="w-6 h-6 rounded-full bg-brand-mint/20 border border-brand-mint/50 flex items-center justify-center shrink-0"><Check className="w-3.5 h-3.5 text-brand-mint" /></div>
               <span>AI-Powered Recommendations</span>
             </div>
             <div className="flex items-center gap-3 text-body text-text-primary">
-              <div className="w-6 h-6 rounded-full bg-brand-mint/20 border border-brand-mint/50 flex items-center justify-center shrink-0">✓</div>
+              <div className="w-6 h-6 rounded-full bg-brand-mint/20 border border-brand-mint/50 flex items-center justify-center shrink-0"><Check className="w-3.5 h-3.5 text-brand-mint" /></div>
               <span>Instant PDF Report Generation</span>
             </div>
           </div>
