@@ -73,6 +73,11 @@ async def get_dynamic_recommendations(req: DynamicRecRequest):
         score.year = req.year
 
         raw_recs = await ai_service.get_recommendations(village, metrics, score)
+        
+        for rec in raw_recs:
+            if 'urgency' in rec and isinstance(rec['urgency'], str):
+                rec['urgency'] = rec['urgency'].lower()
+                
         validated_recs = [AIRecommendationModel(**rec) for rec in raw_recs]
 
         if len(validated_recs) != 3:

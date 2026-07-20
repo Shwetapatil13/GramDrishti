@@ -205,7 +205,7 @@ export const LandCoverLayer: React.FC<LandCoverLayerProps> = ({ village, data })
           color: dominantColor,
           weight: 2,
           fillColor: 'transparent',
-          fillOpacity: 0.05, // very light tint to preserve underlying tile visibility
+          fillOpacity: 0.0,
           dashArray: undefined,
         }}
         onEachFeature={onEachFeature}

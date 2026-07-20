@@ -17,6 +17,8 @@ interface VillageContextType {
   setClickedLocation: (location: { lat: number; lng: number } | null) => void;
   activeLayers: string[];
   setActiveLayers: (layers: string[]) => void;
+  hoverValue: { value: number; lat: number; lng: number } | null;
+  setHoverValue: (v: { value: number; lat: number; lng: number } | null) => void;
 }
 
 const VillageContext = createContext<VillageContextType | undefined>(undefined);
@@ -29,6 +31,7 @@ export const VillageProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [selectedNDVICategory, setSelectedNDVICategory] = useState<string | null>(null);
   const [clickedLocation, setClickedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [activeLayers, setActiveLayers] = useState<string[]>([]);
+  const [hoverValue, setHoverValue] = useState<{ value: number; lat: number; lng: number } | null>(null);
 
 
 
@@ -124,6 +127,8 @@ export const VillageProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setClickedLocation,
         activeLayers,
         setActiveLayers,
+        hoverValue,
+        setHoverValue,
       }}
     >
       {children}

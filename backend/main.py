@@ -31,12 +31,17 @@ async def startup_event():
 app.include_router(health.router, prefix="/api/v1")
 
 
-app.include_router(villages.router, prefix="/api/v1")
-app.include_router(satellite.router, prefix="/api/v1")
+app.include_router(villages.router, prefix="/api/v1", tags=["villages"])
+app.include_router(satellite.router, prefix="/api/v1", tags=["satellite"])
 app.include_router(analysis.router, prefix="/api/v1")
 app.include_router(weather.router, prefix="/api/v1")
 app.include_router(scores.router, prefix="/api/v1")
 app.include_router(history.router, prefix="/api/v1")
 app.include_router(ai.router, prefix="/api/v1")
-app.include_router(recommendations.router, prefix="/api/v1")
+app.include_router(recommendations.router, prefix="/api/v1", tags=["recommendations"])
 app.include_router(reports.router, prefix="/api/v1")
+
+
+@app.get("/")
+async def root():
+    return {"message": "Welcome to GramDrishti API"}

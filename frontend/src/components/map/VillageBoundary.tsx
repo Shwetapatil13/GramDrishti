@@ -55,8 +55,7 @@ export const VillageBoundary: React.FC<VillageBoundaryProps> = ({ polygon }) => 
       style={{
         color: boundaryColor,
         weight: 2.5,
-        fillColor: fillColor,
-        fillOpacity: 0.15,
+        fillOpacity: 0.0,
 
       }}
     />

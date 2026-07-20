@@ -1,15 +1,43 @@
-import React from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { Layers } from 'lucide-react';
-import { useMapLayers, BaseLayer } from '@/hooks/useMapLayers';
+import { useMapLayers, BaseLayer } from '@/hooks/MapLayersContext';
+import { useLayersMetadata } from '@/hooks/useLayersMetadata';
 import { useTranslation } from 'react-i18next';
 
-interface LayerControlProps {
-  layers: ReturnType<typeof useMapLayers>;
-}
 
-export const LayerControl: React.FC<LayerControlProps> = ({ layers }) => {
+/**
+ * LayerControl rendered via React Portal into the map wrapper div (outside LeafletMap).
+ * This prevents Leaflet from swallowing our click events.
+ */
+export const LayerControl: React.FC = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const { t } = useTranslation();
+  const { layers: metadataLayers, isLoading } = useLayersMetadata();
+  const layers = useMapLayers();
+  const portalRef = useRef<HTMLDivElement | null>(null);
+
+  // Create a portal container that lives OUTSIDE the Leaflet map DOM tree
+  useEffect(() => {
+    // Find the map wrapper div (parent of leaflet container)
+    const mapWrapper = document.querySelector('.leaflet-container')?.parentElement;
+    if (!mapWrapper) return;
+
+    const el = document.createElement('div');
+    el.style.position = 'absolute';
+    el.style.top = '1rem';
+    el.style.right = '1rem';
+    el.style.zIndex = '400';
+    el.style.pointerEvents = 'all';
+    mapWrapper.appendChild(el);
+    portalRef.current = el;
+
+    return () => {
+      if (mapWrapper.contains(el)) {
+        mapWrapper.removeChild(el);
+      }
+    };
+  }, []);
 
   const baseLayers: { id: BaseLayer; labelKey: string; labelDefault: string }[] = [
     { id: 'dark', labelKey: 'map.layers.dark', labelDefault: 'Dark Matter' },
@@ -17,23 +45,38 @@ export const LayerControl: React.FC<LayerControlProps> = ({ layers }) => {
     { id: 'osm', labelKey: 'map.layers.osm', labelDefault: 'Street Map' },
   ];
 
-  return (
-    <div className="absolute top-4 right-4 z-[400]">
-      <div 
-        className="bg-surface-slate border border-surface-border rounded-xl shadow-lg overflow-hidden flex flex-col"
-        onMouseEnter={() => setIsOpen(true)}
-        onMouseLeave={() => setIsOpen(false)}
-      >
+  const groupedLayers = useMemo(() => {
+    const groups: Record<string, typeof metadataLayers> = {};
+    metadataLayers.forEach(layer => {
+      if (!groups[layer.category]) groups[layer.category] = [];
+      groups[layer.category].push(layer);
+    });
+    return groups;
+  }, [metadataLayers]);
+
+  const content = (
+    <div
+      style={{ fontFamily: 'inherit' }}
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+    >
+      <div className="bg-surface-slate border border-surface-border rounded-xl shadow-lg overflow-hidden flex flex-col">
         <div className="p-3 bg-surface-elevated flex items-center justify-center cursor-pointer">
           <Layers className="w-5 h-5 text-text-primary" />
         </div>
-        
+
         {isOpen && (
-          <div className="p-4 flex flex-col gap-3 min-w-[160px]">
+          <div className="p-4 flex flex-col gap-3 min-w-[220px] max-h-[420px] overflow-y-auto">
+            {/* Base Map */}
             <div>
-              <h4 className="text-mono text-text-secondary mb-2">{t('map.base_map', 'BASE MAP')}</h4>
+              <h4 className="text-xs font-semibold uppercase tracking-wide text-text-secondary mb-2">
+                {t('map.base_map', 'BASE MAP')}
+              </h4>
               {baseLayers.map((layer) => (
-                <label key={layer.id} className="flex items-center gap-2 cursor-pointer mb-2">
+                <label
+                  key={layer.id}
+                  className="flex items-center gap-2 cursor-pointer mb-2 select-none"
+                >
                   <input
                     type="radio"
                     name="baseLayer"
@@ -41,37 +84,65 @@ export const LayerControl: React.FC<LayerControlProps> = ({ layers }) => {
                     onChange={() => layers.setActiveBaseLayer(layer.id)}
                     className="accent-brand-mint"
                   />
-                  <span className="text-body text-text-primary">{t(layer.labelKey, layer.labelDefault)}</span>
+                  <span className="text-sm text-text-primary">
+                    {t(layer.labelKey, layer.labelDefault)}
+                  </span>
                 </label>
               ))}
             </div>
-            
-            <div className="h-px bg-surface-border w-full my-1"></div>
-            
+
+            <div className="h-px bg-surface-border w-full" />
+
+            {/* Satellite Overlays */}
             <div>
-              <h4 className="text-mono text-text-secondary mb-2">{t('map.overlays', 'OVERLAYS')}</h4>
-              <label className="flex items-center gap-2 cursor-pointer mb-2">
-                <input
-                  type="checkbox"
-                  checked={layers.showNDVI}
-                  onChange={layers.toggleNDVI}
-                  className="accent-brand-mint"
-                />
-                <span className="text-body text-text-primary">{t('map.layers.ndvi', 'NDVI Health')}</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer mb-2">
-                <input
-                  type="checkbox"
-                  checked={layers.showWater}
-                  onChange={layers.toggleWater}
-                  className="accent-brand-mint"
-                />
-                <span className="text-body text-text-primary">{t('map.layers.water', 'Surface Water')}</span>
-              </label>
+              <h4 className="text-xs font-semibold uppercase tracking-wide text-text-secondary mb-2">
+                {t('map.overlays', 'OVERLAYS')}
+              </h4>
+              {isLoading ? (
+                <div className="text-text-secondary text-sm">Loading layers...</div>
+              ) : (
+                Object.entries(groupedLayers).map(([category, catLayers]) => (
+                  <div key={category} className="mb-3">
+                    <div className="text-xs font-semibold text-text-secondary mb-1 uppercase">
+                      ▼ {category}
+                    </div>
+                    {catLayers.map(layer => (
+                      <label
+                        key={layer.id}
+                        className="flex items-center gap-2 cursor-pointer mb-2 pl-2 select-none"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={layers.activeSatelliteLayer === layer.id}
+                          onChange={() => layers.toggleSatelliteLayer(layer.id)}
+                          className="accent-brand-mint"
+                        />
+                        <span
+                          className="text-sm text-text-primary"
+                          title={layer.description}
+                        >
+                          {layer.name}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                ))
+              )}
             </div>
           </div>
         )}
       </div>
+    </div>
+  );
+
+  // Render into portal if available, otherwise inline fallback
+  if (portalRef.current) {
+    return ReactDOM.createPortal(content, portalRef.current);
+  }
+
+  return (
+    <div className="absolute top-4 right-4 z-[400]">
+      {content}
     </div>
   );
 };

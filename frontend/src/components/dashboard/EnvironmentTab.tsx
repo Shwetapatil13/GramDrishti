@@ -5,7 +5,7 @@ import { MetricsPanel } from './MetricsPanel';
 import { ClimateAssessment } from './ClimateAssessment';
 import { LandCoverChart } from '../charts/LandCoverChart';
 import { NDVIPieChart } from '../charts/NDVIPieChart';
-import { useMapLayers } from '@/hooks/useMapLayers';
+import { useMapLayers } from '@/hooks/MapLayersContext';
 import { useRegionalData } from '@/hooks/useRegionalData';
 import { useTranslation } from 'react-i18next';
 
