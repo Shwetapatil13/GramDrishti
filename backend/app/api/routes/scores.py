@@ -42,11 +42,11 @@ async def _compute_score(
         score.villageId = village_id
         score.year = year
         logger.info(
-            f"[Scores] ✅ Score for {village_id}/{year}: overall={score.overall:.1f}")
+            f"[Scores] [OK] Score for {village_id}/{year}: overall={score.overall:.1f}")
         return score
     except Exception as e:
         logger.error(
-            f"[Scores] ❌ Failed to compute score for {village_id}/{year}: {e}")
+            f"[Scores] [ERROR] Failed to compute score for {village_id}/{year}: {e}")
         return None
 
 # Keep old name for backward compatibility with other routes that import it
@@ -132,12 +132,12 @@ async def get_village_score(
         score.year = year
 
         cache.set(cache_key, score.model_dump(), ttl_seconds=86400)
-        logger.info(f"[Scores] ✅ Score cached for {cache_key}")
+        logger.info(f"[Scores] [OK] Score cached for {cache_key}")
         return score
 
     except asyncio.TimeoutError:
         logger.error(
-            f"[Scores] ❌ Outer 90s timeout hit for {village_id}/{year}")
+            f"[Scores] [ERROR] Outer 90s timeout hit for {village_id}/{year}")
         raise HTTPException(
             status_code=504,
             detail=f"GEE analysis timed out for village '{village_id}'. Earth Engine is slow — try again in 30 seconds.")
@@ -145,7 +145,7 @@ async def get_village_score(
         raise
     except Exception as e:
         logger.error(
-            f"[Scores] ❌ Unexpected error for {village_id}/{year}: {e}",
+            f"[Scores] [ERROR] Unexpected error for {village_id}/{year}: {e}",
             exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 

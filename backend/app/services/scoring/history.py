@@ -31,9 +31,14 @@ async def get_historical_data(
     # Sort years to ensure correct chronological order
     sorted_years = sorted(years)
 
-    # We can fetch GEE metrics in parallel
-    tasks = [get_all_gee_metrics(village_id, boundary, year)
-             for year in sorted_years]
+    # Use semaphore to limit concurrency and avoid Earth Engine rate limits
+    semaphore = asyncio.Semaphore(4)
+
+    async def fetch_year_metrics(year: int):
+        async with semaphore:
+            return await get_all_gee_metrics(village_id, boundary, year)
+
+    tasks = [fetch_year_metrics(year) for year in sorted_years]
     raw_results = await asyncio.gather(*tasks, return_exceptions=True)
 
     prev_score = None

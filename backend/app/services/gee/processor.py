@@ -111,13 +111,13 @@ MOCK_METRICS: dict[str, dict[int, dict]] = {
 async def _call_with_retry(
         fn,
         *args,
-        max_retries: int = 3,
-        timeout: int = 120) -> dict:
+        max_retries: int = 2,
+        timeout: int = 45) -> dict:
     """
-    Retry wrapper with exponential backoff: 2s, 4s, 8s.
+    Retry wrapper with exponential backoff: 2s, 4s.
     Raises GEETimeoutError after all retries exhausted or timeout reached.
     """
-    delays = [2, 4, 8]
+    delays = [2, 4]
 
     for attempt in range(max_retries):
         try:
@@ -132,15 +132,12 @@ async def _call_with_retry(
                 raise GEETimeoutError(
                     f"GEE call timed out after {timeout} seconds")
             logger.warning(
-                f"GEE call timed out, retrying in {
-                    delays[attempt]}s...")
+                f"GEE call timed out, retrying in {delays[attempt]}s...")
         except Exception as e:
             if attempt == max_retries - 1:
                 raise GEEDataError(f"GEE call failed: {str(e)}")
             logger.warning(
-                f"GEE call failed: {
-                    str(e)}, retrying in {
-                    delays[attempt]}s...")
+                f"GEE call failed: {str(e)}, retrying in {delays[attempt]}s...")
 
         await asyncio.sleep(delays[attempt])
 

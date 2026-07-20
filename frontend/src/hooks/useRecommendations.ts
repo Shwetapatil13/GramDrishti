@@ -8,7 +8,7 @@ export const useRecommendations = (villageId: string | undefined, year: number) 
   const queryClient = useQueryClient();
 
   const queryResult = useQuery<AIRecommendation[], Error>({
-    queryKey: ['recommendations', villageId, year, selectedVillagePolygon],
+    queryKey: ['recommendations', villageId, year, selectedVillagePolygon ? JSON.stringify(selectedVillagePolygon).slice(0, 50) : null],
     queryFn: async () => {
       if (selectedVillagePolygon) {
         return apiService.post<AIRecommendation[]>(`/api/v1/recommendations/analyze`, {

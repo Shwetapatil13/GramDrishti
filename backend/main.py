@@ -21,12 +21,14 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_event():
+    gemini_ok = bool(settings.GEMINI_API_KEY and settings.GEMINI_API_KEY != 'your_gemini_api_key_here')
+    logger.info(f"Startup check: GEMINI_API_KEY configured={gemini_ok}")
     try:
         # Reloading villages from data folder.
         load_villages()
         initialize_gee()
     except Exception as e:
-        logger.error(f"Failed to initialize on startup: {str(e)}")
+        logger.critical(f"CRITICAL: Failed to initialize Earth Engine on startup: {str(e)}")
 
 app.include_router(health.router, prefix="/api/v1")
 

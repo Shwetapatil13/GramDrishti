@@ -42,6 +42,11 @@ export const DashboardPanel: React.FC = () => {
     ${isMobileExpanded ? 'h-[85vh]' : 'h-[30vh] md:h-full'}
   `;
 
+  const handleTabClick = (tab: TabType) => {
+    setActiveTab(tab);
+    setIsMobileExpanded(true);
+  };
+
   return (
     <div className={panelClasses}>
       {/* Mobile drag handle */}
@@ -55,16 +60,16 @@ export const DashboardPanel: React.FC = () => {
       </div>
 
       {/* Tabs Header */}
-      <div className="flex overflow-x-auto border-b border-surface-border no-scrollbar p-2 md:p-4 gap-2 shrink-0">
+      <div className="grid grid-cols-4 border-b border-surface-border p-1.5 md:p-2.5 gap-1 shrink-0">
         {TABS.map((tab) => {
           const isActive = activeTab === tab;
           return (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`whitespace-nowrap px-4 py-2 rounded-tag text-mono transition-colors ${
+              onClick={() => handleTabClick(tab)}
+              className={`w-full text-center whitespace-nowrap px-0.5 md:px-1 py-1.5 md:py-2 rounded-tag font-mono text-[10px] sm:text-[11px] md:text-xs tracking-tighter sm:tracking-tight transition-colors ${
                 isActive
-                  ? 'bg-brand-mint text-text-inverted'
+                  ? 'bg-brand-mint text-text-inverted font-bold'
                   : 'bg-surface-slate text-text-secondary hover:bg-surface-elevated hover:text-text-primary'
               }`}
             >
@@ -90,7 +95,7 @@ export const DashboardPanel: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="w-full h-full"
+              className="w-full min-h-full"
             >
               <Suspense fallback={<div className="h-full flex items-center justify-center"><Skeleton width="100%" height="200px" borderRadius="12px" /></div>}>
                 {activeTab === 'OVERVIEW' ? (

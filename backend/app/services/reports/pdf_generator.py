@@ -1,11 +1,45 @@
 import io
+import re
 import datetime
+import xml.sax.saxutils as saxutils
 from reportlab.lib.pagesizes import A4  # type: ignore
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, Spacer, TableStyle  # type: ignore
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle  # type: ignore
 from reportlab.lib import colors  # type: ignore
 from app.models.village import Village, EnvironmentalMetrics, VillageHealthScore
 from app.models.recommendations import AIRecommendationModel
+
+
+def sanitize_text_for_pdf(text: str | None) -> str:
+    """
+    Sanitizes raw AI/user-generated text so it can safely be passed to ReportLab Paragraph.
+    Escapes XML special characters (&, <, >) and converts standard Markdown elements
+    to ReportLab-compatible HTML tags (<b>, <i>, <br/>, bullets).
+    """
+    if not text:
+        return ""
+    
+    # 1. Escape XML characters (&, <, >)
+    escaped = saxutils.escape(str(text))
+    
+    # 2. Convert markdown bold **text** or __text__ -> <b>text</b>
+    escaped = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', escaped)
+    escaped = re.sub(r'__(.*?)__', r'<b>\1</b>', escaped)
+    
+    # 3. Convert markdown italic *text* or _text_ -> <i>text</i>
+    escaped = re.sub(r'\*(.*?)\*', r'<i>\1</i>', escaped)
+    escaped = re.sub(r'_(.*?)_', r'<i>\1</i>', escaped)
+    
+    # 4. Handle headers #, ##, ### at line starts -> <b>heading</b>
+    escaped = re.sub(r'(?m)^#{1,6}\s*(.*)$', r'<b>\1</b>', escaped)
+    
+    # 5. Convert bullet points at start of line -> •
+    escaped = re.sub(r'(?m)^[\s]*[-+*]\s+', '• ', escaped)
+    
+    # 6. Convert newlines to <br/>
+    escaped = escaped.replace('\n', '<br/>')
+    
+    return escaped
 
 
 class VillageReportGenerator:
@@ -19,7 +53,7 @@ class VillageReportGenerator:
         year: int,
         include_ai: bool = True
     ) -> bytes:
-        buffer = io.BytesBytesIO() if hasattr(io, 'BytesBytesIO') else io.BytesIO()
+        buffer = io.BytesIO()
         doc = SimpleDocTemplate(
             buffer,
             pagesize=A4,
@@ -37,34 +71,37 @@ class VillageReportGenerator:
 
         story = []
 
+        v_name = sanitize_text_for_pdf(village.name)
+        v_name_hindi = sanitize_text_for_pdf(village.nameHindi)
+        v_district = sanitize_text_for_pdf(village.district)
+        v_state = sanitize_text_for_pdf(village.state)
+
         # 1. Cover
         story.append(
             Paragraph(
-                f"GramDrishti Environmental Health Report",
+                "GramDrishti Environmental Health Report",
                 title_style))
         story.append(Spacer(1, 20))
         story.append(Paragraph(
-            f"<b>Village:</b> {village.name} ({village.nameHindi})", normal_style))
+            f"<b>Village:</b> {v_name} ({v_name_hindi})", normal_style))
         story.append(Paragraph(
-            f"<b>District:</b> {village.district}, {village.state}", normal_style))
+            f"<b>District:</b> {v_district}, {v_state}", normal_style))
         story.append(Paragraph(f"<b>Analysis Year:</b> {year}", normal_style))
         story.append(
             Paragraph(
-                f"<b>Generated On:</b> {
-                    datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}",
+                f"<b>Generated On:</b> {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}",
                 normal_style))
         story.append(Spacer(1, 30))
 
         # 2. Executive Summary
         story.append(Paragraph("Executive Summary", heading_style))
         if include_ai and ai_narrative:
-            story.append(Paragraph(ai_narrative, normal_style))
+            clean_narrative = sanitize_text_for_pdf(ai_narrative)
+            story.append(Paragraph(clean_narrative, normal_style))
         else:
             story.append(
                 Paragraph(
-                    f"Automated summary for {
-                        village.name}. The overall health score is {
-                        score.overall:.1f}/100. Please enable AI analysis for a detailed narrative.",
+                    f"Automated summary for {v_name}. The overall health score is {score.overall:.1f}/100. Please enable AI analysis for a detailed narrative.",
                     normal_style))
         story.append(Spacer(1, 20))
 
@@ -145,19 +182,22 @@ class VillageReportGenerator:
         story.append(Paragraph("Priority Recommendations", heading_style))
         if recommendations:
             for idx, rec in enumerate(recommendations, 1):
-                rec_title = f"<b>{idx}. {
-                    rec.title}</b> ({
-                    rec.category.capitalize()} - {
-                    rec.urgency.capitalize()} Urgency)"
-                story.append(Paragraph(rec_title, normal_style))
-                story.append(Paragraph(rec.description, normal_style))
-                if rec.scheme:
+                clean_rec_title = sanitize_text_for_pdf(rec.title)
+                clean_rec_desc = sanitize_text_for_pdf(rec.description)
+                clean_rec_scheme = sanitize_text_for_pdf(rec.scheme) if rec.scheme else ""
+                clean_rec_impact = sanitize_text_for_pdf(rec.expectedImpact)
+                clean_rec_timeframe = sanitize_text_for_pdf(rec.timeframe)
+
+                rec_heading = f"<b>{idx}. {clean_rec_title}</b> ({rec.category.capitalize()} - {rec.urgency.capitalize()} Urgency)"
+                story.append(Paragraph(rec_heading, normal_style))
+                story.append(Paragraph(clean_rec_desc, normal_style))
+                if clean_rec_scheme:
                     story.append(Paragraph(
-                        f"<b>Relevant Scheme:</b> {rec.scheme}", normal_style))
+                        f"<b>Relevant Scheme:</b> {clean_rec_scheme}", normal_style))
                 story.append(Paragraph(
-                    f"<b>Expected Impact:</b> {rec.expectedImpact}", normal_style))
+                    f"<b>Expected Impact:</b> {clean_rec_impact}", normal_style))
                 story.append(Paragraph(
-                    f"<b>Timeframe:</b> {rec.timeframe}", normal_style))
+                    f"<b>Timeframe:</b> {clean_rec_timeframe}", normal_style))
                 story.append(Spacer(1, 10))
         else:
             story.append(
@@ -177,3 +217,4 @@ class VillageReportGenerator:
         pdf_bytes = buffer.getvalue()
         buffer.close()
         return pdf_bytes
+

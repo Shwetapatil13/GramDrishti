@@ -42,19 +42,25 @@ class AIService:
             metrics: EnvironmentalMetrics,
             score: VillageHealthScore,
             historical_summary: str | None = None,
-            language: str = "en") -> str:
+            language: str = "en") -> dict:
         context = self._build_context(
             village, metrics, score, historical_summary, language)
-        return await self.client.generate_summary(context)
+        res = await self.client.generate_summary(context)
+        if isinstance(res, dict):
+            return res
+        return {"summary": res, "ai_source": "gemini"}
 
     async def get_recommendations(
             self,
             village: Village,
             metrics: EnvironmentalMetrics,
             score: VillageHealthScore,
-            language: str = "en") -> list[dict]:
+            language: str = "en") -> dict:
         context = self._build_context(village, metrics, score, None, language)
-        return await self.client.generate_recommendations(context)
+        res = await self.client.generate_recommendations(context)
+        if isinstance(res, dict):
+            return res
+        return {"recommendations": res, "ai_source": "gemini"}
 
     async def chat_stream(
             self,
@@ -129,11 +135,15 @@ class AIService:
         )
         
         # 6. Generate Response
-        response = await self.client.answer_question_rag(
+        res = await self.client.answer_question_rag(
             question=question, 
             system_context=system_context, 
             history=history
         )
+        if isinstance(res, tuple):
+            response, ai_source = res
+        else:
+            response, ai_source = res, "gemini"
         
         audit.finish_session(system_context, response)
         
@@ -146,6 +156,7 @@ class AIService:
         yield json.dumps({
             "status": "completed",
             "answer": response,
+            "ai_source": ai_source,
             "structured_data": structured_json,
             "follow_up_questions": follow_ups[:3]
         }) + "\n"
@@ -155,9 +166,12 @@ class AIService:
             village: Village,
             metrics: EnvironmentalMetrics,
             score: VillageHealthScore,
-            language: str = "en") -> str:
+            language: str = "en") -> dict:
         context = self._build_context(village, metrics, score, None, language)
-        return await self.client.generate_report_narrative(context)
+        res = await self.client.generate_report_narrative(context)
+        if isinstance(res, dict):
+            return res
+        return {"narrative": res, "ai_source": "gemini"}
 
 
 # Singleton

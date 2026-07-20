@@ -1,10 +1,20 @@
-"""
-GeoJSON ↔ Earth Engine geometry conversion utilities.
-"""
 import ee
+import pyproj
 from shapely.geometry import shape  # type: ignore
 
 from typing import Dict, Any
+
+_GEOD = pyproj.Geod(ellps='WGS84')
+
+
+def compute_polygon_area_sqm(geojson_polygon: dict) -> float:
+    """Compute exact geodesic surface area of a GeoJSON polygon in square meters locally."""
+    try:
+        s = shape(geojson_polygon)
+        area_m2, _ = _GEOD.geometry_area_perimeter(s)
+        return float(abs(area_m2))
+    except Exception:
+        return 1000000.0  # Fallback 1 sq km
 
 
 def geojson_to_ee_geometry(geojson_polygon: dict) -> ee.Geometry:

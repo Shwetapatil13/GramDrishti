@@ -10,11 +10,11 @@ class GeminiClient:
     def __init__(self):
         self.api_key = settings.GEMINI_API_KEY
         self.model = 'gemini-2.5-flash'
-        self.url = f"https://generativelanguage.googleapis.com/v1beta/models/{
-            self.model}:generateContent?key={
-            self.api_key}"
+        self.url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
 
     async def _generate_content_with_timeout(self, prompt: str) -> str:
+        if not self.api_key or self.api_key == "your_gemini_api_key_here":
+            raise ValueError("GEMINI_API_KEY is not configured")
         payload = {
             "contents": [{
                 "parts": [{"text": prompt}]
@@ -35,7 +35,7 @@ class GeminiClient:
                 logger.error(f"Gemini API error: {str(e)}")
                 raise
 
-    async def generate_summary(self, context: str) -> str:
+    async def generate_summary(self, context: str) -> dict:
         prompt = __import__(
             'app.services.ai.prompt_builder',
             fromlist=['']).build_summary_prompt(context)
@@ -46,13 +46,16 @@ class GeminiClient:
                 text = text[:1500] if len(text) > 1500 else text
                 if len(text) < 100:
                     text = "The AI generated a summary that was too brief. The village appears stable overall based on available metrics."
-            return text
+            return {"summary": text, "ai_source": "gemini"}
         except Exception as e:
             logger.error(
                 f"Gemini summary generation failed: {e}. Using fallback.")
-            return "Based on the environmental data for this village, the vegetation and water levels are relatively stable compared to previous years. There is a slight decrease in overall green cover, but water availability has marginally improved. I recommend focusing on water conservation to sustain agricultural output."
+            return {
+                "summary": "Based on the environmental data for this village, the vegetation and water levels are relatively stable compared to previous years. There is a slight decrease in overall green cover, but water availability has marginally improved. I recommend focusing on water conservation to sustain agricultural output.",
+                "ai_source": "fallback"
+            }
 
-    async def generate_recommendations(self, context: str) -> list[dict]:
+    async def generate_recommendations(self, context: str) -> dict:
         prompt = __import__('app.services.ai.prompt_builder', fromlist=[
                             '']).build_recommendation_prompt(context)
         try:
@@ -65,12 +68,12 @@ class GeminiClient:
             items = json.loads(text.strip())
             if not isinstance(items, list) or len(items) != 3:
                 raise ValueError("Must return exactly 3 items")
-            return items
+            return {"recommendations": items, "ai_source": "gemini"}
         except Exception as e:
             logger.error(
-                f"Failed to fetch recommendations from Gemini: {
-                    str(e)}. Using fallback.")
-            return [{"priority": 1,
+                f"Failed to fetch recommendations from Gemini: {str(e)}. Using fallback.")
+            return {
+                "recommendations": [{"priority": 1,
                      "category": "water",
                      "title": "Implement Rainwater Harvesting",
                      "description": "Construct small check dams and farm ponds to capture monsoon runoff.",
@@ -96,9 +99,11 @@ class GeminiClient:
                      "expectedImpact": "Improve soil health and long-term sustainability.",
                      "timeframe": "Ongoing",
                      "costEstimate": "Low",
-                     "urgency": "medium"}]
+                     "urgency": "medium"}],
+                "ai_source": "fallback"
+            }
 
-    async def answer_question(self, question: str, context: str) -> str:
+    async def answer_question(self, question: str, context: str) -> dict:
         prompt = __import__(
             'app.services.ai.prompt_builder',
             fromlist=['']).build_qa_prompt(
@@ -108,68 +113,63 @@ class GeminiClient:
             text = await self._generate_content_with_timeout(prompt)
             text = text.strip()
             if len(text) < 20:
-                return "I don't have enough specific information in the context to answer that question comprehensively."
-            return text
+                return {"answer": "I don't have enough specific information in the context to answer that question comprehensively.", "ai_source": "gemini"}
+            return {"answer": text, "ai_source": "gemini"}
         except Exception as e:
             logger.error(f"Gemini QA failed: {e}. Using fallback.")
-            return "Based on the environmental data for this village, the vegetation and water levels are relatively stable compared to previous years. There is a slight decrease in overall green cover, but water availability has marginally improved. I recommend focusing on water conservation to sustain agricultural output."
+            return {
+                "answer": "Based on the environmental data for this village, the vegetation and water levels are relatively stable compared to previous years. There is a slight decrease in overall green cover, but water availability has marginally improved. I recommend focusing on water conservation to sustain agricultural output.",
+                "ai_source": "fallback"
+            }
 
-    async def answer_question_rag(self, question: str, system_context: str, history: list[dict] = None) -> str:
+    async def answer_question_rag(self, question: str, system_context: str, history: list[dict] = None) -> tuple[str, str]:
         contents = []
-        
-        # We can simulate system context by putting it in the very first user message.
-        # Ideally, we'd use 'system_instruction' if supported by the v1beta API,
-        # but for safety across API versions we'll just prepend it to the history or the first message.
-        
         if not history:
             contents.append({
                 "role": "user",
                 "parts": [{"text": f"SYSTEM INSTRUCTIONS AND CONTEXT:\n{system_context}\n\nUSER QUESTION:\n{question}"}]
             })
         else:
-            # Reconstruct history
             first_user_msg = True
             for msg in history:
                 role = "user" if msg["role"] == "user" else "model"
                 text = msg["content"]
-                
                 if role == "user" and first_user_msg:
                     text = f"SYSTEM INSTRUCTIONS AND CONTEXT:\n{system_context}\n\nUSER MESSAGE:\n{text}"
                     first_user_msg = False
-                    
                 contents.append({
                     "role": role,
                     "parts": [{"text": text}]
                 })
-                
-            # Finally add the new question
             contents.append({
                 "role": "user",
                 "parts": [{"text": question}]
             })
             
         payload = {"contents": contents}
-        
         try:
             async with httpx.AsyncClient(timeout=45.0) as client:
                 response = await client.post(self.url, json=payload)
                 response.raise_for_status()
                 data = response.json()
                 text = data['candidates'][0]['content']['parts'][0]['text']
-                return text.strip()
+                return text.strip(), "gemini"
         except Exception as e:
             logger.error(f"Gemini RAG QA failed: {e}")
             import traceback
             traceback.print_exc()
-            return "### Summary\nThis information is currently unavailable due to an analysis error.\n\n### Evidence\nAnalysis engine failure.\n\n### Analysis\nN/A\n\n### Recommendations\nPlease try again later."
+            return "### Summary\nThis information is currently unavailable due to an analysis error.\n\n### Evidence\nAnalysis engine failure.\n\n### Analysis\nN/A\n\n### Recommendations\nPlease try again later.", "fallback"
 
-    async def generate_report_narrative(self, context: str) -> str:
+    async def generate_report_narrative(self, context: str) -> dict:
         prompt = __import__('app.services.ai.prompt_builder', fromlist=[
                             '']).build_report_narrative_prompt(context)
         try:
             text = await self._generate_content_with_timeout(prompt)
-            return text.strip()[:2000]
+            return {"narrative": text.strip()[:2000], "ai_source": "gemini"}
         except Exception as e:
             logger.error(
                 f"Gemini report narrative failed: {e}. Using fallback.")
-            return "This report details the environmental metrics for the village. Overall health is moderate, with stable vegetation indices and consistent water bodies. Future efforts should focus on climate resilience and land sustainability."
+            return {
+                "narrative": "This report details the environmental metrics for the village. Overall health is moderate, with stable vegetation indices and consistent water bodies. Future efforts should focus on climate resilience and land sustainability.",
+                "ai_source": "fallback"
+            }

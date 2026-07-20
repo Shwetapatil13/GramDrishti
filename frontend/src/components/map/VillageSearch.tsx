@@ -106,6 +106,8 @@ export const VillageSearch: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [errorType, setErrorType] = useState<'network' | 'notfound' | 'generic' | null>(null);
 
+  const searchReqIdRef = React.useRef(0);
+
   const runSearch = useCallback(async (searchQuery: string) => {
     if (searchQuery.length < 3) {
       setResults([]);
@@ -114,6 +116,7 @@ export const VillageSearch: React.FC = () => {
       return;
     }
 
+    const currentReqId = ++searchReqIdRef.current;
     setIsSearching(true);
     setError(null);
     setErrorType(null);
@@ -121,13 +124,11 @@ export const VillageSearch: React.FC = () => {
     let localResults: Village[] = [];
     let backendOnline = false;
 
-    // Step 1: Try the local backend first
+    // Step 1: Try local backend search
     try {
-
       const res = await apiService.search<Village[]>('/api/v1/villages/search', { q: searchQuery });
       localResults = Array.isArray(res) ? res : [];
       backendOnline = true;
-
     } catch (error: unknown) {
       const err = error as any;
       const isNetworkError =
@@ -136,87 +137,80 @@ export const VillageSearch: React.FC = () => {
         err?.message === 'Network Error' ||
         !err?.response;
 
-      if (isNetworkError) {
-
-
-        // Don't set error yet — try Nominatim first
-      } else {
+      if (!isNetworkError) {
         const detail = err?.response?.data?.detail || err?.message;
-
-        setError(`Search failed: ${detail || 'Unknown error'}`);
-        setErrorType('generic');
-        setIsSearching(false);
+        if (currentReqId === searchReqIdRef.current) {
+          setError(`Search failed: ${detail || 'Unknown error'}`);
+          setErrorType('generic');
+          setIsSearching(false);
+        }
         return;
       }
     }
 
-    // Step 2: If backend had no matches or is offline, query Nominatim
-    if (localResults.length < 3) {
-      try {
+    // Drop stale response if another search was launched in the meantime (Suspect A fix)
+    if (currentReqId !== searchReqIdRef.current) return;
 
-        const nominatimResults = await searchNominatim(searchQuery);
-        // Prioritize results that have polygons
-        const sortedNominatim = [...nominatimResults].sort((a, b) => {
-          if (a.boundary && !b.boundary) return -1;
-          if (!a.boundary && b.boundary) return 1;
-          return 0;
-        });
+    // Step 2: Query Nominatim in parallel or as fallback (Suspect B fix)
+    let merged = [...localResults];
+    try {
+      const nominatimResults = await searchNominatim(searchQuery);
 
-        const merged = [...localResults];
-        const seenNames = new Set(localResults.map((l) => l.name.toLowerCase()));
+      if (currentReqId !== searchReqIdRef.current) return;
 
-        for (const n of sortedNominatim) {
-          const baseName = n.name.toLowerCase().replace(/\s+district$/, '');
-          let isDuplicate = false;
-          
-          for (const seen of seenNames) {
-            const seenBase = seen.replace(/\s+district$/, '');
-            if (seenBase === baseName || seen === n.name.toLowerCase()) {
-              isDuplicate = true;
-              break;
-            }
-          }
-          
-          if (!isDuplicate) {
-            merged.push(n);
-            seenNames.add(n.name.toLowerCase());
-            seenNames.add(baseName);
+      const sortedNominatim = [...nominatimResults].sort((a, b) => {
+        if (a.boundary && !b.boundary) return -1;
+        if (!a.boundary && b.boundary) return 1;
+        return 0;
+      });
+
+      const seenNames = new Set(localResults.map((l) => l.name.toLowerCase()));
+
+      for (const n of sortedNominatim) {
+        const baseName = n.name.toLowerCase().replace(/\s+district$/, '');
+        let isDuplicate = false;
+        
+        for (const seen of seenNames) {
+          const seenBase = seen.replace(/\s+district$/, '');
+          if (seenBase === baseName || seen === n.name.toLowerCase()) {
+            isDuplicate = true;
+            break;
           }
         }
-
-        setResults(merged);
-
-        if (merged.length === 0) {
-          setError(`No villages found for "${searchQuery}". Try a different spelling.`);
-          setErrorType('notfound');
-        }
-      } catch (error: unknown) {
-        const nominatimErr = error as any;
-        if (localResults.length > 0) {
-          setResults(localResults);
-        } else {
-          if (!backendOnline) {
-            setError(`Backend server is offline. OSM search also failed: ${nominatimErr?.message}`);
-          } else {
-            setError(`No results found for "${searchQuery}".`);
-          }
-          setErrorType(backendOnline ? 'notfound' : 'network');
+        
+        if (!isDuplicate) {
+          merged.push(n);
+          seenNames.add(n.name.toLowerCase());
+          seenNames.add(baseName);
         }
       }
-    } else {
-      setResults(localResults);
+    } catch {
+      // Nominatim failed, keep localResults
     }
 
+    if (currentReqId !== searchReqIdRef.current) return;
+
+    setResults(merged);
+    if (merged.length === 0) {
+      setError(`No villages found for "${searchQuery}". Try a different spelling.`);
+      setErrorType(backendOnline ? 'notfound' : 'network');
+    }
     setIsSearching(false);
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => runSearch(query), 500);
+    const timer = setTimeout(() => runSearch(query), 250);
     return () => clearTimeout(timer);
   }, [query, runSearch]);
 
   const handleSelect = (village: Village) => {
-    
+    console.log('[INSTRUMENT 1 - VillageSearch] handleSelect clicked:', {
+      id: village.id,
+      name: village.name,
+      source: village.source,
+      coordinates: village.coordinates,
+      hasBoundary: !!village.boundary,
+    });
     setSelectedVillage(village);
     flyToVillage(village);
     setQuery('');

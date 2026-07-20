@@ -49,7 +49,7 @@ export const VillageBoundary: React.FC<VillageBoundaryProps> = ({ polygon }) => 
   return (
     <GeoJSON
       // Key forces re-mount when polygon changes, removing the old layer entirely
-      key={JSON.stringify(polygon).slice(0, 100)}
+      key={polygon ? JSON.stringify(polygon) : 'empty-boundary'}
       ref={geoJsonRef}
       data={geoJsonData}
       style={{

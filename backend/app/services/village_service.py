@@ -99,14 +99,13 @@ def load_villages():
 
 
 async def search_villages(query: str) -> List[Dict[str, Any]]:
-    """Search for villages in the loaded index."""
+    """Search for villages in the loaded index by name."""
     query_lower = query.lower()
     results = []
 
     for item in SEARCH_INDEX:
-        if (query_lower in item["name"].lower() or
-            query_lower in item["district"].lower() or
-                query_lower in item["state"].lower()):
+        # Match primarily on name so general state/district matches don't suppress Nominatim
+        if query_lower in item["name"].lower():
             results.append(item)
             if len(results) >= 20:  # Limit results
                 break

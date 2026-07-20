@@ -35,68 +35,62 @@ export const VillageProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
 
 
-  const handleSetSelectedVillage = useCallback(async (village: Village | null) => {
-    // If it's a Nominatim village, register it first so backend knows about it
-    // before we set the state (which triggers the sidebar API calls).
-    if (village?.source === 'nominatim' && village.boundary) {
-
-      try {
-        const lat = village.coordinates?.[0] ?? 20.0;
-        const lon = village.coordinates?.[1] ?? 78.0;
-        await apiService.post('/api/v1/villages/register', {
-          id: village.id,
-          name: village.name,
-          nameHindi: village.nameHindi ?? village.name,
-          district: village.district ?? '',
-          state: village.state ?? 'India',
-          coordinates: [lat, lon] as [number, number],
-          boundary: village.boundary,
-          area: village.area ?? 50.0,
-        });
-
-      } catch {
-
-      }
-    }
-    
-    // Now that backend is ready, update the state so sidebar components can fetch data
-    setSelectedVillage(village);
-  }, []);
-
   useEffect(() => {
-    if (selectedVillage) {
+    console.log('[INSTRUMENT 2/3 - useVillageSelection] State render:', {
+      selectedVillageId: selectedVillage?.id,
+      selectedVillageName: selectedVillage?.name,
+      polygonFirstCoord: selectedVillagePolygon?.coordinates?.[0]?.[0] || selectedVillagePolygon?.coordinates?.[0]?.[0]?.[0] || null,
+    });
+  }, [selectedVillage, selectedVillagePolygon]);
 
-      // If the village result came from Nominatim, we just use its boundary directly
-      if (selectedVillage.source === 'nominatim' && selectedVillage.boundary) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setSelectedVillagePolygon(selectedVillage.boundary);
-        return;
-      }
-
-      // For all local villages, ALWAYS fetch the real polygon from the backend.
-      const fetchPolygon = async () => {
-        try {
-          const villageData = await apiService.get<Village>(`/api/v1/villages/${selectedVillage.id}`);
-
-          if (villageData) {
-            // Update with enriched village data from backend
-            setSelectedVillage({ ...selectedVillage, ...villageData });
-            if (villageData.boundary) {
-              setSelectedVillagePolygon(villageData.boundary);
-            } else {
-              setSelectedVillagePolygon(null);
-            }
-          }
-        } catch {
-          setSelectedVillagePolygon(null);
-        }
-      };
-      fetchPolygon();
-    } else {
-
+  const handleSetSelectedVillage = useCallback(async (village: Village | null) => {
+    console.log('[INSTRUMENT 2 - useVillageSelection] ENTRY incoming village:', village?.id, village?.name, 'source:', village?.source);
+    if (!village) {
+      setSelectedVillage(null);
       setSelectedVillagePolygon(null);
+      return;
     }
-  }, [selectedVillage?.id, selectedVillage?.source]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Set village and its boundary immediately to prevent stale polygon data & UI lag
+    console.log('[INSTRUMENT 2 - useVillageSelection] Calling setSelectedVillage & setSelectedVillagePolygon with:', village.id);
+    setSelectedVillage(village);
+    setSelectedVillagePolygon(village.boundary ?? null);
+
+    // If it's a Nominatim village, register it asynchronously in the background
+    if (village.source === 'nominatim' && village.boundary) {
+      console.log('[INSTRUMENT 3 - useVillageSelection] TAKEN BRANCH: nominatim with boundary', village.id, 'coords first point:', (village.boundary.coordinates as any)?.[0]?.[0]);
+      apiService.post('/api/v1/villages/register', {
+        id: village.id,
+        name: village.name,
+        nameHindi: village.nameHindi ?? village.name,
+        district: village.district ?? '',
+        state: village.state ?? 'India',
+        coordinates: [village.coordinates?.[0] ?? 20.0, village.coordinates?.[1] ?? 78.0] as [number, number],
+        boundary: village.boundary,
+        area: village.area ?? 50.0,
+      }).then(() => {
+        console.log('[INSTRUMENT 3 - useVillageSelection] Register success for:', village.id);
+      }).catch((err) => {
+        console.error('[INSTRUMENT 3 - useVillageSelection] Register failed for:', village.id, err);
+      });
+    } else if (!village.boundary && village.id) {
+      console.log('[INSTRUMENT 3 - useVillageSelection] TAKEN BRANCH: fetch from backend (no boundary in object)', village.id);
+      try {
+        const fullVillage = await apiService.get<Village>(`/api/v1/villages/${village.id}`);
+        if (fullVillage) {
+          console.log('[INSTRUMENT 3 - useVillageSelection] Backend fetched fullVillage:', fullVillage.id, 'has boundary:', !!fullVillage.boundary);
+          setSelectedVillage((prev) => (prev?.id === village.id ? { ...prev, ...fullVillage } : prev));
+          if (fullVillage.boundary) {
+            setSelectedVillagePolygon(fullVillage.boundary);
+          }
+        }
+      } catch (err) {
+        console.error('[INSTRUMENT 3 - useVillageSelection] Backend fetch failed for:', village.id, err);
+      }
+    } else {
+      console.log('[INSTRUMENT 3 - useVillageSelection] TAKEN BRANCH: local village with existing boundary', village.id);
+    }
+  }, []);
 
   const clearSelection = useCallback(() => {
     setSelectedVillage(null);

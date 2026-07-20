@@ -1,7 +1,3 @@
-"""
-SRTM DEM (USGS/SRTMGL1_003) terrain analysis.
-Year-independent — terrain doesn't change.
-"""
 import ee
 from app.services.gee.geometry import geojson_to_ee_geometry
 from app.core.exceptions import GEEDataError
@@ -24,44 +20,23 @@ def get_terrain_metrics(boundary: dict) -> dict[str, float]:
         # Calculate slope
         slope = ee.Terrain.slope(dem)
 
-        # Calculate flood risk area (slope < 2 degrees)
-        flat_area = slope.lt(ee.Number(2))
+        # Calculate flood risk fraction (slope < 2 degrees)
+        flat_mask = slope.lt(ee.Number(2)).rename('flat_fraction')
 
-        # Combine bands
-        terrain_bands = dem.rename('elevation').addBands(slope.rename('slope'))
+        # Combine bands into a single image
+        terrain_img = dem.rename('elevation').addBands(slope.rename('slope')).addBands(flat_mask)
 
-        # Reduce to get mean elevation and slope
-        stats = terrain_bands.reduceRegion(
+        # Reduce in a single round-trip
+        stats = terrain_img.reduceRegion(
             reducer=ee.Reducer.mean().combine(
                 reducer2=ee.Reducer.stdDev(),
                 sharedInputs=True
             ),
             geometry=geom,
             scale=30,
-            maxPixels=int(1e9)
+            maxPixels=int(1e9),
+            bestEffort=True
         ).getInfo() or {}
-
-        # Calculate area percentage for slope < 2
-        flat_area_stats = flat_area.multiply(
-            ee.Image.pixelArea()).reduceRegion(
-            reducer=ee.Reducer.sum(),
-            geometry=geom,
-            scale=30,
-            maxPixels=int(1e9)).getInfo() or {}
-
-        total_area_stats = ee.Image.pixelArea().reduceRegion(
-            reducer=ee.Reducer.sum(),
-            geometry=geom,
-            scale=30,
-            maxPixels=int(1e9)
-        ).getInfo() or {}
-
-        flat_area_val = float(flat_area_stats.get('slope') or 0.0)
-        total_area_val = float(total_area_stats.get(
-            'area') or 1.0)  # avoid div by zero
-
-        flood_risk_percent = (flat_area_val / total_area_val) * \
-            100.0 if total_area_val > 0 else 0.0
 
         def safe_float(val):
             return float(val) if val is not None else 0.0
@@ -70,7 +45,7 @@ def get_terrain_metrics(boundary: dict) -> dict[str, float]:
             "mean_elevation_m": safe_float(stats.get('elevation_mean')),
             "slope_mean_degrees": safe_float(stats.get('slope_mean')),
             "slope_std_degrees": safe_float(stats.get('slope_stdDev')),
-            "flood_risk_area_percent": flood_risk_percent
+            "flood_risk_area_percent": safe_float(stats.get('flat_fraction_mean')) * 100.0
         }
 
     except ee.EEException as e:

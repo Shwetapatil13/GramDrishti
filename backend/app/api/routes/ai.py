@@ -52,6 +52,7 @@ async def _gather_context_data(village_id: str, year: int):
 
     metrics = await get_village_metrics(village_id, year)
     score = await get_village_score(village_id, year)
+    return village, metrics, score
 
 # We removed _gather_rag_context since it is now handled by RetrievalEngine in ai_service
 
@@ -68,13 +69,17 @@ async def get_ai_summary(
     cache_key = cache.build_key(village_id, year, "ai_summary", language)
     cached = cache.get(cache_key)
     if cached:
-        return {"summary": cached["text"]}
+        return {"summary": cached.get("summary", cached.get("text", "")), "ai_source": cached.get("ai_source", "gemini")}
 
     try:
         village, metrics, score = await _gather_context_data(village_id, year)
-        summary = await ai_service.get_summary(village, metrics, score, language=language)
-        cache.set(cache_key, {"text": summary}, ttl_seconds=86400)
-        return {"summary": summary}
+        res = await ai_service.get_summary(village, metrics, score, language=language)
+        if isinstance(res, dict):
+            summary_dict = res
+        else:
+            summary_dict = {"summary": res, "ai_source": "gemini"}
+        cache.set(cache_key, summary_dict, ttl_seconds=86400)
+        return summary_dict
     except Exception as e:
         raise HTTPException(status_code=504, detail=str(e))
 
@@ -91,13 +96,17 @@ async def get_ai_recommendations(
     cache_key = cache.build_key(village_id, year, "ai_recs", language)
     cached = cache.get(cache_key)
     if cached:
-        return {"recommendations": cached["recs"]}
+        return {"recommendations": cached.get("recommendations", cached.get("recs", [])), "ai_source": cached.get("ai_source", "gemini")}
 
     try:
         village, metrics, score = await _gather_context_data(village_id, year)
-        recs = await ai_service.get_recommendations(village, metrics, score, language=language)
-        cache.set(cache_key, {"recs": recs}, ttl_seconds=86400)
-        return {"recommendations": recs}
+        res = await ai_service.get_recommendations(village, metrics, score, language=language)
+        if isinstance(res, dict):
+            recs_dict = res
+        else:
+            recs_dict = {"recommendations": res, "ai_source": "gemini"}
+        cache.set(cache_key, recs_dict, ttl_seconds=86400)
+        return recs_dict
     except Exception as e:
         raise HTTPException(status_code=504, detail=str(e))
 
@@ -145,12 +154,16 @@ async def get_report_narrative(
     cache_key = cache.build_key(village_id, year, "ai_narrative", language)
     cached = cache.get(cache_key)
     if cached:
-        return {"narrative": cached["text"]}
+        return {"narrative": cached.get("narrative", cached.get("text", "")), "ai_source": cached.get("ai_source", "gemini")}
 
     try:
         village, metrics, score = await _gather_context_data(village_id, year)
-        narrative = await ai_service.get_report_narrative(village, metrics, score, language=language)
-        cache.set(cache_key, {"text": narrative}, ttl_seconds=86400)
-        return {"narrative": narrative}
+        res = await ai_service.get_report_narrative(village, metrics, score, language=language)
+        if isinstance(res, dict):
+            narrative_dict = res
+        else:
+            narrative_dict = {"narrative": res, "ai_source": "gemini"}
+        cache.set(cache_key, narrative_dict, ttl_seconds=86400)
+        return narrative_dict
     except Exception as e:
         raise HTTPException(status_code=504, detail=str(e))

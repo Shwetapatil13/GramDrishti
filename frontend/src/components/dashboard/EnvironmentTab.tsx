@@ -17,7 +17,7 @@ export const EnvironmentTab: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-full">
+    <div className="flex flex-col gap-6 w-full max-w-full pb-8">
       <MetricsPanel data={data} isLoading={isLoading} error={error} />
       
       {/* Dynamic Pie Chart based on active map layer */}

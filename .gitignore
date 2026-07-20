@@ -20,9 +20,16 @@ Thumbs.db
 
 # Logs
 *.log
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2938600 (changes)
 # Ignore private GEE credentials
 backend/logs/gee_credentials.json
 
 # Ignore AI audit logs
+<<<<<<< HEAD
 backend/logs/ai_audits/
+=======
+backend/logs/ai_audits/
+>>>>>>> 2938600 (changes)

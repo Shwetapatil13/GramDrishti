@@ -52,6 +52,12 @@ export const MapContainer: React.FC = React.memo(() => {
   const { data } = useSatelliteData(selectedVillage?.id, selectedYear);
   const { theme } = useTheme();
 
+  console.log('[INSTRUMENT 4 - MapContainer render]:', {
+    selectedVillageId: selectedVillage?.id,
+    selectedVillageName: selectedVillage?.name,
+    polygonFirstPoint: selectedVillagePolygon?.coordinates?.[0]?.[0] || (selectedVillagePolygon?.coordinates as any)?.[0]?.[0]?.[0] || null,
+  });
+
   useEffect(() => {
     const active = [];
     if (layers.activeSatelliteLayer) active.push(layers.activeSatelliteLayer);

@@ -23,25 +23,23 @@ def get_land_cover(boundary: dict, year: int) -> dict[str, float]:
               .filterBounds(geom)
               .filterDate(start_date, end_date))
 
-        if dw.size().getInfo() == 0:
-            raise GEEDataError(f"No Dynamic World imagery found for {year}")
-
-        # Use the mode (most frequent class) over the year
+        # Use mode classification over the year
         classification = dw.select('label').mode().clip(geom)
 
-        # Calculate area (in square meters) per class using pixel area
+        # Calculate area per class using pixel area
         area_image = ee.Image.pixelArea().addBands(classification)
 
-        # We use grouped reducer to sum area by class label
+        # Reduce region at 30m scale with bestEffort
         stats = area_image.reduceRegion(
             reducer=ee.Reducer.sum().group(
                 groupField=1,
                 groupName='label'
             ),
             geometry=geom,
-            scale=10,
-            maxPixels=1e9
-        ).getInfo()
+            scale=30,
+            maxPixels=int(1e9),
+            bestEffort=True
+        ).getInfo() or {}
 
         # Dynamic World classes mapping
         dw_classes = {

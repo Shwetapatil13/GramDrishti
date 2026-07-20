@@ -37,8 +37,10 @@ async def register_village(payload: RegisterVillageRequest):
         boundary=payload.boundary,
         area=payload.area,
     )
+    village_service.logger.info(f"[INSTRUMENT 6 - Backend Register] ENTRY registering village_id={payload.id}, SEARCH_CACHE len before={len(village_service.SEARCH_CACHE)}")
     village_service.SEARCH_CACHE[payload.id] = village
     village_service.BOUNDARY_CACHE[payload.id] = payload.boundary
+    village_service.logger.info(f"[INSTRUMENT 6 - Backend Register] SUCCESS SEARCH_CACHE len after={len(village_service.SEARCH_CACHE)}, keys={list(village_service.SEARCH_CACHE.keys())}")
 
     # Add to search index if not already present
     if not any(

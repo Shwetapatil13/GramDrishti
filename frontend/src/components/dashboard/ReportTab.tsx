@@ -22,8 +22,8 @@ export const ReportTab: React.FC = () => {
     try {
       await downloadPDF(selectedVillage.id, selectedYear, includeAI);
       setLastGenerated(new Date());
-    } catch {
-      setError(t('dashboard.pdf_error', 'Failed to generate PDF report.'));
+    } catch (err: any) {
+      setError(err?.message || t('dashboard.pdf_error', 'Failed to generate PDF report.'));
     } finally {
       setGeneratingPDF(false);
     }
@@ -35,8 +35,8 @@ export const ReportTab: React.FC = () => {
     setError(null);
     try {
       await downloadJSON(selectedVillage.id, selectedYear);
-    } catch {
-      setError(t('dashboard.json_error', 'Failed to generate JSON export.'));
+    } catch (err: any) {
+      setError(err?.message || t('dashboard.json_error', 'Failed to generate JSON export.'));
     } finally {
       setGeneratingJSON(false);
     }
@@ -48,8 +48,8 @@ export const ReportTab: React.FC = () => {
     setError(null);
     try {
       await downloadCSV(selectedVillage.id);
-    } catch {
-      setError(t('dashboard.csv_error', 'Failed to generate CSV export.'));
+    } catch (err: any) {
+      setError(err?.message || t('dashboard.csv_error', 'Failed to generate CSV export.'));
     } finally {
       setGeneratingCSV(false);
     }

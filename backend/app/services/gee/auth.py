@@ -10,20 +10,35 @@ from app.core.logging import get_logger
 logger = get_logger(__name__)
 
 
+GEE_STATE = {
+    "status": "uninitialized",
+    "error": None
+}
+
+
+def get_gee_state() -> dict:
+    return GEE_STATE
+
+
 def initialize_gee() -> None:
     """
     Initialize GEE with service account credentials.
     Skips initialization if USE_MOCK_DATA is True.
     Raises RuntimeError on auth failure (startup should fail loudly).
     """
+    global GEE_STATE
     if settings.USE_MOCK_DATA:
         logger.info("Mock mode enabled — skipping GEE initialization")
+        GEE_STATE = {"status": "mock", "error": None}
         return
 
     base_dir = Path(__file__).parent.parent.parent.parent
     credentials_path = base_dir / settings.GEE_CREDENTIALS_PATH
     if not credentials_path.exists():
-        raise RuntimeError(f"GEE credentials not found at {credentials_path}")
+        err = f"GEE credentials not found at {credentials_path}"
+        logger.critical(err)
+        GEE_STATE = {"status": "not_initialized", "error": err}
+        raise RuntimeError(err)
 
     try:
         credentials = ee.ServiceAccountCredentials(
@@ -32,6 +47,9 @@ def initialize_gee() -> None:
         )
         ee.Initialize(credentials, project=settings.GEE_PROJECT_ID)
         logger.info("Google Earth Engine initialized successfully")
+        GEE_STATE = {"status": "initialized", "error": None}
     except Exception as e:
-        logger.error(f"Failed to initialize Earth Engine: {str(e)}")
-        raise RuntimeError(f"Failed to initialize Earth Engine: {str(e)}")
+        err = f"Failed to initialize Earth Engine: {str(e)}"
+        logger.critical(err)
+        GEE_STATE = {"status": "not_initialized", "error": err}
+        raise RuntimeError(err)

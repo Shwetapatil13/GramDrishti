@@ -37,16 +37,11 @@ def get_sentinel2_metrics(boundary: dict, year: int,
 
         # Sentinel-2 dataset
         collection = (
-            ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED") .filterBounds(geom) .filterDate(
-                start_date,
-                end_date) .filter(
-                ee.Filter.lt(
-                    'CLOUDY_PIXEL_PERCENTAGE',
-                    cloud_cover_max)))
-
-        if collection.size().getInfo() == 0:
-            raise GEEDataError(
-                f"No Sentinel-2 imagery found for {year} under {cloud_cover_max}% cloud cover")
+            ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
+            .filterBounds(geom)
+            .filterDate(start_date, end_date)
+            .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', cloud_cover_max))
+        )
 
         # Create median composite
         image = collection.median().clip(geom)
@@ -59,13 +54,17 @@ def get_sentinel2_metrics(boundary: dict, year: int,
         bands_to_reduce = image.select(
             ['B4', 'B8', 'B11']).addBands([ndvi, ndwi])
 
-        # Reduce region
+        # Reduce region directly (scale=30 for fast statistical reduction)
         stats = bands_to_reduce.reduceRegion(
             reducer=ee.Reducer.mean(),
             geometry=geom,
-            scale=10,
-            maxPixels=1e9
-        ).getInfo()
+            scale=30,
+            maxPixels=int(1e9),
+            bestEffort=True
+        ).getInfo() or {}
+
+        if not stats or stats.get('NDVI') is None:
+            raise GEEDataError(f"No Sentinel-2 imagery found for {year} under {cloud_cover_max}% cloud cover")
 
         # Handle potential nulls
         def safe_float(val):

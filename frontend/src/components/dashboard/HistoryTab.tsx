@@ -1,15 +1,60 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
-import { useHistoricalChanges } from '@/hooks/useHistoricalData';
+import { useHistoricalChanges, useHistoricalData } from '@/hooks/useHistoricalData';
 import { TrendChart } from '../charts/TrendChart';
 import { HealthScoreTrendChart } from '../charts/HealthScoreTrendChart';
 import { ChangeDetection } from './ChangeDetection';
 import { useTranslation } from 'react-i18next';
+import { Skeleton } from '../ui/Skeleton';
 
 export const HistoryTab: React.FC = () => {
   const { selectedVillage } = useVillageSelection();
-  const { data: changesData, isLoading: changesLoading, error } = useHistoricalChanges(selectedVillage?.id);
+  const { data: changesData, isLoading: changesLoading, error: changesError } = useHistoricalChanges(selectedVillage?.id);
+  const { data: historyData, isLoading: historyLoading, error: historyError } = useHistoricalData(selectedVillage?.id);
   const { t } = useTranslation();
+
+  const error = changesError || historyError;
+
+  // Combine metrics and scores by year for table
+  const tableData = useMemo(() => {
+    if (!historyData?.years) return [];
+    return historyData.years.map((year) => {
+      const metric = historyData.metrics?.find((m) => m.year === year);
+      const score = historyData.scores?.find((s) => s.year === year);
+      return {
+        year,
+        overallScore: score?.overall ?? 0,
+        ndvi: metric?.ndvi ?? 0,
+        ndwi: metric?.ndwi ?? 0,
+        waterAreaHa: metric?.waterAreaHa ?? 0,
+        greenCoverPercent: metric?.greenCoverPercent ?? 0,
+        temperature: metric?.temperature ?? 0,
+        rainfall: metric?.rainfall ?? 0,
+      };
+    });
+  }, [historyData]);
+
+  // Transform scores for per-component trend charts
+  const waterScoreChanges = useMemo(
+    () => historyData?.scores?.map((s) => ({ year: s.year, value: s.water.score })),
+    [historyData]
+  );
+  const vegScoreChanges = useMemo(
+    () => historyData?.scores?.map((s) => ({ year: s.year, value: s.vegetation.score })),
+    [historyData]
+  );
+  const climateScoreChanges = useMemo(
+    () => historyData?.scores?.map((s) => ({ year: s.year, value: s.climate.score })),
+    [historyData]
+  );
+  const floodScoreChanges = useMemo(
+    () => historyData?.scores?.map((s) => ({ year: s.year, value: s.flood.score })),
+    [historyData]
+  );
+  const landScoreChanges = useMemo(
+    () => historyData?.scores?.map((s) => ({ year: s.year, value: s.land.score })),
+    [historyData]
+  );
 
   if (error) {
     return (
@@ -24,6 +69,7 @@ export const HistoryTab: React.FC = () => {
   return (
     <div className="flex flex-col gap-6 w-full max-w-full pb-8">
 
+      {/* 1. Overall Trajectory */}
       <div className="flex flex-col gap-3 mt-4">
         <h3 className="text-mono text-text-primary flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-brand-violet"></span>
@@ -32,6 +78,119 @@ export const HistoryTab: React.FC = () => {
         <HealthScoreTrendChart data={changesData?.score_changes} isLoading={changesLoading} />
       </div>
 
+      {/* 2. Year-wise Breakdown Table */}
+      <div className="flex flex-col gap-3">
+        <h3 className="text-mono text-text-primary flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-brand-mint"></span>
+          {t('dashboard.yearwise_breakdown', 'YEAR-WISE HISTORY (2022–2026)')}
+        </h3>
+
+        {historyLoading ? (
+          <div className="bg-surface-slate border border-surface-border rounded-xl p-4 flex flex-col gap-2">
+            <Skeleton height="30px" width="100%" />
+            <Skeleton height="150px" width="100%" />
+          </div>
+        ) : (
+          <div className="bg-surface-slate border border-surface-border rounded-xl p-4 overflow-x-auto no-scrollbar">
+            <table className="w-full text-left border-collapse text-xs font-mono min-w-[540px]">
+              <thead>
+                <tr className="border-b border-surface-border text-text-secondary">
+                  <th className="py-2 px-3 font-semibold">{t('dashboard.year', 'YEAR')}</th>
+                  <th className="py-2 px-3 font-semibold text-brand-mint">{t('dashboard.score', 'SCORE')}</th>
+                  <th className="py-2 px-3 font-semibold">{t('metrics.ndvi', 'NDVI')}</th>
+                  <th className="py-2 px-3 font-semibold">{t('metrics.ndwi', 'NDWI')}</th>
+                  <th className="py-2 px-3 font-semibold">{t('metrics.water_ha', 'WATER (HA)')}</th>
+                  <th className="py-2 px-3 font-semibold">{t('metrics.green_cover', 'GREEN %')}</th>
+                  <th className="py-2 px-3 font-semibold">{t('metrics.temp', 'TEMP (°C)')}</th>
+                  <th className="py-2 px-3 font-semibold">{t('metrics.rain', 'RAIN (MM)')}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-surface-border/50 text-text-primary">
+                {tableData.map((row) => (
+                  <tr key={row.year} className="hover:bg-surface-elevated/50 transition-colors">
+                    <td className="py-2.5 px-3 font-bold">{row.year}</td>
+                    <td className="py-2.5 px-3 text-brand-mint font-bold">{row.overallScore.toFixed(1)}</td>
+                    <td className="py-2.5 px-3">{row.ndvi.toFixed(2)}</td>
+                    <td className="py-2.5 px-3">{row.ndwi.toFixed(2)}</td>
+                    <td className="py-2.5 px-3">{row.waterAreaHa.toFixed(1)}</td>
+                    <td className="py-2.5 px-3">{row.greenCoverPercent.toFixed(1)}%</td>
+                    <td className="py-2.5 px-3">{row.temperature.toFixed(1)}°</td>
+                    <td className="py-2.5 px-3">{row.rainfall.toFixed(0)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* 3. Component Score Evolution Mini-Charts */}
+      <div className="flex flex-col gap-3">
+        <h3 className="text-mono text-text-primary flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-semantic-warning"></span>
+          {t('dashboard.component_scores', 'COMPONENT SCORE EVOLUTION')}
+        </h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-2 h-[180px]">
+            <h4 className="text-mono text-text-secondary text-xs">{t('dashboard.water_score_trend', 'WATER SECURITY SCORE')}</h4>
+            <TrendChart
+              data={waterScoreChanges}
+              isLoading={historyLoading}
+              valueKey="value"
+              color="#3B82F6"
+              name={t('dashboard.water_score', 'Water Score')}
+              chartType="line"
+            />
+          </div>
+          <div className="flex flex-col gap-2 h-[180px]">
+            <h4 className="text-mono text-text-secondary text-xs">{t('dashboard.veg_score_trend', 'VEGETATION HEALTH SCORE')}</h4>
+            <TrendChart
+              data={vegScoreChanges}
+              isLoading={historyLoading}
+              valueKey="value"
+              color="#10B981"
+              name={t('dashboard.veg_score', 'Vegetation Score')}
+              chartType="line"
+            />
+          </div>
+          <div className="flex flex-col gap-2 h-[180px]">
+            <h4 className="text-mono text-text-secondary text-xs">{t('dashboard.climate_score_trend', 'CLIMATE STABILITY SCORE')}</h4>
+            <TrendChart
+              data={climateScoreChanges}
+              isLoading={historyLoading}
+              valueKey="value"
+              color="#F59E0B"
+              name={t('dashboard.climate_score', 'Climate Score')}
+              chartType="line"
+            />
+          </div>
+          <div className="flex flex-col gap-2 h-[180px]">
+            <h4 className="text-mono text-text-secondary text-xs">{t('dashboard.flood_score_trend', 'FLOOD PREPAREDNESS SCORE')}</h4>
+            <TrendChart
+              data={floodScoreChanges}
+              isLoading={historyLoading}
+              valueKey="value"
+              color="#EC4899"
+              name={t('dashboard.flood_score', 'Flood Score')}
+              chartType="line"
+            />
+          </div>
+          <div className="flex flex-col gap-2 h-[180px] md:col-span-2">
+            <h4 className="text-mono text-text-secondary text-xs">{t('dashboard.land_score_trend', 'LAND SUSTAINABILITY SCORE')}</h4>
+            <TrendChart
+              data={landScoreChanges}
+              isLoading={historyLoading}
+              valueKey="value"
+              color="#8B5CF6"
+              name={t('dashboard.land_score', 'Land Score')}
+              chartType="line"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Notable Changes */}
       <div className="flex flex-col gap-3">
         <h3 className="text-mono text-text-primary flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-brand-mint"></span>
@@ -40,6 +199,7 @@ export const HistoryTab: React.FC = () => {
         <ChangeDetection changes={changesData?.top_changes} isLoading={changesLoading} />
       </div>
 
+      {/* 5. NDVI & Water Area Trends */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="flex flex-col gap-2 h-[200px]">
           <h4 className="text-mono text-text-secondary text-xs">{t('dashboard.ndvi_trend', 'NDVI TREND')}</h4>
@@ -66,4 +226,4 @@ export const HistoryTab: React.FC = () => {
       </div>
     </div>
   );
-};
+};

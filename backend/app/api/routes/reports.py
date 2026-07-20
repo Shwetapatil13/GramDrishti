@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import APIRouter, HTTPException, Query, Response, Request
 from fastapi.responses import Response as FastAPIResponse
 from app.services.village_service import get_village_by_id
@@ -26,26 +27,42 @@ async def download_pdf(
         raise HTTPException(status_code=404, detail="Village not found")
 
     try:
-        metrics = await get_village_metrics(village_id, year)
-        score = await get_village_score(village_id, year)
-        recommendations = []
-        ai_narrative = ""
-
         if include_ai:
-            recommendations = await get_village_recommendations(village_id, year)
-            ai_narrative_resp = await get_report_narrative(request, village_id, year)
-            if isinstance(ai_narrative_resp, dict):
-                ai_narrative = ai_narrative_resp.get("narrative", "")
+            results = await asyncio.gather(
+                get_village_metrics(village_id, year),
+                get_village_score(village_id, year),
+                get_village_recommendations(village_id, year),
+                get_report_narrative(request, village_id, year),
+                return_exceptions=True
+            )
+            metrics_res, score_res, recs_res, narrative_res = results
 
-        pdf_bytes = pdf_generator.generate_pdf(
-            village=village,
-            metrics=metrics,
-            score=score,
-            recommendations=recommendations,
-            ai_narrative=ai_narrative,
-            year=year,
-            include_ai=include_ai
-        )
+            metrics = metrics_res if not isinstance(metrics_res, Exception) else await get_village_metrics(village_id, year)
+            score = score_res if not isinstance(score_res, Exception) else await get_village_score(village_id, year)
+            recommendations = recs_res if not isinstance(recs_res, Exception) else []
+            ai_narrative = ""
+            if not isinstance(narrative_res, Exception) and isinstance(narrative_res, dict):
+                ai_narrative = narrative_res.get("narrative", "")
+        else:
+            metrics, score = await asyncio.gather(
+                get_village_metrics(village_id, year),
+                get_village_score(village_id, year)
+            )
+            recommendations = []
+            ai_narrative = ""
+
+        try:
+            pdf_bytes = pdf_generator.generate_pdf(
+                village=village,
+                metrics=metrics,
+                score=score,
+                recommendations=recommendations,
+                ai_narrative=ai_narrative,
+                year=year,
+                include_ai=include_ai
+            )
+        except Exception as pdf_err:
+            raise HTTPException(status_code=500, detail=f"PDF generation failed: {str(pdf_err)}")
 
         headers = {
             "Content-Disposition": f"attachment; filename=GramDrishti_Report_{village_id}_{year}.pdf"
@@ -54,8 +71,11 @@ async def download_pdf(
             content=pdf_bytes,
             media_type="application/pdf",
             headers=headers)
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Failed to generate PDF report: {str(e)}")
+
 
 
 @router.get("/reports/{village_id}/json")

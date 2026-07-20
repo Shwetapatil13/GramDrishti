@@ -23,6 +23,12 @@ async def get_village_recommendations(
         village, metrics, score = await _gather_context_data(village_id, year)
         raw_recs = await ai_service.get_recommendations(village, metrics, score)
 
+        for rec in raw_recs:
+            if 'urgency' in rec and isinstance(rec['urgency'], str):
+                rec['urgency'] = rec['urgency'].lower()
+            if 'category' in rec and isinstance(rec['category'], str):
+                rec['category'] = rec['category'].lower()
+
         # Validate against the Pydantic model
         validated_recs = [AIRecommendationModel(**rec) for rec in raw_recs]
 

@@ -14,7 +14,7 @@ export const OverviewTab: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-full">
+    <div className="flex flex-col gap-6 w-full max-w-full pb-8">
       <ScoreCard />
       
       {/* Weather Quick Summary inside Overview */}

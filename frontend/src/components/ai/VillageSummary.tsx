@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 export const VillageSummary: React.FC = () => {
   const { selectedVillage, selectedYear } = useVillageSelection();
   const [summary, setSummary] = useState<string | null>(null);
+  const [aiSource, setAiSource] = useState<'gemini' | 'fallback' | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { t, i18n } = useTranslation();
@@ -17,8 +18,9 @@ export const VillageSummary: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await apiService.post<{ summary: string }>(`/api/v1/ai/${selectedVillage.id}/summary?year=${selectedYear}&language=${i18n.language || 'en'}`);
+      const data = await apiService.post<{ summary: string; ai_source?: 'gemini' | 'fallback' }>(`/api/v1/ai/${selectedVillage.id}/summary?year=${selectedYear}&language=${i18n.language || 'en'}`);
       setSummary(data.summary);
+      setAiSource(data.ai_source || 'gemini');
     } catch {
       setError(t('errors.summary_failed', 'Failed to generate summary.'));
     } finally {
@@ -67,13 +69,20 @@ export const VillageSummary: React.FC = () => {
     <div className="bg-surface-slate border border-surface-border rounded-xl p-6 flex flex-col gap-3 relative">
       <div className="flex justify-between items-start">
         <span className="text-mono text-brand-mint text-xs tracking-wider">AI GENERATED SUMMARY</span>
-        <button 
-          onClick={fetchSummary}
-          className="text-text-muted hover:text-brand-mint transition-colors"
-          title="Refresh Summary"
-        >
-          <RefreshCcw className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          {aiSource === 'gemini' ? (
+            <span className="text-[9px] font-mono font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full">GEMINI LIVE AI</span>
+          ) : (
+            <span className="text-[9px] font-mono font-bold text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-full">AI FALLBACK</span>
+          )}
+          <button 
+            onClick={fetchSummary}
+            className="text-text-muted hover:text-brand-mint transition-colors"
+            title="Refresh Summary"
+          >
+            <RefreshCcw className="w-4 h-4" />
+          </button>
+        </div>
       </div>
       <div className="text-body text-text-primary leading-relaxed space-y-3">
         {summary.split('\n\n').map((para, idx) => (

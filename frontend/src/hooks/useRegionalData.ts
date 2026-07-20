@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { apiService } from '../services/api';
 import { FeatureCollection } from 'geojson';
 
@@ -16,39 +16,27 @@ export interface RegionalData {
 }
 
 export function useRegionalData(year: number) {
-  const [data, setData] = useState<RegionalData | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const queryResult = useQuery<RegionalData, Error>({
+    queryKey: ['regionalData', year],
+    queryFn: async () => {
+      const [featuresRes, metricsRes] = await Promise.all([
+        apiService.get<FeatureCollection>('/api/v1/villages/boundaries/all'),
+        apiService.get<Record<string, RegionalMetric>>('/api/v1/satellite/regions/metrics', { year })
+      ]);
 
-  useEffect(() => {
-    let mounted = true;
+      return {
+        features: featuresRes,
+        metrics: metricsRes
+      };
+    },
+    staleTime: 30 * 60 * 1000, // 30 minutes
+    retry: 1,
+  });
 
-    async function fetchData() {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const [featuresRes, metricsRes] = await Promise.all([
-          apiService.get<FeatureCollection>('/api/v1/villages/boundaries/all'),
-          apiService.get<Record<string, RegionalMetric>>('/api/v1/satellite/regions/metrics', { year })
-        ]);
-
-        if (mounted) {
-          setData({
-            features: featuresRes,
-            metrics: metricsRes
-          });
-        }
-      } catch (err: any) {
-        if (mounted) setError(err);
-      } finally {
-        if (mounted) setIsLoading(false);
-      }
-    }
-
-    fetchData();
-
-    return () => { mounted = false; };
-  }, [year]);
-
-  return { data, isLoading, error };
+  return {
+    data: queryResult.data ?? null,
+    isLoading: queryResult.isLoading,
+    error: queryResult.error ?? null,
+  };
 }
+

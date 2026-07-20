@@ -52,6 +52,24 @@ const MetricCard: React.FC<MetricCardProps> = ({
   );
 };
 
+const DataSourceBadge: React.FC<{ source?: 'live' | 'cached' | 'mock' | 'incomplete' | string }> = ({ source }) => {
+  if (!source) return null;
+  const config = source === 'live'
+    ? { bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', text: 'text-emerald-400', label: 'LIVE GEE SATELLITE DATA' }
+    : source === 'cached'
+    ? { bg: 'bg-blue-500/10', border: 'border-blue-500/30', text: 'text-blue-400', label: 'CACHED GEE SATELLITE DATA' }
+    : source === 'mock'
+    ? { bg: 'bg-amber-500/10', border: 'border-amber-500/30', text: 'text-amber-400', label: 'MOCK DATA FALLBACK' }
+    : { bg: 'bg-red-500/10', border: 'border-red-500/30', text: 'text-red-400', label: 'INCOMPLETE DATA' };
+
+  return (
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[9px] font-mono font-bold tracking-wider ${config.bg} ${config.border} ${config.text}`}>
+      <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${config.text.replace('text-', 'bg-')}`}></span>
+      {config.label}
+    </span>
+  );
+};
+
 interface MetricsPanelProps {
   data?: EnvironmentalMetrics;
   isLoading: boolean;
@@ -73,10 +91,13 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = React.memo(({ data, isL
     <div className="flex flex-col gap-5">
       {/* Vegetation & Water section */}
       <div>
-        <h3 className="text-mono text-text-primary mb-3 flex items-center gap-2 text-xs">
-          <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-          ENVIRONMENTAL METRICS
-        </h3>
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="text-mono text-text-primary flex items-center gap-2 text-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            ENVIRONMENTAL METRICS
+          </h3>
+          <DataSourceBadge source={data?.dataSource} />
+        </div>
         <div className="grid grid-cols-2 gap-3">
           <MetricCard
             title="NDVI HEALTH"
