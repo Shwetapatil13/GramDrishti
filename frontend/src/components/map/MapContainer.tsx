@@ -117,9 +117,7 @@ export const MapContainer: React.FC = React.memo(() => {
           maxNativeZoom={19}
         />
 
-        {VILLAGES.map((village) => (
-          <VillageMarker key={village.id} village={village} />
-        ))}
+        {/* Village markers removed as requested */}
 
         {selectedVillage && !layers.activeSatelliteLayer && <VillageBoundary key={selectedVillage.id} polygon={selectedVillagePolygon} />}
         
