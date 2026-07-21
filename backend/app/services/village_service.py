@@ -4,6 +4,7 @@ import glob
 from typing import List, Dict, Any, Optional
 from app.models.village import Village
 from app.core.logging import get_logger
+from app.services.gee.geometry import compute_polygon_area_sqm
 
 logger = get_logger(__name__)
 
@@ -69,6 +70,8 @@ def load_villages():
                                 lon = sum([p[0] for p in pts]) / len(pts)
                                 lat = sum([p[1] for p in pts]) / len(pts)
 
+                    real_area_ha = compute_polygon_area_sqm(geom) / 10000.0 if geom else 0.0
+
                     village = Village(
                         id=v_id,
                         name=name,
@@ -77,7 +80,7 @@ def load_villages():
                         state=state,
                         coordinates=(lat, lon),
                         boundary=geom,
-                        area=50.0  # Mock area
+                        area=real_area_ha
                     )
 
                     SEARCH_CACHE[v_id] = village
@@ -147,6 +150,8 @@ def add_dynamic_village(
                 lon = sum([p[0] for p in pts]) / len(pts)
                 lat = sum([p[1] for p in pts]) / len(pts)
 
+    real_area_ha = compute_polygon_area_sqm(polygon) / 10000.0 if polygon else 0.0
+
     village = Village(
         id=village_id,
         name=name or village_id,
@@ -155,7 +160,7 @@ def add_dynamic_village(
         state="Dynamic",
         coordinates=(lat, lon),
         boundary=polygon,
-        area=50.0  # Mock area
+        area=real_area_ha
     )
 
     SEARCH_CACHE[village_id] = village

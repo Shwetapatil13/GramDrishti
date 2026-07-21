@@ -151,50 +151,48 @@ export const InspectionPopup: React.FC = () => {
       closeButton={true}
       maxWidth={320}
     >
-      <div style={{
-        background: 'rgba(12, 12, 20, 0.95)',
-        backdropFilter: 'blur(10px)',
-        border: `1px solid ${accentColor}40`,
-        borderTop: `3px solid ${accentColor}`,
-        borderRadius: 8,
-        padding: '16px',
-        minWidth: 280,
-        fontFamily: 'monospace',
-        fontSize: 12,
-        color: '#e2e8f0',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
-      }}>
-        <div style={{ color: '#f8fafc', fontWeight: 700, fontSize: 13, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', background: accentColor }} />
-          {activeLayerMeta?.name || activeSatelliteLayer}
+      <div className="bg-surface-slate/90 backdrop-blur-md border border-surface-border rounded-xl p-5 min-w-[280px] shadow-2xl relative overflow-hidden font-sans">
+        {/* Accent top border */}
+        <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: accentColor }} />
+        
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: accentColor }} />
+          <span className="text-text-primary font-semibold text-sm tracking-wide uppercase">
+            {activeLayerMeta?.name || activeSatelliteLayer}
+          </span>
         </div>
         
         {loading ? (
-          <div style={{ color: '#94a3b8', textAlign: 'center', padding: '20px 0' }}>
-            <div className="animate-pulse">Loading inspection data...</div>
+          <div className="py-8 text-center">
+            <div className="animate-pulse text-text-secondary text-sm">Retrieving pixel data...</div>
           </div>
         ) : error ? (
-          <div style={{ color: '#f87171', fontSize: 11, padding: '10px 0' }}>{error}</div>
+          <div className="py-4">
+            <div className="text-semantic-warning text-sm font-medium">Unable to retrieve NDVI data.</div>
+            <div className="text-text-muted text-xs mt-1">Please try again inside the village boundary.</div>
+          </div>
         ) : data ? (
-          <>
+          <div className="space-y-4">
             {/* Main value */}
-            <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 6, padding: '12px', marginBottom: 12, border: '1px solid rgba(255,255,255,0.05)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                <span style={{ color: '#94a3b8', fontSize: 10 }}>PIXEL VALUE</span>
-                <span style={{ color: accentColor, fontWeight: 700, fontSize: 24, letterSpacing: '-0.02em' }}>{data.value.toFixed(5)}</span>
+            <div className="bg-surface-elevated rounded-lg p-3 border border-surface-border/50">
+              <div className="flex justify-between items-baseline mb-1">
+                <span className="text-text-secondary text-xs font-medium uppercase">Value</span>
+                <span className="font-bold text-2xl tracking-tight" style={{ color: accentColor }}>
+                  {data.value.toFixed(4)}
+                </span>
               </div>
               
               {data.mean !== undefined && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 8 }}>
-                  <span style={{ color: '#64748b', fontSize: 10 }}>REGION AVERAGE</span>
-                  <span style={{ color: '#cbd5e1', fontSize: 12 }}>{data.mean.toFixed(5)}</span>
+                <div className="flex justify-between items-baseline mt-2">
+                  <span className="text-text-muted text-[10px] uppercase">Region Avg</span>
+                  <span className="text-text-primary text-xs font-mono">{data.mean.toFixed(4)}</span>
                 </div>
               )}
               
               {diffFromAvg !== null && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 4 }}>
-                  <span style={{ color: '#64748b', fontSize: 10 }}>DIFFERENCE</span>
-                  <span style={{ color: diffFromAvg > 0 ? '#4ade80' : '#f87171', fontSize: 12 }}>
+                <div className="flex justify-between items-baseline mt-1">
+                  <span className="text-text-muted text-[10px] uppercase">Difference</span>
+                  <span className={`text-xs font-mono ${diffFromAvg > 0 ? 'text-semantic-success' : 'text-semantic-error'}`}>
                     {diffSign}{diffFromAvg.toFixed(4)}
                   </span>
                 </div>
@@ -202,62 +200,51 @@ export const InspectionPopup: React.FC = () => {
             </div>
 
             {/* Classification */}
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ color: '#94a3b8', fontSize: 10, marginBottom: 4 }}>CLASSIFICATION</div>
-              <div style={{ color: '#f8fafc', fontWeight: 600, fontSize: 13, background: 'rgba(255,255,255,0.05)', display: 'inline-block', padding: '4px 8px', borderRadius: 4 }}>
+            <div>
+              <div className="text-text-muted text-[10px] uppercase mb-1">Vegetation Health</div>
+              <div className="inline-block bg-brand-mint/10 text-brand-mint font-medium text-xs px-2.5 py-1 rounded-md">
                 {data.interpretation}
               </div>
             </div>
 
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', margin: '12px 0' }} />
+            <hr className="border-surface-border" />
 
             {/* Location */}
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ color: '#94a3b8', fontSize: 10, marginBottom: 4 }}>REGION</div>
-              <div style={{ color: '#f8fafc', fontWeight: 600, fontSize: 13 }}>
+            <div>
+              <div className="text-text-muted text-[10px] uppercase mb-1">Region</div>
+              <div className="text-text-primary font-medium text-sm">
                 {selectedVillage ? `${selectedVillage.name}, ${selectedVillage.district}` : 'Unknown Location'}
               </div>
             </div>
 
             {/* Coordinates */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <div style={{ color: '#94a3b8', fontSize: 10, marginBottom: 2 }}>LATITUDE</div>
-                <div style={{ color: '#cbd5e1' }}>{data.lat.toFixed(6)}</div>
+                <div className="text-text-muted text-[10px] uppercase mb-1">Latitude</div>
+                <div className="text-text-secondary font-mono text-xs">{data.lat.toFixed(6)}</div>
               </div>
               <div>
-                <div style={{ color: '#94a3b8', fontSize: 10, marginBottom: 2 }}>LONGITUDE</div>
-                <div style={{ color: '#cbd5e1' }}>{data.lng.toFixed(6)}</div>
+                <div className="text-text-muted text-[10px] uppercase mb-1">Longitude</div>
+                <div className="text-text-secondary font-mono text-xs">{data.lng.toFixed(6)}</div>
               </div>
             </div>
 
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', margin: '12px 0' }} />
+            <hr className="border-surface-border" />
 
             {/* Metadata */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <div style={{ color: '#94a3b8', fontSize: 10, marginBottom: 2 }}>SATELLITE</div>
-                <div style={{ color: '#94a3b8', fontSize: 11 }}>{satellite}</div>
+                <div className="text-text-muted text-[10px] uppercase mb-1">Satellite</div>
+                <div className="text-text-secondary text-[11px] leading-tight">{satellite}</div>
               </div>
               <div>
-                <div style={{ color: '#94a3b8', fontSize: 10, marginBottom: 2 }}>ACQUISITION</div>
-                <div style={{ color: '#94a3b8', fontSize: 11 }}>{acquisitionNote}</div>
-              </div>
-            </div>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12 }}>
-              <div>
-                <div style={{ color: '#94a3b8', fontSize: 10, marginBottom: 2 }}>MAX CLOUD COVER</div>
-                <div style={{ color: '#94a3b8', fontSize: 11 }}>20%</div>
-              </div>
-              <div>
-                <div style={{ color: '#94a3b8', fontSize: 10, marginBottom: 2 }}>COMPOSITE</div>
-                <div style={{ color: '#94a3b8', fontSize: 11 }}>Median Filter</div>
+                <div className="text-text-muted text-[10px] uppercase mb-1">Status</div>
+                <div className="text-text-secondary text-[11px] leading-tight">{acquisitionNote}</div>
               </div>
             </div>
-          </>
+          </div>
         ) : (
-          <div style={{ color: '#64748b' }}>Click a pixel on the raster layer to inspect.</div>
+          <div className="text-text-secondary text-sm py-4">Click a pixel to inspect.</div>
         )}
       </div>
     </Popup>

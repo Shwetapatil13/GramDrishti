@@ -23,10 +23,13 @@ class RegisterVillageRequest(BaseModel):
 async def register_village(payload: RegisterVillageRequest):
     """
     Temporarily register a village resolved by the frontend (e.g. from Nominatim / OSM).
-    Adds the village to the in-memory SEARCH_CACHE and BOUNDARY_CACHE so that all
-    downstream endpoints (weather, scores, satellite, recommendations) can find it by ID.
-    This registration lives only for the duration of the server process (no persistence).
     """
+    # Simple Geometry validation to prevent massive polygons
+    geom = payload.boundary
+    import json
+    if len(json.dumps(geom)) > 500000:  # 500KB max geometry
+        raise HTTPException(status_code=413, detail="Geometry payload too large")
+        
     village = Village(
         id=payload.id,
         name=payload.name,
@@ -37,10 +40,9 @@ async def register_village(payload: RegisterVillageRequest):
         boundary=payload.boundary,
         area=payload.area,
     )
-    village_service.logger.info(f"[INSTRUMENT 6 - Backend Register] ENTRY registering village_id={payload.id}, SEARCH_CACHE len before={len(village_service.SEARCH_CACHE)}")
+    village_service.logger.info(f"[INSTRUMENT 6 - Backend Register] ENTRY registering village_id={payload.id}")
     village_service.SEARCH_CACHE[payload.id] = village
     village_service.BOUNDARY_CACHE[payload.id] = payload.boundary
-    village_service.logger.info(f"[INSTRUMENT 6 - Backend Register] SUCCESS SEARCH_CACHE len after={len(village_service.SEARCH_CACHE)}, keys={list(village_service.SEARCH_CACHE.keys())}")
 
     # Add to search index if not already present
     if not any(
@@ -56,8 +58,12 @@ async def register_village(payload: RegisterVillageRequest):
 
 
 @router.get("/villages/search")
-async def search_villages(q: str = Query(..., description="Search query")):
+async def search_villages(
+    q: str = Query(..., max_length=100, pattern=r"^[\w\s,.-]+$", description="Search query (alphanumeric only)")
+):
     """Search for villages via local index."""
+    # Normalize input
+    q = q.strip().lower()
     villages = await village_service.search_villages(q)
     return villages
 

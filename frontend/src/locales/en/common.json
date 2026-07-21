@@ -106,6 +106,7 @@
     "current_weather": "CURRENT WEATHER",
     "weather_unavailable": "Weather unavailable",
     "unavailable": "Unavailable",
+    "score_label": "SCORE",
     "score": {
       "water": "WATER SECURITY",
       "vegetation": "VEGETATION HEALTH",

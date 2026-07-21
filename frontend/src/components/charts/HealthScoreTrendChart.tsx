@@ -44,6 +44,7 @@ export const HealthScoreTrendChart: React.FC<HealthScoreTrendChartProps> = ({ da
     backgroundColor: 'transparent',
     tooltip: {
       trigger: 'axis',
+      appendToBody: true,
       backgroundColor: '#1a1f2e',
       borderColor: '#2e3347',
       borderWidth: 1,

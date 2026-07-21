@@ -91,35 +91,56 @@ export const HistoryTab: React.FC = () => {
             <Skeleton height="150px" width="100%" />
           </div>
         ) : (
-          <div className="bg-surface-slate border border-surface-border rounded-xl p-4 overflow-x-auto no-scrollbar">
-            <table className="w-full text-left border-collapse text-xs font-mono min-w-[540px]">
-              <thead>
-                <tr className="border-b border-surface-border text-text-secondary">
-                  <th className="py-2 px-3 font-semibold">{t('dashboard.year', 'YEAR')}</th>
-                  <th className="py-2 px-3 font-semibold text-brand-mint">{t('dashboard.score', 'SCORE')}</th>
-                  <th className="py-2 px-3 font-semibold">{t('metrics.ndvi', 'NDVI')}</th>
-                  <th className="py-2 px-3 font-semibold">{t('metrics.ndwi', 'NDWI')}</th>
-                  <th className="py-2 px-3 font-semibold">{t('metrics.water_ha', 'WATER (HA)')}</th>
-                  <th className="py-2 px-3 font-semibold">{t('metrics.green_cover', 'GREEN %')}</th>
-                  <th className="py-2 px-3 font-semibold">{t('metrics.temp', 'TEMP (°C)')}</th>
-                  <th className="py-2 px-3 font-semibold">{t('metrics.rain', 'RAIN (MM)')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-surface-border/50 text-text-primary">
-                {tableData.map((row) => (
-                  <tr key={row.year} className="hover:bg-surface-elevated/50 transition-colors">
-                    <td className="py-2.5 px-3 font-bold">{row.year}</td>
-                    <td className="py-2.5 px-3 text-brand-mint font-bold">{row.overallScore.toFixed(1)}</td>
-                    <td className="py-2.5 px-3">{row.ndvi.toFixed(2)}</td>
-                    <td className="py-2.5 px-3">{row.ndwi.toFixed(2)}</td>
-                    <td className="py-2.5 px-3">{row.waterAreaHa.toFixed(1)}</td>
-                    <td className="py-2.5 px-3">{row.greenCoverPercent.toFixed(1)}%</td>
-                    <td className="py-2.5 px-3">{row.temperature.toFixed(1)}°</td>
-                    <td className="py-2.5 px-3">{row.rainfall.toFixed(0)}</td>
+          <div className="flex flex-col gap-4">
+            <div className="bg-surface-slate border border-surface-border rounded-xl p-4 overflow-hidden">
+              <h4 className="text-mono text-text-secondary text-xs mb-2">{t('dashboard.core_metrics', 'CORE METRICS')}</h4>
+              <table className="w-full text-left border-collapse text-xs font-mono">
+                <thead>
+                  <tr className="border-b border-surface-border text-text-secondary">
+                    <th className="py-2 px-1 font-semibold">{t('dashboard.year', 'YEAR')}</th>
+                    <th className="py-2 px-1 font-semibold text-brand-mint">{t('dashboard.score_label', 'SCORE')}</th>
+                    <th className="py-2 px-1 font-semibold">{t('metrics.ndvi', 'NDVI')}</th>
+                    <th className="py-2 px-1 font-semibold">{t('metrics.ndwi', 'NDWI')}</th>
+                    <th className="py-2 px-1 font-semibold">{t('metrics.water_ha', 'WATER')}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-surface-border/50 text-text-primary">
+                  {tableData.map((row) => (
+                    <tr key={row.year} className="hover:bg-surface-elevated/50 transition-colors">
+                      <td className="py-2.5 px-1 font-bold">{row.year}</td>
+                      <td className="py-2.5 px-1 text-brand-mint font-bold">{row.overallScore.toFixed(1)}</td>
+                      <td className="py-2.5 px-1">{row.ndvi.toFixed(2)}</td>
+                      <td className="py-2.5 px-1">{row.ndwi.toFixed(2)}</td>
+                      <td className="py-2.5 px-1">{row.waterAreaHa.toFixed(1)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="bg-surface-slate border border-surface-border rounded-xl p-4 overflow-hidden">
+              <h4 className="text-mono text-text-secondary text-xs mb-2">{t('dashboard.climate_metrics', 'CLIMATE & ENVIRONMENT')}</h4>
+              <table className="w-full text-left border-collapse text-xs font-mono">
+                <thead>
+                  <tr className="border-b border-surface-border text-text-secondary">
+                    <th className="py-2 px-1 font-semibold">{t('dashboard.year', 'YEAR')}</th>
+                    <th className="py-2 px-1 font-semibold">{t('metrics.green_cover', 'GREEN %')}</th>
+                    <th className="py-2 px-1 font-semibold">{t('metrics.temp', 'TEMP (°C)')}</th>
+                    <th className="py-2 px-1 font-semibold">{t('metrics.rain', 'RAIN (MM)')}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-surface-border/50 text-text-primary">
+                  {tableData.map((row) => (
+                    <tr key={`climate-${row.year}`} className="hover:bg-surface-elevated/50 transition-colors">
+                      <td className="py-2.5 px-1 font-bold">{row.year}</td>
+                      <td className="py-2.5 px-1">{row.greenCoverPercent.toFixed(1)}%</td>
+                      <td className="py-2.5 px-1">{row.temperature.toFixed(1)}°</td>
+                      <td className="py-2.5 px-1">{row.rainfall.toFixed(0)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>

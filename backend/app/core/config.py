@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: str = "http://localhost:5173,http://localhost:5174,http://localhost:3000"
     DEBUG: bool = True
     USE_MOCK_DATA: bool = False
+    
+    # Hackathon Demo Access
+    DEMO_MODE: bool = False
+    DEMO_TOKEN: str = ""
 
     model_config = SettingsConfigDict(env_file=ENV_PATH, extra="ignore")
 

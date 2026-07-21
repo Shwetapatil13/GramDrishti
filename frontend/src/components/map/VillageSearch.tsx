@@ -4,6 +4,7 @@ import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { apiService } from '@/services/api';
 import { Village } from '@/types';
 import { useTranslation } from 'react-i18next';
+import axios from 'axios';
 
 /** Query Nominatim for villages in India when the backend has no results */
 interface NominatimResult {
@@ -26,12 +27,13 @@ interface NominatimResult {
   geojson?: GeoJSON.Geometry;
 }
 
-async function searchNominatim(searchQuery: string): Promise<Village[]> {
+async function searchNominatim(searchQuery: string, signal?: AbortSignal): Promise<Village[]> {
   const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
     searchQuery
   )}&format=jsonv2&addressdetails=1&polygon_geojson=1&countrycodes=in&limit=5`;
 
   const res = await fetch(url, {
+    signal,
     headers: {
       'User-Agent': 'GramDrishtiApp/1.0',
     },
@@ -107,8 +109,16 @@ export const VillageSearch: React.FC = () => {
   const [errorType, setErrorType] = useState<'network' | 'notfound' | 'generic' | null>(null);
 
   const searchReqIdRef = React.useRef(0);
+  const abortControllerRef = React.useRef<AbortController | null>(null);
 
   const runSearch = useCallback(async (searchQuery: string) => {
+    // Cancel any previous requests
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+    const signal = abortController.signal;
     if (searchQuery.length < 3) {
       setResults([]);
       setError(null);
@@ -126,10 +136,11 @@ export const VillageSearch: React.FC = () => {
 
     // Step 1: Try local backend search
     try {
-      const res = await apiService.search<Village[]>('/api/v1/villages/search', { q: searchQuery });
+      const res = await apiService.search<Village[]>('/api/v1/villages/search', { q: searchQuery }, { signal });
       localResults = Array.isArray(res) ? res : [];
       backendOnline = true;
     } catch (error: unknown) {
+      if (axios.isCancel(error) || (error as any).name === 'AbortError') return;
       const err = error as any;
       const isNetworkError =
         err?.code === 'ERR_NETWORK' ||
@@ -154,7 +165,7 @@ export const VillageSearch: React.FC = () => {
     // Step 2: Query Nominatim in parallel or as fallback (Suspect B fix)
     let merged = [...localResults];
     try {
-      const nominatimResults = await searchNominatim(searchQuery);
+      const nominatimResults = await searchNominatim(searchQuery, signal);
 
       if (currentReqId !== searchReqIdRef.current) return;
 
@@ -184,7 +195,8 @@ export const VillageSearch: React.FC = () => {
           seenNames.add(baseName);
         }
       }
-    } catch {
+    } catch (err: any) {
+      if (err.name === 'AbortError') return;
       // Nominatim failed, keep localResults
     }
 

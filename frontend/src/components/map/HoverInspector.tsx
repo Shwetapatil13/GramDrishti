@@ -148,6 +148,7 @@ export const HoverInspector: React.FC = () => {
   useEffect(() => {
     return () => {
       if (abortControllerRef.current) abortControllerRef.current.abort();
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, []);
 

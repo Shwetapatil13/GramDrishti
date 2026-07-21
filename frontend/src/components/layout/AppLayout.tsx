@@ -3,6 +3,7 @@ import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 import { MapContainer } from '../map/MapContainer';
 import { DashboardPanel } from '../dashboard/DashboardPanel';
+import { VillageIntelligenceWorkspace } from '../workspace/VillageIntelligenceWorkspace';
 import { VillageProvider } from '@/hooks/useVillageSelection';
 import { MapLayersProvider } from '@/hooks/MapLayersContext';
 
@@ -18,6 +19,7 @@ export const AppLayout: React.FC = () => {
             <Sidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
             <MapContainer />
             <DashboardPanel />
+            <VillageIntelligenceWorkspace />
           </div>
         </div>
       </VillageProvider>

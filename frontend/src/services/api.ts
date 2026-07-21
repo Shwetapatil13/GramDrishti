@@ -27,11 +27,13 @@ api.interceptors.response.use(
   }
 );
 
+import { AxiosRequestConfig } from 'axios';
+
 export const apiService = {
-  get: <T>(url: string, params?: Record<string, unknown>) =>
-    api.get<unknown, T>(url, { params }),
-  post: <T>(url: string, data?: unknown) =>
-    api.post<unknown, T>(url, data),
-  search: <T>(url: string, params?: Record<string, unknown>) =>
-    api.get<unknown, T>(url, { params }),
+  get: <T>(url: string, params?: Record<string, unknown>, config?: AxiosRequestConfig) =>
+    api.get<unknown, T>(url, { params, ...config }),
+  post: <T>(url: string, data?: unknown, config?: AxiosRequestConfig) =>
+    api.post<unknown, T>(url, data, config),
+  search: <T>(url: string, params?: Record<string, unknown>, config?: AxiosRequestConfig) =>
+    api.get<unknown, T>(url, { params, ...config }),
 };

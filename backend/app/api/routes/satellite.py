@@ -209,9 +209,14 @@ async def get_generic_statistics(
         raise
     try:
         import asyncio
-        stats_data = await asyncio.to_thread(
-            LayerFactory.get_statistics, layer, geom, start, end, aggregation, cloud
-        )
+        key = f"stats_{layer}_{geometryType}_{geometryId}_{start}_{end}_{aggregation}_{cloud}"
+        
+        async def fetch_stats():
+            return await asyncio.to_thread(
+                LayerFactory.get_statistics, layer, geom, start, end, aggregation, cloud
+            )
+            
+        stats_data = await _deduplicate_task(key, fetch_stats())
         return stats_data
     except GEEDataError as e:
         raise HTTPException(status_code=422, detail=str(e))
@@ -347,7 +352,13 @@ async def get_village_metrics(
         raise HTTPException(status_code=404, detail="Village not found")
 
     try:
-        raw_metrics = await get_all_gee_metrics(village_id, boundary, year)
+        import asyncio
+        key = f"metrics_{village_id}_{year}"
+        
+        async def fetch_metrics():
+            return await get_all_gee_metrics(village_id, boundary, year)
+            
+        raw_metrics = await _deduplicate_task(key, fetch_metrics())
         return aggregate_environmental_metrics(village_id, year, raw_metrics)
     except GEETimeoutError as e:
         raise HTTPException(status_code=504, detail=str(e))

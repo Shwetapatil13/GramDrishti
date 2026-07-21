@@ -65,6 +65,7 @@ export const SatelliteLayer: React.FC<SatelliteLayerProps> = ({ village, data, a
           url={tileUrl} 
           zIndex={10} 
           opacity={opacity}
+          maxZoom={21}
         />
       )}
       {isLoading && (

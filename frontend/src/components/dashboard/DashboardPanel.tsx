@@ -20,7 +20,7 @@ const TABS = ['OVERVIEW', 'ENVIRONMENT', 'HISTORY', 'REPORT'] as const;
 type TabType = typeof TABS[number];
 
 export const DashboardPanel: React.FC = () => {
-  const { selectedVillage, selectedYear } = useVillageSelection();
+  const { selectedVillage, selectedYear, setIsWorkspaceExpanded } = useVillageSelection();
   const [activeTab, setActiveTab] = useState<TabType>('OVERVIEW');
   const [isMobileExpanded, setIsMobileExpanded] = useState(false);
   const { geeStatus } = useSatelliteData(selectedVillage?.id, selectedYear);
@@ -59,24 +59,34 @@ export const DashboardPanel: React.FC = () => {
         </div>
       </div>
 
-      {/* Tabs Header */}
-      <div className="grid grid-cols-4 border-b border-surface-border p-1.5 md:p-2.5 gap-1 shrink-0">
-        {TABS.map((tab) => {
-          const isActive = activeTab === tab;
-          return (
-            <button
-              key={tab}
-              onClick={() => handleTabClick(tab)}
-              className={`w-full text-center whitespace-nowrap px-0.5 md:px-1 py-1.5 md:py-2 rounded-tag font-mono text-[10px] sm:text-[11px] md:text-xs tracking-tighter sm:tracking-tight transition-colors ${
-                isActive
-                  ? 'bg-brand-mint text-text-inverted font-bold'
-                  : 'bg-surface-slate text-text-secondary hover:bg-surface-elevated hover:text-text-primary'
-              }`}
-            >
-              {tab}
-            </button>
-          );
-        })}
+      {/* Tabs Header with Expand Button */}
+      <div className="flex items-center border-b border-surface-border shrink-0 pr-2">
+        <div className="grid grid-cols-4 p-1.5 md:p-2.5 gap-1 flex-1">
+          {TABS.map((tab) => {
+            const isActive = activeTab === tab;
+            return (
+              <button
+                key={tab}
+                onClick={() => handleTabClick(tab)}
+                className={`w-full text-center whitespace-nowrap px-0.5 md:px-1 py-1.5 md:py-2 rounded-tag font-mono text-[10px] sm:text-[11px] md:text-xs tracking-tighter sm:tracking-tight transition-colors ${
+                  isActive
+                    ? 'bg-brand-mint text-text-inverted font-bold'
+                    : 'bg-surface-slate text-text-secondary hover:bg-surface-elevated hover:text-text-primary'
+                }`}
+              >
+                {tab}
+              </button>
+            );
+          })}
+        </div>
+        
+        <button 
+          onClick={() => setIsWorkspaceExpanded(true)}
+          className="hidden md:flex items-center justify-center p-1.5 ml-1 bg-surface-slate hover:bg-brand-mint/20 text-text-muted hover:text-brand-mint border border-surface-border rounded-md transition-colors shadow-sm"
+          title="Expand Intelligence Workspace"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+        </button>
       </div>
 
       {/* Tab Content Area */}

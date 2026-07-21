@@ -13,24 +13,7 @@ export const VillageBoundary: React.FC<VillageBoundaryProps> = ({ polygon }) => 
   useTheme();
 
   useEffect(() => {
-    if (polygon && geoJsonRef.current) {
-      try {
-        // Small delay to allow react-leaflet to render the layer
-        requestAnimationFrame(() => {
-          if (!geoJsonRef.current) return;
-          const bounds = geoJsonRef.current.getBounds();
-
-          if (bounds && bounds.isValid()) {
-
-            map.fitBounds(bounds, { padding: [30, 30], maxZoom: 14 });
-          } else {
-
-          }
-        });
-      } catch (err) {
-
-      }
-    }
+    // Bounds manipulation is now handled by SpatialLockManager
   }, [polygon, map]);
 
   if (!polygon) {

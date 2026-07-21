@@ -13,7 +13,7 @@ export const VILLAGES: Village[] = [
     state: 'Maharashtra',
     coordinates: [18.5204, 73.5297],
     boundary: null,
-    area: 50.5,
+    area: 103953, // ha
   },
   {
     id: 'maval',
@@ -23,7 +23,7 @@ export const VILLAGES: Village[] = [
     state: 'Maharashtra',
     coordinates: [18.7667, 73.5833],
     boundary: null,
-    area: 60.2,
+    area: 113000, // ha
   },
   {
     id: 'ambegaon',
@@ -33,7 +33,7 @@ export const VILLAGES: Village[] = [
     state: 'Maharashtra',
     coordinates: [19.1167, 73.7167],
     boundary: null,
-    area: 45.3,
+    area: 104300, // ha
   },
   {
     id: 'khed',
@@ -43,7 +43,7 @@ export const VILLAGES: Village[] = [
     state: 'Maharashtra',
     coordinates: [18.8333, 73.8667],
     boundary: null,
-    area: 55.0,
+    area: 137000, // ha
   },
   {
     id: 'junnar',
@@ -53,6 +53,6 @@ export const VILLAGES: Village[] = [
     state: 'Maharashtra',
     coordinates: [19.2000, 73.8833],
     boundary: null,
-    area: 70.1,
+    area: 138500, // ha
   },
 ];

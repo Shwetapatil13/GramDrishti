@@ -106,6 +106,7 @@
     "current_weather": "सध्याचे हवामान",
     "weather_unavailable": "हवामान अनुपलब्ध",
     "unavailable": "अनुपलब्ध",
+    "score_label": "स्कोर",
     "score": {
       "water": "पाणी सुरक्षा",
       "vegetation": "वनस्पती आरोग्य",

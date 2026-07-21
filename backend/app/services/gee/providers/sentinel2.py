@@ -22,6 +22,7 @@ class Sentinel2Provider(LayerProvider):
                           .filterDate(start_date, end_date)
                           .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', cloud_pct))
                           .map(mask_scl)
+                          .map(lambda img: img.clip(boundary))
                           .map(lambda img: img.divide(10000)))
             
             count = collection.size().getInfo()
@@ -191,6 +192,9 @@ class Sentinel2Provider(LayerProvider):
             
             # Get the raw image
             image = self.get_image(layer_id, boundary, start_date, end_date, cloud_pct)
+            
+            # Clip the image to the exact polygon boundary to enforce strict spatial masking
+            image = image.clip(boundary)
             
             # Sample the image at the point
             sampled = image.sample(

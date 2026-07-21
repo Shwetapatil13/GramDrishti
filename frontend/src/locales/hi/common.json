@@ -106,6 +106,7 @@
     "current_weather": "वर्तमान मौसम",
     "weather_unavailable": "मौसम अनुपलब्ध",
     "unavailable": "अनुपलब्ध",
+    "score_label": "स्कोर",
     "score": {
       "water": "जल सुरक्षा",
       "vegetation": "वनस्पति स्वास्थ्य",

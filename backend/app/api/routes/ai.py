@@ -45,14 +45,19 @@ def check_rate_limit(request: Request):
     cache.set(key, {"count": count + 1}, ttl_seconds=60)
 
 
+import asyncio
+
 async def _gather_context_data(village_id: str, year: int):
     village = get_village_by_id(village_id)
     if not village:
         raise HTTPException(status_code=404, detail="Village not found")
 
-    metrics = await get_village_metrics(village_id, year)
-    score = await get_village_score(village_id, year)
+    metrics, score = await asyncio.gather(
+        get_village_metrics(village_id, year),
+        get_village_score(village_id, year)
+    )
     return village, metrics, score
+
 
 # We removed _gather_rag_context since it is now handled by RetrievalEngine in ai_service
 

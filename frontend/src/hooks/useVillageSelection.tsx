@@ -19,6 +19,10 @@ interface VillageContextType {
   setActiveLayers: (layers: string[]) => void;
   hoverValue: { value: number; lat: number; lng: number } | null;
   setHoverValue: (v: { value: number; lat: number; lng: number } | null) => void;
+  isWorkspaceExpanded: boolean;
+  setIsWorkspaceExpanded: (expanded: boolean) => void;
+  timeRange: '30D' | '6M' | '12M' | '5Y';
+  setTimeRange: (range: '30D' | '6M' | '12M' | '5Y') => void;
 }
 
 const VillageContext = createContext<VillageContextType | undefined>(undefined);
@@ -32,8 +36,8 @@ export const VillageProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [clickedLocation, setClickedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [activeLayers, setActiveLayers] = useState<string[]>([]);
   const [hoverValue, setHoverValue] = useState<{ value: number; lat: number; lng: number } | null>(null);
-
-
+  const [isWorkspaceExpanded, setIsWorkspaceExpanded] = useState<boolean>(false);
+  const [timeRange, setTimeRange] = useState<'30D' | '6M' | '12M' | '5Y'>('12M');
 
   useEffect(() => {
     console.log('[INSTRUMENT 2/3 - useVillageSelection] State render:', {
@@ -48,6 +52,7 @@ export const VillageProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (!village) {
       setSelectedVillage(null);
       setSelectedVillagePolygon(null);
+      setIsWorkspaceExpanded(false);
       return;
     }
 
@@ -95,6 +100,7 @@ export const VillageProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const clearSelection = useCallback(() => {
     setSelectedVillage(null);
     setSelectedVillagePolygon(null);
+    setIsWorkspaceExpanded(false);
   }, []);
 
   const flyToVillage = useCallback(
@@ -123,11 +129,14 @@ export const VillageProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setActiveLayers,
         hoverValue,
         setHoverValue,
+        isWorkspaceExpanded,
+        setIsWorkspaceExpanded,
+        timeRange,
+        setTimeRange,
       }}
     >
       {children}
     </VillageContext.Provider>
-
   );
 };
 

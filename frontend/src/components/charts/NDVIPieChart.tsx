@@ -65,6 +65,7 @@ export const NDVIPieChart: React.FC<NDVIPieChartProps> = ({ data, isLoading }) =
     return {
       tooltip: {
         trigger: 'item',
+        appendToBody: true,
         formatter: '{b}: {c} regions ({d}%)',
         backgroundColor: 'var(--surface-bg)',
         borderColor: 'var(--brand-mint)',

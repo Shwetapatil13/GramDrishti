@@ -31,7 +31,7 @@ export const EnvironmentTab: React.FC = () => {
           {layers.showNDVI ? (
             <NDVIPieChart data={regionalData} isLoading={regionalLoading} />
           ) : (
-            <LandCoverChart data={data?.landCover} isLoading={isLoading} />
+            <LandCoverChart data={data?.landCover} isLoading={isLoading} totalAreaHa={selectedVillage?.area} />
           )}
         </div>
       </div>
