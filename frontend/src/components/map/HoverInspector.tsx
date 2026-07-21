@@ -117,7 +117,9 @@ export const HoverInspector: React.FC = () => {
       
       if (cacheRef.current.size > 1000) {
         const firstKey = cacheRef.current.keys().next().value;
-        cacheRef.current.delete(firstKey);
+        if (firstKey !== undefined) {
+          cacheRef.current.delete(firstKey);
+        }
       }
       
       if (isHoveringRef.current) {

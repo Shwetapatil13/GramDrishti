@@ -147,7 +147,9 @@ export const InspectionPopup: React.FC = () => {
   return (
     <Popup
       position={[clickedLocation.lat, clickedLocation.lng]}
-      onClose={() => setClickedLocation(null)}
+      eventHandlers={{
+        remove: () => setClickedLocation(null)
+      }}
       closeButton={true}
       maxWidth={320}
     >

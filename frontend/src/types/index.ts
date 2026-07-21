@@ -44,6 +44,7 @@ export interface VillageHealthScore {
   villageId: string;
   year: number;
   overall: number;           // 0-100
+  totalScore?: number;
   water: ScoreDetail;
   vegetation: ScoreDetail;
   climate: ScoreDetail;

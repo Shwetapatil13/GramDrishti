@@ -3,8 +3,6 @@ import { MapContainer as LeafletMap, TileLayer, useMap, useMapEvents } from 'rea
 import 'leaflet/dist/leaflet.css';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { useMapLayers } from '@/hooks/MapLayersContext';
-import { VILLAGES } from '@/constants/villages';
-import { VillageMarker } from './VillageMarker';
 import { VillageBoundary } from './VillageBoundary';
 import { SatelliteLayer } from './SatelliteLayer';
 import { MapLegend } from './MapLegend';

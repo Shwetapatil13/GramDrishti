@@ -27,7 +27,6 @@ export const VillageBoundary: React.FC<VillageBoundaryProps> = ({ polygon }) => 
 
   // Use green for the boundary (spec requirement: green outline, semi-transparent fill)
   const boundaryColor = '#22c55e'; // Tailwind green-500
-  const fillColor = '#22c55e';
 
   return (
     <GeoJSON

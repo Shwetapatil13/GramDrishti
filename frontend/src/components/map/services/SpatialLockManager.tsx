@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
@@ -6,7 +6,6 @@ import { useVillageSelection } from '@/hooks/useVillageSelection';
 export const SpatialLockManager: React.FC = () => {
   const map = useMap();
   const { selectedVillagePolygon } = useVillageSelection();
-  const [isLocked, setIsLocked] = useState(false);
 
   useEffect(() => {
     if (!selectedVillagePolygon) {
@@ -16,7 +15,6 @@ export const SpatialLockManager: React.FC = () => {
         [38.5, 97.5]
       ]);
       map.setMinZoom(4);
-      setIsLocked(false);
       return;
     }
 
@@ -41,7 +39,6 @@ export const SpatialLockManager: React.FC = () => {
           map.setMaxBounds(lockBounds);
           map.setMinZoom(map.getBoundsZoom(lockBounds) - 1);
           map.options.maxBoundsViscosity = 1.0;
-          setIsLocked(true);
         }, 1500);
       }
     } catch (e) {

@@ -77,7 +77,7 @@ export const FarmBoundaryService: React.FC = () => {
           fillOpacity: 0.1,
           opacity: 0.6
         }}
-        onEachFeature={(feature, layer) => {
+        onEachFeature={(_, layer) => {
           // Hover analytics handler
           layer.on({
             mouseover: (e) => {

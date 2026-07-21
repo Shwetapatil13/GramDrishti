@@ -2,7 +2,7 @@ import React from 'react';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { useRecommendations } from '@/hooks/useRecommendations';
 import { Skeleton } from '../ui/Skeleton';
-import { Lightbulb, Navigation, CalendarClock, Zap } from 'lucide-react';
+import { Navigation, CalendarClock, Zap } from 'lucide-react';
 import { AIRecommendation } from '@/types';
 
 const RecItem: React.FC<{ rec: AIRecommendation }> = ({ rec }) => {

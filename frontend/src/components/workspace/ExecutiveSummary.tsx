@@ -16,7 +16,7 @@ export const ExecutiveSummary: React.FC = () => {
     );
   }
 
-  const score = scoreData?.totalScore ?? 85; // Fallback for UI if no data
+  const score = scoreData?.overall ?? scoreData?.totalScore ?? 85; // Fallback for UI if no data
   const isHealthy = score >= 75;
 
   return (

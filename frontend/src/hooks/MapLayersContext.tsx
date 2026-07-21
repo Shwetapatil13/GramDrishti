@@ -3,12 +3,14 @@ import React from 'react';
 
 export type BaseLayer = 'dark' | 'satellite' | 'osm';
 
-interface MapLayersContextType {
+export interface MapLayersContextType {
   activeBaseLayer: BaseLayer;
   setActiveBaseLayer: (layer: BaseLayer) => void;
   activeSatelliteLayer: string | null;
   setActiveSatelliteLayer: (layer: string | null) => void;
   toggleSatelliteLayer: (layerId: string) => void;
+  showNDVI: boolean;
+  clearAllLayers: () => void;
 }
 
 const MapLayersContext = createContext<MapLayersContextType | undefined>(undefined);
@@ -21,13 +23,21 @@ export const MapLayersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setActiveSatelliteLayer((prev) => prev === layerId ? null : layerId);
   }, []);
 
+  const clearAllLayers = useCallback(() => {
+    setActiveSatelliteLayer(null);
+  }, []);
+
+  const showNDVI = activeSatelliteLayer === 'ndvi';
+
   const value = useMemo(() => ({
     activeBaseLayer,
     setActiveBaseLayer,
     activeSatelliteLayer,
     setActiveSatelliteLayer,
     toggleSatelliteLayer,
-  }), [activeBaseLayer, activeSatelliteLayer, toggleSatelliteLayer]);
+    showNDVI,
+    clearAllLayers,
+  }), [activeBaseLayer, activeSatelliteLayer, toggleSatelliteLayer, clearAllLayers, showNDVI]);
 
   return (
     <MapLayersContext.Provider value={value}>

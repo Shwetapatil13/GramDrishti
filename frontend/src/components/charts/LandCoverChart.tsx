@@ -10,7 +10,7 @@ interface LandCoverChartProps {
   layout?: 'vertical' | 'horizontal';
 }
 
-const PREMIUM_COLORS: Record<keyof LandCoverBreakdown, string> = {
+export const LAND_COVER_COLORS: Record<keyof LandCoverBreakdown, string> = {
   trees: '#2F5233',      // Deep Green
   cropland: '#D98736',   // Golden Orange
   grassland: '#94C973',  // Light Green
@@ -20,7 +20,7 @@ const PREMIUM_COLORS: Record<keyof LandCoverBreakdown, string> = {
   flooded: '#7B8E4D',    // Olive (Shrubs/Flooded)
 };
 
-const LABELS: Record<keyof LandCoverBreakdown, string> = {
+export const LAND_COVER_LABELS: Record<keyof LandCoverBreakdown, string> = {
   trees: 'Trees',
   cropland: 'Crops',
   grassland: 'Grass',
@@ -29,6 +29,9 @@ const LABELS: Record<keyof LandCoverBreakdown, string> = {
   bareLand: 'Bare Land',
   flooded: 'Shrubs',
 };
+
+const PREMIUM_COLORS = LAND_COVER_COLORS;
+const LABELS = LAND_COVER_LABELS;
 
 export const LandCoverChart: React.FC<LandCoverChartProps> = ({ data, isLoading, totalAreaHa, layout = 'vertical' }) => {
   if (isLoading) {

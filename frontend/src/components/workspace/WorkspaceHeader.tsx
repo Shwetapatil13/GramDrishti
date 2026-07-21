@@ -1,11 +1,9 @@
 import React from 'react';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
-import { Download, Share2, Map, Calendar, X } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { Map, Calendar, X } from 'lucide-react';
 
 export const WorkspaceHeader: React.FC = () => {
   const { selectedVillage, setIsWorkspaceExpanded, timeRange, setTimeRange } = useVillageSelection();
-  const { t } = useTranslation();
 
   if (!selectedVillage) return null;
 

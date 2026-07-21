@@ -3,7 +3,6 @@ export function booleanPointInPolygon(point: [number, number], polygon: GeoJSON.
   if (!polygon) return false;
 
   const [lng, lat] = point;
-  let isInside = false;
 
   const checkRing = (ring: number[][]) => {
     let inside = false;
