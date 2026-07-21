@@ -6,7 +6,7 @@
   *Translating complex satellite observations and climate data into local actions for 640,000+ Gram Panchayats*
 
   [![Live Demo](https://img.shields.io/badge/Live%20Demo-gram--drishti.vercel.app-2ecc71?style=for-the-badge&logo=vercel&logoColor=white)](https://gram-drishti.vercel.app/)
-  [![Demo Video](https://img.shields.io/badge/Demo%20Video-Watch%20on%20YouTube-ff0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/g-fqo-nGJoQ?si=1nMoQmWFnBggIdav)
+  [![Demo Video](https://img.shields.io/badge/Demo%20Video-Watch%20on%20YouTube-ff0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/FH3spiMOgDQ)
   [![License: MIT](https://img.shields.io/badge/License-MIT-f39c12?style=for-the-badge)](LICENSE)
 
   <br /><br />
@@ -22,7 +22,7 @@
 | Resource | Link / Access Method |
 | :--- | :--- |
 | 🌐 **Live Web Application** | [gram-drishti.vercel.app](https://gram-drishti.vercel.app/) |
-| 🎥 **Video Walkthrough** | [YouTube Demo Link](https://youtu.be/g-fqo-nGJoQ?si=1nMoQmWFnBggIdav) |
+| 🎥 **Video Walkthrough** | [YouTube Demo Link](https://youtu.be/FH3spiMOgDQ) |
 | 📐 **Detailed System Architecture** | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) |
 | 📄 **Interactive API Docs** | [localhost:8000/docs](http://localhost:8000/docs) *(when running locally)* |
 

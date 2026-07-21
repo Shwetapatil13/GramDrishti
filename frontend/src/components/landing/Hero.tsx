@@ -55,7 +55,7 @@ export const Hero: React.FC = () => {
                 {t('landing.getStarted', 'Get Started')} <ArrowRight className="w-4 h-4" />
               </Link>
               <a
-                href="https://youtu.be/g-fqo-nGJoQ?si=1nMoQmWFnBggIdav"
+                href="https://youtu.be/FH3spiMOgDQ"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 bg-surface-slate border border-surface-border text-text-primary px-6 py-3.5 rounded-button font-grotesk text-sm hover:bg-surface-elevated transition-colors"
