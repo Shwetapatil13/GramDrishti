@@ -6,7 +6,7 @@ from reportlab.lib.pagesizes import A4  # type: ignore
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, Spacer, TableStyle  # type: ignore
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle  # type: ignore
 from reportlab.lib import colors  # type: ignore
-from app.models.village import Village, EnvironmentalMetrics, VillageHealthScore
+from app.models.village import Village, EnvironmentalMetrics, VillageHealthScore, HistoricalData
 from app.models.recommendations import AIRecommendationModel
 
 
@@ -51,7 +51,8 @@ class VillageReportGenerator:
         recommendations: list[AIRecommendationModel],
         ai_narrative: str,
         year: int,
-        include_ai: bool = True
+        include_ai: bool = True,
+        history: HistoricalData | None = None
     ) -> bytes:
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(
@@ -207,7 +208,43 @@ class VillageReportGenerator:
 
         story.append(Spacer(1, 20))
 
-        # 6. Methodology
+        # 6. 5-Year Historical Analysis
+        if history and history.metrics:
+            story.append(Paragraph("5-Year Historical Analysis", heading_style))
+            hist_data = [["Year", "Overall Score", "NDVI", "Water Area", "Green Cover", "Rainfall"]]
+            
+            # Create a dictionary to easily map year to score
+            score_map = {s.year: s for s in history.scores}
+            
+            # Sort metrics by year
+            sorted_metrics = sorted(history.metrics, key=lambda m: m.year)
+            for m in sorted_metrics:
+                s = score_map.get(m.year)
+                overall = f"{s.overall:.1f}" if s else "N/A"
+                hist_data.append([
+                    str(m.year),
+                    overall,
+                    f"{m.ndvi:.2f}",
+                    f"{m.waterAreaHa:.1f} ha",
+                    f"{m.greenCoverPercent:.1f}%",
+                    f"{m.rainfall:.1f} mm"
+                ])
+                
+            hist_table = Table(hist_data, colWidths=[60, 80, 60, 80, 80, 80])
+            hist_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2d2d2d')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#f9f9f9')),
+                ('GRID', (0, 0), (-1, -1), 1, colors.silver),
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ]))
+            story.append(hist_table)
+            story.append(Spacer(1, 20))
+
+        # 7. Methodology
         story.append(Paragraph("Data Sources & Methodology", heading_style))
         methodology_text = "This report uses Earth Engine datasets (Sentinel-2, Dynamic World, SRTM) and Open-Meteo weather data to construct heuristic environmental indicators. Calculations are generalized for regional assessments and should be ground-truthed prior to major policy decisions."
         story.append(Paragraph(methodology_text, normal_style))

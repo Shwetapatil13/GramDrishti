@@ -33,20 +33,23 @@ async def download_pdf(
                 get_village_score(village_id, year),
                 get_village_recommendations(village_id, year),
                 get_report_narrative(request, village_id, year),
+                get_village_history(village_id),
                 return_exceptions=True
             )
-            metrics_res, score_res, recs_res, narrative_res = results
+            metrics_res, score_res, recs_res, narrative_res, history_res = results
 
             metrics = metrics_res if not isinstance(metrics_res, Exception) else await get_village_metrics(village_id, year)
             score = score_res if not isinstance(score_res, Exception) else await get_village_score(village_id, year)
             recommendations = recs_res if not isinstance(recs_res, Exception) else []
+            history = history_res if not isinstance(history_res, Exception) else None
             ai_narrative = ""
             if not isinstance(narrative_res, Exception) and isinstance(narrative_res, dict):
                 ai_narrative = narrative_res.get("narrative", "")
         else:
-            metrics, score = await asyncio.gather(
+            metrics, score, history = await asyncio.gather(
                 get_village_metrics(village_id, year),
-                get_village_score(village_id, year)
+                get_village_score(village_id, year),
+                get_village_history(village_id)
             )
             recommendations = []
             ai_narrative = ""
@@ -59,7 +62,8 @@ async def download_pdf(
                 recommendations=recommendations,
                 ai_narrative=ai_narrative,
                 year=year,
-                include_ai=include_ai
+                include_ai=include_ai,
+                history=history
             )
         except Exception as pdf_err:
             raise HTTPException(status_code=500, detail=f"PDF generation failed: {str(pdf_err)}")
