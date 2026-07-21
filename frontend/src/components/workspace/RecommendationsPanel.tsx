@@ -17,18 +17,20 @@ const RecItem: React.FC<{ rec: AIRecommendation }> = ({ rec }) => {
       <p className="text-xs text-text-secondary leading-relaxed mb-4">{rec.description}</p>
       
       <div className="flex flex-wrap gap-4 text-xs font-mono text-text-muted">
-        <div className="flex items-center gap-1.5" title="Impact">
+        <div className="flex items-center gap-1.5" title="Urgency">
           <Zap className="w-3.5 h-3.5 text-amber-400" />
-          {rec.impact_level.toUpperCase()}
+          {rec.urgency?.toUpperCase() || 'MEDIUM'}
         </div>
-        <div className="flex items-center gap-1.5" title="Timeline">
+        <div className="flex items-center gap-1.5" title="Timeframe">
           <CalendarClock className="w-3.5 h-3.5" />
-          {rec.timeline}
+          {rec.timeframe}
         </div>
-        <div className="flex items-center gap-1.5" title="Location">
-          <Navigation className="w-3.5 h-3.5 text-brand-blue" />
-          {rec.location_reference}
-        </div>
+        {rec.scheme && (
+          <div className="flex items-center gap-1.5" title="Scheme">
+            <Navigation className="w-3.5 h-3.5 text-brand-blue" />
+            {rec.scheme}
+          </div>
+        )}
       </div>
     </div>
   );

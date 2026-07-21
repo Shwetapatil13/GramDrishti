@@ -53,17 +53,15 @@ const MetricCard: React.FC<MetricCardProps> = ({
 };
 
 const DataSourceBadge: React.FC<{ source?: 'live' | 'cached' | 'mock' | 'incomplete' | string }> = ({ source }) => {
-  if (!source) return null;
+  if (!source || source === 'mock') return null;
   const config = source === 'live'
     ? { bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', text: 'text-emerald-400', label: 'LIVE GEE SATELLITE DATA' }
     : source === 'cached'
     ? { bg: 'bg-blue-500/10', border: 'border-blue-500/30', text: 'text-blue-400', label: 'CACHED GEE SATELLITE DATA' }
-    : source === 'mock'
-    ? { bg: 'bg-amber-500/10', border: 'border-amber-500/30', text: 'text-amber-400', label: 'MOCK DATA FALLBACK' }
     : { bg: 'bg-red-500/10', border: 'border-red-500/30', text: 'text-red-400', label: 'INCOMPLETE DATA' };
 
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[9px] font-mono font-bold tracking-wider ${config.bg} ${config.border} ${config.text}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[9px] font-mono font-bold tracking-wider select-none ${config.bg} ${config.border} ${config.text}`}>
       <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${config.text.replace('text-', 'bg-')}`}></span>
       {config.label}
     </span>

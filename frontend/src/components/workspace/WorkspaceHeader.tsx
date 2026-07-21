@@ -30,10 +30,6 @@ export const WorkspaceHeader: React.FC = () => {
       </div>
 
       <div className="flex items-center gap-3">
-        <button className="flex items-center gap-2 bg-surface-slate hover:bg-surface-elevated border border-surface-border text-text-primary px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-          <Download className="w-4 h-4" /> Report
-        </button>
-        
         {/* Date Selector */}
         <div className="bg-surface-slate border border-surface-border rounded-lg p-1 flex">
           <button 

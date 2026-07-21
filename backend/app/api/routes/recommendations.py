@@ -22,6 +22,8 @@ async def get_village_recommendations(
     try:
         village, metrics, score = await _gather_context_data(village_id, year)
         raw_recs = await ai_service.get_recommendations(village, metrics, score)
+        if isinstance(raw_recs, dict) and 'recommendations' in raw_recs:
+            raw_recs = raw_recs['recommendations']
 
         for rec in raw_recs:
             if 'urgency' in rec and isinstance(rec['urgency'], str):
@@ -79,11 +81,14 @@ async def get_dynamic_recommendations(req: DynamicRecRequest):
         score.year = req.year
 
         raw_recs = await ai_service.get_recommendations(village, metrics, score)
+        if isinstance(raw_recs, dict) and 'recommendations' in raw_recs:
+            raw_recs = raw_recs['recommendations']
         
         for rec in raw_recs:
-            if 'urgency' in rec and isinstance(rec['urgency'], str):
+            if isinstance(rec, dict) and 'urgency' in rec and isinstance(rec['urgency'], str):
                 rec['urgency'] = rec['urgency'].lower()
                 
+        print("RAW_RECS TYPE:", type(raw_recs), "CONTENT:", raw_recs)
         validated_recs = [AIRecommendationModel(**rec) for rec in raw_recs]
 
         if len(validated_recs) != 3:

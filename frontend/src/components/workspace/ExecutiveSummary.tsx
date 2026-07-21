@@ -72,9 +72,6 @@ export const ExecutiveSummary: React.FC = () => {
             <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
             Stable Trend
           </div>
-          <div className="flex items-center gap-1.5 text-text-muted">
-            <span className="border border-surface-border px-2 py-0.5 rounded text-[10px] font-mono">AI GENERATED</span>
-          </div>
         </div>
       </div>
     </div>
