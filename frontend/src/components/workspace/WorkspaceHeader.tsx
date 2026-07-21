@@ -1,9 +1,11 @@
 import React from 'react';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { Map, Calendar, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export const WorkspaceHeader: React.FC = () => {
   const { selectedVillage, setIsWorkspaceExpanded, timeRange, setTimeRange } = useVillageSelection();
+  const { t } = useTranslation();
 
   if (!selectedVillage) return null;
 
@@ -15,7 +17,7 @@ export const WorkspaceHeader: React.FC = () => {
             {selectedVillage.name}, {selectedVillage.district}
           </h1>
           <span className="bg-brand-mint/10 text-brand-mint border border-brand-mint/20 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
-            Active Workspace
+            {t('workspace.active', 'Active Workspace')}
           </span>
         </div>
         <div className="flex items-center gap-4 text-sm text-text-muted">
@@ -23,7 +25,7 @@ export const WorkspaceHeader: React.FC = () => {
           <span>•</span>
           <span>Data Sources: Sentinel-2, ERA5, CHIRPS</span>
           <span>•</span>
-          <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" /> Updated Today</span>
+          <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" /> {t('workspace.updated_today', 'Updated Today')}</span>
         </div>
       </div>
 
@@ -34,13 +36,13 @@ export const WorkspaceHeader: React.FC = () => {
             onClick={() => setTimeRange('12M')}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${timeRange === '12M' ? 'bg-brand-violet text-white shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
           >
-            Last 12M
+            {t('workspace.last_12m', 'Last 12M')}
           </button>
           <button 
             onClick={() => setTimeRange('5Y')}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${timeRange === '5Y' ? 'bg-brand-violet text-white shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
           >
-            5Y Trend
+            {t('workspace.5y_trend', '5Y Trend')}
           </button>
         </div>
 
