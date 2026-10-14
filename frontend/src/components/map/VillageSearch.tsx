@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import L from 'leaflet';
 import { Search, Loader2, WifiOff, MapPin } from 'lucide-react';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { apiService } from '@/services/api';
@@ -32,12 +33,9 @@ async function searchNominatim(searchQuery: string, signal?: AbortSignal): Promi
     searchQuery
   )}&format=jsonv2&addressdetails=1&polygon_geojson=1&countrycodes=in&limit=5`;
 
-  const res = await fetch(url, {
-    signal,
-    headers: {
-      'User-Agent': 'GramDrishtiApp/1.0',
-    },
-  });
+  // No custom headers: browsers forbid/ignore User-Agent, and any non-simple
+  // header forces a CORS preflight that Nominatim may reject.
+  const res = await fetch(url, { signal });
 
   if (!res.ok) {
     throw new Error(`Nominatim API returned ${res.status}`);
@@ -119,10 +117,13 @@ export const VillageSearch: React.FC = () => {
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
     const signal = abortController.signal;
-    if (searchQuery.length < 3) {
+    if (searchQuery.trim().length < 3) {
+      // Invalidate any in-flight search so its late result can't repopulate the list
+      searchReqIdRef.current++;
       setResults([]);
       setError(null);
       setErrorType(null);
+      setIsSearching(false);
       return;
     }
 
@@ -215,14 +216,29 @@ export const VillageSearch: React.FC = () => {
     return () => clearTimeout(timer);
   }, [query, runSearch]);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Keep clicks, drags and wheel-scrolls on the search box/dropdown from
+  // reaching the map underneath (map clicks, panning, zooming while scrolling the list)
+  useEffect(() => {
+    if (!containerRef.current) return;
+    L.DomEvent.disableClickPropagation(containerRef.current);
+    L.DomEvent.disableScrollPropagation(containerRef.current);
+  }, []);
+
+  // Close the dropdown when clicking anywhere outside the search box
+  useEffect(() => {
+    if (!isOpen) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [isOpen]);
+
   const handleSelect = (village: Village) => {
-    console.log('[INSTRUMENT 1 - VillageSearch] handleSelect clicked:', {
-      id: village.id,
-      name: village.name,
-      source: village.source,
-      coordinates: village.coordinates,
-      hasBoundary: !!village.boundary,
-    });
     setSelectedVillage(village);
     flyToVillage(village);
     setQuery('');
@@ -231,7 +247,7 @@ export const VillageSearch: React.FC = () => {
   };
 
   return (
-    <div className="absolute top-4 left-4 z-[400] w-[300px]">
+    <div ref={containerRef} className="absolute top-4 left-4 z-[400] w-[300px] max-w-[calc(100%-6rem)]">
       <div className="relative">
         <div className="bg-surface-slate border border-surface-border rounded-full flex items-center px-4 py-2.5 shadow-lg backdrop-blur-sm">
           <Search className="w-4 h-4 text-text-secondary mr-2 shrink-0" />
@@ -245,6 +261,9 @@ export const VillageSearch: React.FC = () => {
               setIsOpen(e.target.value.length > 0);
             }}
             onFocus={() => setIsOpen(query.length > 0)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') setIsOpen(false);
+            }}
           />
           {isSearching && <Loader2 className="w-4 h-4 animate-spin text-brand-mint shrink-0 ml-2" />}
         </div>

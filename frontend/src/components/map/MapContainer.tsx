@@ -9,10 +9,10 @@ import { MapLegend } from './MapLegend';
 import { LayerControl } from './LayerControl';
 import { MapControls } from './MapControls';
 import { VillageSearch } from './VillageSearch';
-import { useSatelliteData } from '@/hooks/useSatelliteData';
 import { HoverInspector } from './HoverInspector';
 import { InspectionPopup } from './InspectionPopup';
 import { useTheme } from '@/hooks/useTheme';
+import { booleanPointInPolygon } from '@/utils/geo';
 
 // Modular Services
 import { SpatialLockManager } from './services/SpatialLockManager';
@@ -32,12 +32,21 @@ const MapInstanceBinder: React.FC = () => {
   return null;
 };
 
-import { booleanPointInPolygon } from '@/utils/geo';
-
 const MapClickHandler: React.FC = () => {
-  const { setClickedLocation, selectedVillagePolygon } = useVillageSelection();
+  const { setClickedLocation, selectedVillage, selectedVillagePolygon } = useVillageSelection();
+  const { activeSatelliteLayer } = useMapLayers();
+
+  // A pinned inspection point belongs to one village + layer; drop it when either
+  // changes so a stale popup doesn't reappear on the next village/overlay.
+  useEffect(() => {
+    setClickedLocation(null);
+  }, [selectedVillage?.id, activeSatelliteLayer, setClickedLocation]);
+
   useMapEvents({
     click(e) {
+      // Pixel inspection only makes sense while a satellite overlay is shown
+      if (!activeSatelliteLayer) return;
+
       const { lat, lng } = e.latlng;
       
       // If a village is selected, strictly restrict clicks to its exact boundary
@@ -60,7 +69,6 @@ const MapClickHandler: React.FC = () => {
 export const MapContainer: React.FC = React.memo(() => {
   const { selectedVillage, selectedYear, selectedVillagePolygon, setActiveLayers } = useVillageSelection();
   const layers = useMapLayers();
-  const { data } = useSatelliteData(selectedVillage?.id, selectedYear);
   const { theme } = useTheme();
 
   useEffect(() => {
@@ -69,22 +77,29 @@ export const MapContainer: React.FC = React.memo(() => {
     setActiveLayers(active);
   }, [layers.activeSatelliteLayer, setActiveLayers]);
 
-  const getTileUrl = () => {
+  const getBaseTiles = (): { url: string; attribution: string } => {
     switch (layers.activeBaseLayer) {
-      case 'dark':
-        return theme === 'light' 
-          ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
-          : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
       case 'satellite':
-        return 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+        return {
+          url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+          attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community',
+        };
       case 'osm':
-        return 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        return {
+          url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        };
+      case 'dark':
       default:
-        return theme === 'light'
-          ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
-          : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+        return {
+          url: theme === 'light'
+            ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+            : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        };
     }
   };
+  const baseTiles = getBaseTiles();
 
   return (
     <div className={`flex-1 relative bg-canvas-black border border-surface-border rounded-card m-2 overflow-hidden md:m-0 md:rounded-none md:border-0 md:border-t-0 ${layers.activeSatelliteLayer ? 'cursor-crosshair' : ''}`}>
@@ -109,21 +124,30 @@ export const MapContainer: React.FC = React.memo(() => {
         <FarmBoundaryService />
 
         <TileLayer
-          attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url={getTileUrl()}
+          // Remount on basemap change so the attribution control updates too
+          key={baseTiles.url}
+          attribution={baseTiles.attribution}
+          url={baseTiles.url}
           maxZoom={21}
           maxNativeZoom={19}
         />
 
         {/* Village markers removed as requested */}
 
-        {selectedVillage && !layers.activeSatelliteLayer && <VillageBoundary key={selectedVillage.id} polygon={selectedVillagePolygon} />}
-        
         {selectedVillage && layers.activeSatelliteLayer && (
           <SatelliteLayer 
             village={selectedVillage} 
-            data={data} 
+            year={selectedYear}
             activeLayerId={layers.activeSatelliteLayer} 
+          />
+        )}
+
+        {/* Keep the village outline visible over overlays (without the fill tinting the raster) */}
+        {selectedVillage && (
+          <VillageBoundary
+            key={selectedVillage.id}
+            polygon={selectedVillagePolygon}
+            outlineOnly={!!layers.activeSatelliteLayer}
           />
         )}
 

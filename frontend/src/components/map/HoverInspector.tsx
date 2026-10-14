@@ -4,6 +4,7 @@ import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { useMapLayers } from '@/hooks/MapLayersContext';
 import { useLayersMetadata } from '@/hooks/useLayersMetadata';
 import { booleanPointInPolygon } from '@/utils/geo';
+import { API_BASE_URL } from '@/services/api';
 
 interface HoverData {
   value: number;
@@ -75,7 +76,13 @@ export const HoverInspector: React.FC = () => {
     
     if (cacheRef.current.has(cacheKey)) {
       setLoading(true);
-      const val = await cacheRef.current.get(cacheKey)!;
+      let val: number | null = null;
+      try {
+        val = await cacheRef.current.get(cacheKey)!;
+      } catch {
+        // The cached request was aborted; it was evicted, so just bail out
+        return;
+      }
       if (isHoveringRef.current) {
         if (val !== null) {
           setHoverData({ value: val, lat, lng, layer: activeSatelliteLayer });
@@ -97,16 +104,19 @@ export const HoverInspector: React.FC = () => {
     setLoading(true);
 
     const promise = fetch(
-      `http://127.0.0.1:8000/api/v1/satellite/value?layer=${activeSatelliteLayer}&lat=${lat}&lng=${lng}&start=${start}&end=${end}&geometryId=${selectedVillage.id}`,
+      `${API_BASE_URL}/api/v1/satellite/value?layer=${encodeURIComponent(activeSatelliteLayer)}&lat=${lat}&lng=${lng}&start=${start}&end=${end}&geometryId=${encodeURIComponent(selectedVillage.id)}`,
       { signal: abortControllerRef.current.signal }
     )
       .then(res => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
       })
-      .then(data => data.value)
+      .then(data => (typeof data?.value === 'number' ? data.value : null))
       .catch(e => {
         if (e.name !== 'AbortError') return null;
+        // Never keep an aborted request in the cache, or every later hover on
+        // this pixel would re-throw AbortError and stay stuck on "Reading pixel..."
+        cacheRef.current.delete(cacheKey);
         throw e;
       });
 
@@ -145,7 +155,9 @@ export const HoverInspector: React.FC = () => {
 
   useEffect(() => {
     cacheRef.current.clear();
-  }, [activeSatelliteLayer, selectedYear, selectedVillage]);
+    setHoverData(null);
+    setHoverValue(null);
+  }, [activeSatelliteLayer, selectedYear, selectedVillage, setHoverValue]);
 
   useEffect(() => {
     return () => {
@@ -164,11 +176,15 @@ export const HoverInspector: React.FC = () => {
       const { lat, lng } = e.latlng;
       
       if (!booleanPointInPolygon([lng, lat], selectedVillagePolygon)) {
-        setVisible(false);
-        isHoveringRef.current = false;
-        if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        if (abortControllerRef.current) abortControllerRef.current.abort();
-        setHoverData(null);
+        if (isHoveringRef.current) {
+          setVisible(false);
+          isHoveringRef.current = false;
+          if (timeoutRef.current) clearTimeout(timeoutRef.current);
+          if (abortControllerRef.current) abortControllerRef.current.abort();
+          setHoverData(null);
+          setHoverValue(null);
+          setLoading(false);
+        }
         return;
       }
       
@@ -191,6 +207,7 @@ export const HoverInspector: React.FC = () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       if (abortControllerRef.current) abortControllerRef.current.abort();
       setHoverData(null);
+      setHoverValue(null);
       setLoading(false);
     }
   });

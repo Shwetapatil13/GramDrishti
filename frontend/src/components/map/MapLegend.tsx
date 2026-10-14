@@ -1,7 +1,12 @@
-import React, { useMemo, useRef, useEffect, useState } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
+import { useMap } from 'react-leaflet';
 import { useLayersMetadata } from '@/hooks/useLayersMetadata';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
+import { API_BASE_URL } from '@/services/api';
+
+/** Format a stat that the backend may omit or return as null. */
+const fmt = (v: unknown, digits = 4) => (typeof v === 'number' && Number.isFinite(v) ? v.toFixed(digits) : '—');
 
 interface MapLegendProps {
   activeLayerId: string | null;
@@ -10,7 +15,10 @@ interface MapLegendProps {
 export const MapLegend: React.FC<MapLegendProps> = ({ activeLayerId }) => {
   const { layers } = useLayersMetadata();
   const { selectedVillage, selectedYear, hoverValue } = useVillageSelection();
-  const portalRef = useRef<HTMLDivElement | null>(null);
+  const villageId = selectedVillage?.id;
+  const map = useMap();
+  // State (not a ref) so we re-render into the portal as soon as it exists
+  const [portalEl, setPortalEl] = useState<HTMLDivElement | null>(null);
 
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -21,33 +29,36 @@ export const MapLegend: React.FC<MapLegendProps> = ({ activeLayerId }) => {
   const gradient = useMemo(() => {
     const palette = activeLayer?.visualization?.palette;
     if (!palette || palette.length === 0) return 'transparent';
+    if (palette.length === 1) return palette[0];
     const step = 100 / (palette.length - 1);
     const stops = palette.map((color, i) => `${color} ${i * step}%`).join(', ');
     return `linear-gradient(to right, ${stops})`;
   }, [activeLayer]);
 
   useEffect(() => {
-    const mapWrapper = document.querySelector('.leaflet-container')?.parentElement;
+    const mapWrapper = map.getContainer().parentElement;
     if (!mapWrapper) return;
 
+    // Bottom-left so the legend doesn't cover the zoom/re-center buttons (bottom-right)
     const el = document.createElement('div');
     el.style.position = 'absolute';
     el.style.bottom = '1.5rem';
-    el.style.right = '1rem';
+    el.style.left = '1rem';
     el.style.zIndex = '400';
     el.style.pointerEvents = 'all';
     mapWrapper.appendChild(el);
-    portalRef.current = el;
+    setPortalEl(el);
 
     return () => {
+      setPortalEl(null);
       if (mapWrapper.contains(el)) {
         mapWrapper.removeChild(el);
       }
     };
-  }, []);
+  }, [map]);
 
   useEffect(() => {
-    if (!activeLayerId || !selectedVillage) {
+    if (!activeLayerId || !villageId) {
       setStats(null);
       return;
     }
@@ -58,10 +69,10 @@ export const MapLegend: React.FC<MapLegendProps> = ({ activeLayerId }) => {
       try {
         const start = `${selectedYear}-01-01`;
         const end = `${selectedYear}-12-31`;
-        const id = selectedVillage.id;
+        const id = encodeURIComponent(villageId);
         
         // This hits the updated backend endpoint that returns mean, median, min, max, stdDev
-        const url = `http://127.0.0.1:8000/api/v1/satellite/statistics?layer=${activeLayerId}&geometryType=village&geometryId=${id}&start=${start}&end=${end}`;
+        const url = `${API_BASE_URL}/api/v1/satellite/statistics?layer=${encodeURIComponent(activeLayerId)}&geometryType=village&geometryId=${id}&start=${start}&end=${end}`;
         const res = await fetch(url);
         
         if (!res.ok) throw new Error("Failed");
@@ -77,7 +88,7 @@ export const MapLegend: React.FC<MapLegendProps> = ({ activeLayerId }) => {
 
     fetchStats();
     return () => { isMounted = false; };
-  }, [activeLayerId, selectedVillage, selectedYear]);
+  }, [activeLayerId, villageId, selectedYear]);
 
 
   // Early return AFTER all hooks
@@ -100,27 +111,27 @@ export const MapLegend: React.FC<MapLegendProps> = ({ activeLayerId }) => {
       <div className="bg-surface-slate rounded p-2 mb-3 border border-surface-border">
         {loading ? (
           <div className="flex justify-center p-2"><div className="animate-spin h-4 w-4 border-2 border-accent-green border-t-transparent rounded-full"></div></div>
-        ) : stats && stats.mean !== undefined ? (
+        ) : stats && typeof stats.mean === 'number' ? (
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="flex flex-col">
               <span className="text-content-dim">Average</span>
-              <span className="font-mono text-content-body font-bold">{stats.mean.toFixed(4)}</span>
+              <span className="font-mono text-content-body font-bold">{fmt(stats.mean)}</span>
             </div>
             <div className="flex flex-col">
               <span className="text-content-dim">Median</span>
-              <span className="font-mono text-content-body font-bold">{stats.median.toFixed(4)}</span>
+              <span className="font-mono text-content-body font-bold">{fmt(stats.median)}</span>
             </div>
             <div className="flex flex-col">
               <span className="text-content-dim">Minimum</span>
-              <span className="font-mono text-content-body">{stats.min.toFixed(4)}</span>
+              <span className="font-mono text-content-body">{fmt(stats.min)}</span>
             </div>
             <div className="flex flex-col">
               <span className="text-content-dim">Maximum</span>
-              <span className="font-mono text-content-body">{stats.max.toFixed(4)}</span>
+              <span className="font-mono text-content-body">{fmt(stats.max)}</span>
             </div>
             <div className="flex flex-col">
               <span className="text-content-dim">Std Dev</span>
-              <span className="font-mono text-content-body">{stats.stdDev.toFixed(4)}</span>
+              <span className="font-mono text-content-body">{fmt(stats.stdDev)}</span>
             </div>
             <div className="flex flex-col">
               <span className="text-content-dim">Pixels</span>
@@ -162,13 +173,9 @@ export const MapLegend: React.FC<MapLegendProps> = ({ activeLayerId }) => {
     </div>
   );
 
-  if (portalRef.current) {
-    return ReactDOM.createPortal(content, portalRef.current);
-  }
+  // Wait for the portal: an inline fallback would render inside the Leaflet
+  // container, where Leaflet swallows its clicks/scrolls.
+  if (!portalEl) return null;
 
-  return (
-    <div className="absolute bottom-6 right-4 z-[400]">
-      {content}
-    </div>
-  );
+  return ReactDOM.createPortal(content, portalEl);
 };

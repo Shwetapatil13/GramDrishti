@@ -1,5 +1,6 @@
-import React, { useMemo, useRef, useEffect } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
+import { useMap } from 'react-leaflet';
 import { Layers } from 'lucide-react';
 import { useMapLayers, BaseLayer } from '@/hooks/MapLayersContext';
 import { useLayersMetadata } from '@/hooks/useLayersMetadata';
@@ -15,12 +16,14 @@ export const LayerControl: React.FC = () => {
   const { t } = useTranslation();
   const { layers: metadataLayers, isLoading } = useLayersMetadata();
   const layers = useMapLayers();
-  const portalRef = useRef<HTMLDivElement | null>(null);
+  const map = useMap();
+  // State (not a ref) so the first render after mount actually goes into the portal
+  const [portalEl, setPortalEl] = useState<HTMLDivElement | null>(null);
 
   // Create a portal container that lives OUTSIDE the Leaflet map DOM tree
   useEffect(() => {
     // Find the map wrapper div (parent of leaflet container)
-    const mapWrapper = document.querySelector('.leaflet-container')?.parentElement;
+    const mapWrapper = map.getContainer().parentElement;
     if (!mapWrapper) return;
 
     const el = document.createElement('div');
@@ -30,14 +33,15 @@ export const LayerControl: React.FC = () => {
     el.style.zIndex = '400';
     el.style.pointerEvents = 'all';
     mapWrapper.appendChild(el);
-    portalRef.current = el;
+    setPortalEl(el);
 
     return () => {
+      setPortalEl(null);
       if (mapWrapper.contains(el)) {
         mapWrapper.removeChild(el);
       }
     };
-  }, []);
+  }, [map]);
 
   const baseLayers: { id: BaseLayer; labelKey: string; labelDefault: string }[] = [
     { id: 'dark', labelKey: 'map.layers.dark', labelDefault: 'Dark Matter' },
@@ -135,14 +139,9 @@ export const LayerControl: React.FC = () => {
     </div>
   );
 
-  // Render into portal if available, otherwise inline fallback
-  if (portalRef.current) {
-    return ReactDOM.createPortal(content, portalRef.current);
-  }
+  // Wait for the portal: an inline fallback would sit inside the Leaflet
+  // container, where Leaflet swallows its click events.
+  if (!portalEl) return null;
 
-  return (
-    <div className="absolute top-4 right-4 z-[400]">
-      {content}
-    </div>
-  );
+  return ReactDOM.createPortal(content, portalEl);
 };

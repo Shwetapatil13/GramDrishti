@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { Village } from '@/types';
 import { apiService } from '@/services/api';
 
@@ -38,6 +38,8 @@ export const VillageProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [hoverValue, setHoverValue] = useState<{ value: number; lat: number; lng: number } | null>(null);
   const [isWorkspaceExpanded, setIsWorkspaceExpanded] = useState<boolean>(false);
   const [timeRange, setTimeRange] = useState<'30D' | '6M' | '12M' | '5Y'>('12M');
+  // Id of the most recently requested village, used to drop late async results
+  const latestVillageIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     console.log('[INSTRUMENT 2/3 - useVillageSelection] State render:', {
@@ -49,6 +51,7 @@ export const VillageProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const handleSetSelectedVillage = useCallback(async (village: Village | null) => {
     console.log('[INSTRUMENT 2 - useVillageSelection] ENTRY incoming village:', village?.id, village?.name, 'source:', village?.source);
+    latestVillageIdRef.current = village?.id ?? null;
     if (!village) {
       setSelectedVillage(null);
       setSelectedVillagePolygon(null);
@@ -85,7 +88,8 @@ export const VillageProvider: React.FC<{ children: React.ReactNode }> = ({ child
         if (fullVillage) {
           console.log('[INSTRUMENT 3 - useVillageSelection] Backend fetched fullVillage:', fullVillage.id, 'has boundary:', !!fullVillage.boundary);
           setSelectedVillage((prev) => (prev?.id === village.id ? { ...prev, ...fullVillage } : prev));
-          if (fullVillage.boundary) {
+          // Only apply the polygon if the user hasn't picked another village meanwhile
+          if (fullVillage.boundary && latestVillageIdRef.current === village.id) {
             setSelectedVillagePolygon(fullVillage.boundary);
           }
         }
@@ -98,6 +102,7 @@ export const VillageProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, []);
 
   const clearSelection = useCallback(() => {
+    latestVillageIdRef.current = null;
     setSelectedVillage(null);
     setSelectedVillagePolygon(null);
     setIsWorkspaceExpanded(false);
