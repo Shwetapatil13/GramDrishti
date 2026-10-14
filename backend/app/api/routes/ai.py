@@ -7,7 +7,22 @@ from app.services.village_service import get_village_by_id
 from app.api.routes.satellite import get_village_metrics
 from app.api.routes.scores import get_village_score
 from app.utils.cache import cache
+from app.core.logging import get_logger
+import json
 import time
+
+logger = get_logger(__name__)
+
+
+async def _stream_with_errors(stream):
+    """Errors raised after streaming starts can't become an HTTP error any more,
+    so report them as a final NDJSON line instead of silently cutting the stream."""
+    try:
+        async for chunk in stream:
+            yield chunk
+    except Exception as e:
+        logger.exception("AI chat stream failed")
+        yield json.dumps({"status": "error", "detail": str(e)}) + "\n"
 
 
 router = APIRouter()
@@ -130,7 +145,7 @@ async def chat_with_ai(
         history_dicts = [{"role": msg.role, "content": msg.content} for msg in body.history] if body.history else []
         
         return StreamingResponse(
-            ai_service.chat_stream(
+            _stream_with_errors(ai_service.chat_stream(
                 question=body.question,
                 village_id=village_id,
                 year=year,
@@ -138,7 +153,7 @@ async def chat_with_ai(
                 history=history_dicts,
                 map_state=body.mapState,
                 clicked_location=body.clickedLocation
-            ),
+            )),
             media_type="text/event-stream"
         )
     except Exception as e:

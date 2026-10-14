@@ -215,4 +215,4 @@ Add translation JSON files under `frontend/src/locales/{lang}/common.json`. The 
 
 ---
 
-*For current architecture, see [ARCHITECTURE.md](ARCHITECTURE.md). For contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).*
+*For current architecture, see [ARCHITECTURE.md](ARCHITECTURE.md). For contribution guidelines, see [CONTRIBUTING.md](../CONTRIBUTING.md).*

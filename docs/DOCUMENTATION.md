@@ -42,14 +42,14 @@ GramDrishti/
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── ai/               # Chat UI, MessageCard, DynamicChart, ActionPanel
-│   │   │   ├── dashboard/        # InsightsPanel, ScoreBreakdown
-│   │   │   ├── map/              # Leaflet integration, ChoroplethLayer, NDVILayer
+│   │   │   ├── dashboard/        # Overview, Environment & History tabs, ScoreBreakdown
+│   │   │   ├── map/              # Leaflet MapContainer, SatelliteLayer, inspector, legend
 │   │   │   └── layout/           # AppLayout, Sidebar
 │   │   ├── hooks/                # useAIChat (SSE streaming), useVillageSelection
 │   │   └── services/             # Axios API services
 ├── backend/                      # FastAPI Backend
 │   ├── app/
-│   │   ├── api/routes/           # API Endpoints (ai.py, maps.py, reports.py)
+│   │   ├── api/routes/           # API Endpoints (ai.py, satellite.py, villages.py, reports.py, ...)
 │   │   ├── services/
 │   │   │   ├── ai/
 │   │   │   │   ├── processors/   # agriculture.py, water.py, disaster.py, schemes.py
@@ -57,9 +57,12 @@ GramDrishti/
 │   │   │   │   ├── retrieval_engine.py
 │   │   │   │   └── prompt_builder.py
 │   │   │   └── village_service.py# GeoPandas boundary loading
-│   ├── tests/                    # Pytest suite
+│   ├── scripts/                  # Manual checks (verify_raster.py, test_api.py)
+│   ├── .env.example              # Backend configuration template
 │   └── requirements.txt
-└── DOCUMENTATION.md              # You are here
+├── scripts/                      # Repo utilities (demo setup, boundary fetching)
+└── docs/
+    └── DOCUMENTATION.md          # You are here
 ```
 
 ---
@@ -121,7 +124,7 @@ Streams the AI response using Server-Sent Events (SSE).
 ```
 
 ### `POST /api/v1/ai/{village_id}/recommendations`
-Fetches proactive insights for the `InsightsPanel`. Returns top recommendations and a health score.
+Fetches proactive AI insights for a village. Returns top recommendations and a health score.
 
 ---
 

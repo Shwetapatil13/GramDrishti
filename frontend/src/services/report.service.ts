@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+import { API_BASE_URL as apiBaseUrl } from './api';
 
 const extractErrorMessage = async (blob: Blob, fallback: string): Promise<string> => {
   try {
@@ -70,4 +69,4 @@ export const downloadJSON = async (villageId: string, year: number): Promise<voi
 export const downloadCSV = async (villageId: string): Promise<void> => {
   const url = `${apiBaseUrl}/api/v1/reports/${villageId}/csv`;
   await downloadFile(url, `GramDrishti_History_${villageId}.csv`, 'text/csv');
-};
+};

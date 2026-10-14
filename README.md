@@ -24,6 +24,7 @@
 | 🌐 **Live Web Application** | [gram-drishti.vercel.app](https://gram-drishti.vercel.app/) |
 | 🎥 **Video Walkthrough** | [YouTube Demo Link](https://youtu.be/FH3spiMOgDQ) |
 | 📐 **Detailed System Architecture** | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) |
+| 📚 **Technical Documentation** | [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) · [Workflow](docs/PROJECT_WORKFLOW.md) · [Demo Guide](docs/DEMO_GUIDE.md) · [Future Scope](docs/FUTURE_SCOPE.md) |
 | 📄 **Interactive API Docs** | [localhost:8000/docs](http://localhost:8000/docs) *(when running locally)* |
 
 ---
@@ -148,6 +149,8 @@ GramDrishti/
 │       └── services/               # Axios API client, PDF download service
 ├── backend/                        # FastAPI Python Server
 │   ├── main.py                     # CORS, app initialization, router routing
+│   ├── data/                       # Bundled village boundaries (GeoJSON)
+│   ├── scripts/                    # Manual verification scripts (GEE raster check, API smoke call)
 │   └── app/
 │       ├── api/routes/             # Endpoints for spatial queries, metrics, reports, and AI chat
 │       ├── core/                   # System variables, service account authentication config
@@ -157,7 +160,8 @@ GramDrishti/
 │       │   ├── gee/                # Earth Engine connection, Sentinel-2 / Dynamic World band retrieval
 │       │   ├── scoring/            # Formula weights, historical normalizers, risk rankings
 │       │   └── reports/            # PDF layout design and file builders
-└── scripts/                        # Utility operations (cache priming, GeoJSON boundary fetching)
+├── scripts/                        # Utility operations (cache priming, GeoJSON boundary fetching)
+└── docs/                           # Architecture, workflow, demo guide, technical docs, roadmap
 ```
 </details>
 

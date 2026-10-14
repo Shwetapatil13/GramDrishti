@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 export const LayerControl: React.FC = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const { t } = useTranslation();
-  const { layers: metadataLayers, isLoading } = useLayersMetadata();
+  const { layers: metadataLayers, isLoading, error: layersError } = useLayersMetadata();
   const layers = useMapLayers();
   const map = useMap();
   // State (not a ref) so the first render after mount actually goes into the portal
@@ -104,6 +104,10 @@ export const LayerControl: React.FC = () => {
               </h4>
               {isLoading ? (
                 <div className="text-text-secondary text-sm">Loading layers...</div>
+              ) : metadataLayers.length === 0 ? (
+                <div className="text-text-secondary text-sm">
+                  Satellite layers unavailable{layersError ? ` (${layersError})` : ''}.
+                </div>
               ) : (
                 Object.entries(groupedLayers).map(([category, catLayers]) => (
                   <div key={category} className="mb-3">

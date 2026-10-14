@@ -1,32 +1,47 @@
-# React + TypeScript + Vite
+# GramDrishti Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React 18 + TypeScript + Vite client for GramDrishti: a Leaflet map with Google Earth Engine
+overlays, the village dashboard, and the AI chat panel.
 
-Currently, two official plugins are available:
+## Setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+cp .env.example .env   # VITE_API_BASE_URL points at the FastAPI backend (default http://localhost:8000)
+npm run dev            # http://localhost:5173
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Scripts
+
+| Command | What it does |
+| :--- | :--- |
+| `npm run dev` | Start the Vite dev server |
+| `npm run build` | Type-check (`tsc`) and build to `dist/` |
+| `npm run preview` | Serve the production build locally |
+| `npm run lint` | ESLint |
+
+## Layout
+
+```text
+src/
+├── components/
+│   ├── ai/          # Chat panel, message cards, dynamic charts
+│   ├── auth/        # Login page layout
+│   ├── charts/      # ECharts wrappers (land cover, NDVI, trends)
+│   ├── dashboard/   # Right-hand dashboard tabs
+│   ├── landing/     # Marketing landing page
+│   ├── layout/      # App shell: header, sidebar, language switcher
+│   ├── map/         # MapContainer, satellite overlays, inspector, legend, search
+│   │   └── services/  # Non-visual map helpers (bounds lock, farm boundaries)
+│   ├── ui/          # Shared UI primitives
+│   └── workspace/   # Expanded village intelligence workspace
+├── hooks/           # Data hooks (React Query) and app-wide context providers
+├── i18n/, locales/  # i18next setup and en / hi / mr translations
+├── pages/, routes/  # Route pages and the auth guard
+├── services/        # Axios API client and report downloads
+├── styles/          # Global CSS / Tailwind layers
+├── types/           # Shared TypeScript types
+└── utils/           # Geo helpers
+```
+
+See the [root README](../README.md) and [docs/](../docs) for architecture and backend setup.

@@ -2,34 +2,37 @@
 node_modules/
 dist/
 build/
+
+# Environment (commit the .env.example templates, never real secrets)
 .env
+.env.local
+.env.*.local
 
 # Python
 venv/
+.venv/
 __pycache__/
 *.pyc
 .pytest_cache/
+.mypy_cache/
 .coverage
 
 # GramDrishti
 backend/credentials/
+# Private GEE credentials
+backend/logs/gee_credentials.json
+# AI audit logs (contain user queries)
+backend/logs/ai_audits/
+# Output of backend/scripts/verify_raster.py
+verification_report.md
 
 # OS
 .DS_Store
 Thumbs.db
 
+# Editors
+.vscode/
+.idea/
+
 # Logs
 *.log
-<<<<<<< HEAD
-
-=======
->>>>>>> 2938600 (changes)
-# Ignore private GEE credentials
-backend/logs/gee_credentials.json
-
-# Ignore AI audit logs
-<<<<<<< HEAD
-backend/logs/ai_audits/
-=======
-backend/logs/ai_audits/
->>>>>>> 2938600 (changes)

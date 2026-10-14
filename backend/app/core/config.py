@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     DEMO_MODE: bool = False
     DEMO_TOKEN: str = ""
 
+    # Farm boundary provider: "agstack" or "mock"
+    FARM_PROVIDER: str = "agstack"
+
     model_config = SettingsConfigDict(env_file=ENV_PATH, extra="ignore")
 
     @property
@@ -27,4 +30,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-# reload trigger

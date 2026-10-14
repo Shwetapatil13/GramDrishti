@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
 import { Village } from '@/types';
 import { apiService } from '@/services/api';
 
@@ -41,16 +41,8 @@ export const VillageProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Id of the most recently requested village, used to drop late async results
   const latestVillageIdRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    console.log('[INSTRUMENT 2/3 - useVillageSelection] State render:', {
-      selectedVillageId: selectedVillage?.id,
-      selectedVillageName: selectedVillage?.name,
-      polygonFirstCoord: selectedVillagePolygon?.coordinates?.[0]?.[0] || selectedVillagePolygon?.coordinates?.[0]?.[0]?.[0] || null,
-    });
-  }, [selectedVillage, selectedVillagePolygon]);
 
   const handleSetSelectedVillage = useCallback(async (village: Village | null) => {
-    console.log('[INSTRUMENT 2 - useVillageSelection] ENTRY incoming village:', village?.id, village?.name, 'source:', village?.source);
     latestVillageIdRef.current = village?.id ?? null;
     if (!village) {
       setSelectedVillage(null);
@@ -60,13 +52,11 @@ export const VillageProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
 
     // Set village and its boundary immediately to prevent stale polygon data & UI lag
-    console.log('[INSTRUMENT 2 - useVillageSelection] Calling setSelectedVillage & setSelectedVillagePolygon with:', village.id);
     setSelectedVillage(village);
     setSelectedVillagePolygon(village.boundary ?? null);
 
     // If it's a Nominatim village, register it asynchronously in the background
     if (village.source === 'nominatim' && village.boundary) {
-      console.log('[INSTRUMENT 3 - useVillageSelection] TAKEN BRANCH: nominatim with boundary', village.id, 'coords first point:', (village.boundary.coordinates as any)?.[0]?.[0]);
       apiService.post('/api/v1/villages/register', {
         id: village.id,
         name: village.name,
@@ -76,17 +66,13 @@ export const VillageProvider: React.FC<{ children: React.ReactNode }> = ({ child
         coordinates: [village.coordinates?.[0] ?? 20.0, village.coordinates?.[1] ?? 78.0] as [number, number],
         boundary: village.boundary,
         area: village.area ?? 50.0,
-      }).then(() => {
-        console.log('[INSTRUMENT 3 - useVillageSelection] Register success for:', village.id);
       }).catch((err) => {
-        console.error('[INSTRUMENT 3 - useVillageSelection] Register failed for:', village.id, err);
+        console.error('Village register failed for:', village.id, err);
       });
     } else if (!village.boundary && village.id) {
-      console.log('[INSTRUMENT 3 - useVillageSelection] TAKEN BRANCH: fetch from backend (no boundary in object)', village.id);
       try {
         const fullVillage = await apiService.get<Village>(`/api/v1/villages/${village.id}`);
         if (fullVillage) {
-          console.log('[INSTRUMENT 3 - useVillageSelection] Backend fetched fullVillage:', fullVillage.id, 'has boundary:', !!fullVillage.boundary);
           setSelectedVillage((prev) => (prev?.id === village.id ? { ...prev, ...fullVillage } : prev));
           // Only apply the polygon if the user hasn't picked another village meanwhile
           if (fullVillage.boundary && latestVillageIdRef.current === village.id) {
@@ -94,10 +80,8 @@ export const VillageProvider: React.FC<{ children: React.ReactNode }> = ({ child
           }
         }
       } catch (err) {
-        console.error('[INSTRUMENT 3 - useVillageSelection] Backend fetch failed for:', village.id, err);
+        console.error('Village fetch failed for:', village.id, err);
       }
-    } else {
-      console.log('[INSTRUMENT 3 - useVillageSelection] TAKEN BRANCH: local village with existing boundary', village.id);
     }
   }, []);
 

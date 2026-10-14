@@ -121,7 +121,7 @@ DEBUG=true
 
 ### Frontend (`frontend/.env`)
 ```env
-VITE_API_URL=http://localhost:8000
+VITE_API_BASE_URL=http://localhost:8000
 ```
 
 ---
@@ -295,7 +295,7 @@ Set `USE_MOCK_DATA=true` in `backend/.env` to bypass GEE authentication.
 
 1. Ensure the backend is running on `http://localhost:8000`
 2. Ensure `ALLOWED_ORIGINS` in `backend/.env` includes `http://localhost:5173`
-3. Ensure `VITE_API_URL=http://localhost:8000` in `frontend/.env`
+3. Ensure `VITE_API_BASE_URL=http://localhost:8000` in `frontend/.env`
 
 ---
 
@@ -321,4 +321,4 @@ This is expected — ~45 seconds on first load for a new village (GEE computatio
 
 ---
 
-*For architecture details, see [ARCHITECTURE.md](ARCHITECTURE.md). For the full feature list, see [README.md](README.md).*
+*For architecture details, see [ARCHITECTURE.md](ARCHITECTURE.md). For the full feature list, see [README.md](../README.md).*

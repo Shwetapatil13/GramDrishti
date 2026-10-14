@@ -1,19 +1,25 @@
 import asyncio
 import json
+import os
+import sys
+
+# Allow running as `python scripts/verify_raster.py` from the backend directory
+BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, BACKEND_DIR)
+
 import ee
 from pprint import pprint
 from app.services.gee.factory import LayerFactory
 from app.services.gee.geometry import geojson_to_ee_geometry
 from app.services.gee.auth import initialize_gee
 from app.services.gee.registry import LAYER_REGISTRY
-import os
 
 async def verify_all_layers():
     print("Initializing Earth Engine...")
     initialize_gee()
 
     print("Loading Mulshi boundary...")
-    with open('data/maharashtra.geojson', 'r') as f:
+    with open(os.path.join(BACKEND_DIR, 'data', 'maharashtra.geojson'), 'r') as f:
         data = json.load(f)
         mulshi = next(f for f in data['features'] if f['properties']['id'] == 'mulshi')
         boundary = geojson_to_ee_geometry(mulshi['geometry'])
@@ -75,7 +81,7 @@ async def verify_all_layers():
             report.append(f"- **Error:** {str(e)}\n")
 
     # Output to markdown
-    output_path = r"C:\Users\sansk\.gemini\antigravity-ide\brain\a72c9781-0400-4bc7-9e9d-0449d4109975\verification_report.md"
+    output_path = os.path.join(os.getcwd(), "verification_report.md")
     with open(output_path, 'w') as f:
         f.write('\n'.join(report))
     

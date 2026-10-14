@@ -1,5 +1,5 @@
-import os
 import logging
+from app.core.config import settings
 from app.services.farm_provider.provider import FarmProvider
 from app.services.farm_provider.agstack_provider import AgStackProvider
 from app.services.farm_provider.mock_provider import MockFarmProvider
@@ -17,7 +17,8 @@ class FarmProviderFactory:
         if cls._instance is not None:
             return cls._instance
             
-        provider_name = os.getenv("FARM_PROVIDER", "agstack").lower()
+        # Read via Settings so a FARM_PROVIDER entry in backend/.env is honoured
+        provider_name = settings.FARM_PROVIDER.lower()
         
         if provider_name == "mock":
             logger.warning("Initializing MockFarmProvider. This should only be used in development.")

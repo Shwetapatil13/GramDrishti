@@ -1,1 +1,0 @@
-// This file was renamed to useMapLayers.tsx to support JSX
