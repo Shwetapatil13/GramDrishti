@@ -29,6 +29,23 @@ export interface LayerMetadata {
   };
 }
 
+// Layer metadata is static per session; share one request between all consumers
+// (legend, layer control, hover inspector, ...) instead of fetching it per component.
+let layersPromise: Promise<LayerMetadata[]> | null = null;
+
+function fetchLayersOnce(): Promise<LayerMetadata[]> {
+  if (!layersPromise) {
+    layersPromise = apiService
+      .get<{ layers: LayerMetadata[] }>('/api/v1/satellite/layers')
+      .then((res) => res?.layers ?? [])
+      .catch((err) => {
+        layersPromise = null; // allow a retry on next mount
+        throw err;
+      });
+  }
+  return layersPromise;
+}
+
 export function useLayersMetadata() {
   const [layers, setLayers] = useState<LayerMetadata[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,45 +53,24 @@ export function useLayersMetadata() {
 
   useEffect(() => {
     let mounted = true;
-    
-    const fetchLayers = async () => {
-      try {
-        setIsLoading(true);
-        const res = await apiService.get<{ layers: LayerMetadata[] }>('/api/v1/satellite/layers');
-        console.log("Fetched layers response:", res);
-        if (mounted && res?.layers && res.layers.length > 0) {
-          setLayers(res.layers);
-        } else if (mounted) {
-          console.error("No layers in response", res);
-          // FALLBACK FOR DEBUGGING
-          setLayers([{
-            id: 'DEBUG', provider: 'DebugProvider', category: 'Optical',
-            name: 'Debug Layer (API Empty)', description: 'Debug',
-            visualization: { palette: [], min: 0, max: 1, opacity: 1, smoothing: true },
-            temporal: { supportsHistorical: false, supportsTimeSeries: false },
-            analytics: { supportsStatistics: false, supportsExport: false, supportsComparison: false }
-          }]);
-        }
-      } catch (err) {
+
+    fetchLayersOnce()
+      .then((result) => {
+        if (!mounted) return;
+        setLayers(result);
+        setError(result.length === 0 ? 'No satellite layers available' : null);
+      })
+      .catch((err) => {
         console.error("Failed to fetch layers", err);
         if (mounted) {
+          setLayers([]);
           setError(err instanceof Error ? err.message : 'Failed to fetch layers metadata');
-          setLayers([{
-            id: 'DEBUG_ERR', provider: 'DebugProvider', category: 'Optical',
-            name: 'Debug Layer (API Error)', description: String(err),
-            visualization: { palette: [], min: 0, max: 1, opacity: 1, smoothing: true },
-            temporal: { supportsHistorical: false, supportsTimeSeries: false },
-            analytics: { supportsStatistics: false, supportsExport: false, supportsComparison: false }
-          }]);
         }
-      } finally {
-        if (mounted) {
-          setIsLoading(false);
-        }
-      }
-    };
+      })
+      .finally(() => {
+        if (mounted) setIsLoading(false);
+      });
 
-    fetchLayers();
     return () => { mounted = false; };
   }, []);
 

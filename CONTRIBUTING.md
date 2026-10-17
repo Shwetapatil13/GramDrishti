@@ -304,4 +304,4 @@ We follow the [Contributor Covenant Code of Conduct](https://www.contributor-cov
 
 ---
 
-*For architecture details, see [ARCHITECTURE.md](ARCHITECTURE.md). For the demo guide, see [DEMO_GUIDE.md](DEMO_GUIDE.md).*
+*For architecture details, see [ARCHITECTURE.md](docs/ARCHITECTURE.md). For the demo guide, see [DEMO_GUIDE.md](docs/DEMO_GUIDE.md).*

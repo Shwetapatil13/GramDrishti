@@ -7,7 +7,6 @@ export const useSatelliteData = (villageId: string | undefined, year: number) =>
   const { selectedVillagePolygon } = useVillageSelection();
 
   const queryKey = ['satellite', villageId, year, selectedVillagePolygon ? JSON.stringify(selectedVillagePolygon).slice(0, 50) : null];
-  console.log('[INSTRUMENT 5 - useSatelliteData] queryKey:', queryKey);
 
   const queryResult = useQuery<EnvironmentalMetrics, Error>({
     queryKey,
@@ -15,7 +14,6 @@ export const useSatelliteData = (villageId: string | undefined, year: number) =>
       // If we have a polygon, send it to the new analyze endpoint
       if (selectedVillagePolygon) {
         const url = `/api/v1/analyze`;
-        console.log('[INSTRUMENT 5 - useSatelliteData] Sending POST to', url, 'payload:', { village_id: villageId, year });
         const res = await apiService.post<{ metrics: EnvironmentalMetrics }>(url, {
           village_id: villageId,
           polygon: selectedVillagePolygon,
@@ -25,7 +23,6 @@ export const useSatelliteData = (villageId: string | undefined, year: number) =>
       }
       // Fallback to legacy GET endpoint if polygon is not available yet
       const url = `/api/v1/satellite/${villageId}/metrics`;
-      console.log('[INSTRUMENT 5 - useSatelliteData] Sending GET to', url);
       return apiService.get<EnvironmentalMetrics>(url, { year });
     },
     enabled: !!villageId,

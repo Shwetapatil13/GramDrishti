@@ -3,6 +3,7 @@ import { Popup } from 'react-leaflet';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
 import { useMapLayers } from '@/hooks/MapLayersContext';
 import { useLayersMetadata } from '@/hooks/useLayersMetadata';
+import { API_BASE_URL } from '@/services/api';
 
 interface ClickData {
   value: number;
@@ -77,9 +78,12 @@ export const InspectionPopup: React.FC = () => {
         const start = `${selectedYear}-01-01`;
         const end = `${selectedYear}-12-31`;
         
-        // Fetch pixel value
+        const layerParam = encodeURIComponent(activeSatelliteLayer);
+        const villageParam = selectedVillage ? `&geometryId=${encodeURIComponent(selectedVillage.id)}` : '';
+
+        // Fetch pixel value (geometryId lets the backend reuse the village's cached composite)
         const valRes = await fetch(
-          `http://127.0.0.1:8000/api/v1/satellite/value?layer=${activeSatelliteLayer}&lat=${clickedLocation.lat}&lng=${clickedLocation.lng}&start=${start}&end=${end}`
+          `${API_BASE_URL}/api/v1/satellite/value?layer=${layerParam}&lat=${clickedLocation.lat}&lng=${clickedLocation.lng}&start=${start}&end=${end}${villageParam}`
         );
         if (!valRes.ok) throw new Error(`API error ${valRes.status}`);
         const valJson = await valRes.json();
@@ -89,11 +93,11 @@ export const InspectionPopup: React.FC = () => {
         if (selectedVillage) {
           try {
             const statRes = await fetch(
-              `http://127.0.0.1:8000/api/v1/satellite/statistics?layer=${activeSatelliteLayer}&geometryType=village&geometryId=${selectedVillage.id}&start=${start}&end=${end}`
+              `${API_BASE_URL}/api/v1/satellite/statistics?layer=${layerParam}&geometryType=village&geometryId=${encodeURIComponent(selectedVillage.id)}&start=${start}&end=${end}`
             );
             if (statRes.ok) {
               const statJson = await statRes.json();
-              meanVal = statJson.mean;
+              if (typeof statJson?.mean === 'number') meanVal = statJson.mean;
             }
           } catch (e) {
             // Ignore stats failure
@@ -101,7 +105,7 @@ export const InspectionPopup: React.FC = () => {
         }
 
         if (isMounted) {
-          if (valJson.value !== null && valJson.value !== undefined) {
+          if (typeof valJson?.value === 'number') {
             setData({
               value: valJson.value,
               interpretation: interpretValue(activeSatelliteLayer, valJson.value),
@@ -141,7 +145,7 @@ export const InspectionPopup: React.FC = () => {
     accentColor = getAccentColor(data.value, palette, min, max);
   }
 
-  const diffFromAvg = (data?.mean !== undefined && data?.value !== undefined) ? (data.value - data.mean) : null;
+  const diffFromAvg = (data && data.mean !== undefined) ? (data.value - data.mean) : null;
   const diffSign = diffFromAvg !== null ? (diffFromAvg > 0 ? '+' : '') : '';
 
   return (
@@ -170,7 +174,9 @@ export const InspectionPopup: React.FC = () => {
           </div>
         ) : error ? (
           <div className="py-4">
-            <div className="text-semantic-warning text-sm font-medium">Unable to retrieve NDVI data.</div>
+            <div className="text-semantic-warning text-sm font-medium">
+              Unable to retrieve {activeLayerMeta?.name || activeSatelliteLayer} data.
+            </div>
             <div className="text-text-muted text-xs mt-1">Please try again inside the village boundary.</div>
           </div>
         ) : data ? (
@@ -203,7 +209,7 @@ export const InspectionPopup: React.FC = () => {
 
             {/* Classification */}
             <div>
-              <div className="text-text-muted text-[10px] uppercase mb-1">Vegetation Health</div>
+              <div className="text-text-muted text-[10px] uppercase mb-1">Classification</div>
               <div className="inline-block bg-brand-mint/10 text-brand-mint font-medium text-xs px-2.5 py-1 rounded-md">
                 {data.interpretation}
               </div>

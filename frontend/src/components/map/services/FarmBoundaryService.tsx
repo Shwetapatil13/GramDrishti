@@ -1,17 +1,22 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMapEvents, GeoJSON } from 'react-leaflet';
 import { useVillageSelection } from '@/hooks/useVillageSelection';
 import L from 'leaflet';
 import { HoverAnalyticsService } from './HoverAnalyticsService';
+import { API_BASE_URL } from '@/services/api';
 
 const farmCache: Record<string, any> = {};
+const FARM_MIN_ZOOM = 17;
 
 export const FarmBoundaryService: React.FC = () => {
   const { selectedVillage } = useVillageSelection();
+  const villageId = selectedVillage?.id;
   const [zoom, setZoom] = useState<number>(0);
-  const [farmsData, setFarmsData] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const geoJsonRef = useRef<L.GeoJSON>(null);
+  // Farms are stored with the village they belong to so a late response for a
+  // previously selected village can never be drawn on the current one.
+  const [farms, setFarms] = useState<{ villageId: string; data: any } | null>(null);
+  // Callback ref (state) so HoverAnalyticsService re-renders once the layer exists
+  const [farmsLayer, setFarmsLayer] = useState<L.GeoJSON | null>(null);
 
   // Track map zoom events for progressive loading
   const map = useMapEvents({
@@ -25,52 +30,50 @@ export const FarmBoundaryService: React.FC = () => {
     setZoom(map.getZoom());
   }, [map]);
 
-  // Handle Village Change - Load from cache if available
-  useEffect(() => {
-    if (selectedVillage && farmCache[selectedVillage.id]) {
-      setFarmsData(farmCache[selectedVillage.id]);
-    } else {
-      setFarmsData(null);
-    }
-  }, [selectedVillage]);
+  const hasFarmsForVillage = !!villageId && farms?.villageId === villageId;
+  const shouldLoad = !!villageId && zoom >= FARM_MIN_ZOOM;
 
-  // Fetch farms when zoom >= 17
+  // Fetch farms (or load from cache) once zoomed in far enough
   useEffect(() => {
-    if (!selectedVillage || zoom < 17) {
-      return; // Keep data in state/cache but don't fetch
+    if (!villageId || !shouldLoad || hasFarmsForVillage) return;
+
+    if (farmCache[villageId]) {
+      setFarms({ villageId, data: farmCache[villageId] });
+      return;
     }
 
-    if (farmsData || loading || farmCache[selectedVillage.id]) return;
-
+    const controller = new AbortController();
     const fetchFarms = async () => {
-      setLoading(true);
       try {
-        const res = await fetch(`http://localhost:8000/api/v1/villages/${selectedVillage.id}/farms`);
+        const res = await fetch(`${API_BASE_URL}/api/v1/villages/${encodeURIComponent(villageId)}/farms`, {
+          signal: controller.signal,
+        });
         if (res.ok) {
           const data = await res.json();
-          farmCache[selectedVillage.id] = data; // store in cache
-          setFarmsData(data);
+          farmCache[villageId] = data; // store in cache
+          setFarms({ villageId, data });
         }
       } catch (e) {
-        console.error("Failed to load farm boundaries:", e);
-      } finally {
-        setLoading(false);
+        if ((e as Error).name !== 'AbortError') {
+          console.error("Failed to load farm boundaries:", e);
+        }
       }
     };
 
     fetchFarms();
-  }, [zoom, selectedVillage, farmsData, loading]);
+    return () => controller.abort();
+  }, [villageId, shouldLoad, hasFarmsForVillage]);
 
-  if (!farmsData || zoom < 17) {
+  if (!hasFarmsForVillage || zoom < FARM_MIN_ZOOM) {
     return null; // Don't render polygons unless zoomed in enough
   }
 
   return (
     <>
       <GeoJSON
-        key={`${selectedVillage?.id}-farms`}
-        ref={geoJsonRef}
-        data={farmsData}
+        key={`${villageId}-farms`}
+        ref={setFarmsLayer}
+        data={farms!.data}
         style={{
           color: '#22c55e',
           weight: 1,
@@ -90,14 +93,16 @@ export const FarmBoundaryService: React.FC = () => {
               layer.bringToFront();
             },
             mouseout: (e) => {
-              if (geoJsonRef.current) {
-                geoJsonRef.current.resetStyle(e.target);
-              }
+              (e.target as L.Path).setStyle({
+                weight: 1,
+                color: '#22c55e',
+                fillOpacity: 0.1,
+              });
             }
           });
         }}
       />
-      {zoom >= 18 && <HoverAnalyticsService farmsLayer={geoJsonRef.current} />}
+      {zoom >= 18 && <HoverAnalyticsService farmsLayer={farmsLayer} />}
     </>
   );
 };
