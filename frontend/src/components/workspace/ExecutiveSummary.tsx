@@ -41,7 +41,7 @@ export const ExecutiveSummary: React.FC = () => {
           />
         </svg>
         <div className="absolute flex flex-col items-center justify-center">
-          <span className="text-4xl font-bold font-mono tracking-tighter text-text-primary">{score}</span>
+          <span className="text-4xl font-bold font-mono tracking-tighter text-text-primary">{Math.round(score)}</span>
           <span className="text-[10px] text-text-muted uppercase font-bold tracking-widest">Health</span>
         </div>
       </div>

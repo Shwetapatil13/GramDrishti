@@ -93,12 +93,11 @@ class Sentinel1Provider(LayerProvider):
             except Exception:
                 pass
 
-            # Legacy smoothing chain
+            # Light smoothing only. A composite has lost its native 10 m projection,
+            # so resample('bicubic') or reproject() here flattens the tiles to a
+            # near-uniform colour at village zoom.
             if vis_params.get("smoothing", False):
-                image = (image
-                         .resample('bicubic')
-                         .reproject(crs='EPSG:4326', scale=10)
-                         .focal_mean(2, 'circle', 'pixels'))
+                image = image.focal_mean(2, 'circle', 'pixels')
             
             # Clip LAST
             image = image.clip(boundary)

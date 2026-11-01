@@ -119,12 +119,11 @@ class Sentinel2Provider(LayerProvider):
             # cause the scale to squash when water (-1) is present.
             vis_params = dict(vis_params)
 
-            # Replicate legacy structured smoothing
+            # Light smoothing only. A median composite has lost its native 10 m
+            # projection, so resample('bicubic') or reproject() here flattens the
+            # tiles to a near-uniform colour at village zoom.
             if vis_params.get("smoothing", False):
-                image = (image
-                         .resample('bicubic')
-                         .reproject(crs='EPSG:4326', scale=10)
-                         .focal_mean(2, 'circle', 'pixels'))
+                image = image.focal_mean(2, 'circle', 'pixels')
             
             # Mask out invalid/negative values before visualization so they don't render black
             image = image.updateMask(image.gte(0))
