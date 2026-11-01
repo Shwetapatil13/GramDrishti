@@ -10,7 +10,9 @@ class GeminiClient:
     def __init__(self):
         self.api_key = settings.GEMINI_API_KEY
         self.model = 'gemini-2.5-flash'
-        self.url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
+        # The key goes in a header, never the URL: httpx and our error logs print request URLs.
+        self.url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
+        self.headers = {"x-goog-api-key": self.api_key}
 
     async def _generate_content_with_timeout(self, prompt: str) -> str:
         if not self.api_key or self.api_key == "your_gemini_api_key_here":
@@ -22,7 +24,7 @@ class GeminiClient:
         }
         async with httpx.AsyncClient(timeout=30.0) as client:
             try:
-                response = await client.post(self.url, json=payload)
+                response = await client.post(self.url, json=payload, headers=self.headers)
                 response.raise_for_status()
                 data = response.json()
                 try:
@@ -149,7 +151,7 @@ class GeminiClient:
         payload = {"contents": contents}
         try:
             async with httpx.AsyncClient(timeout=45.0) as client:
-                response = await client.post(self.url, json=payload)
+                response = await client.post(self.url, json=payload, headers=self.headers)
                 response.raise_for_status()
                 data = response.json()
                 text = data['candidates'][0]['content']['parts'][0]['text']
