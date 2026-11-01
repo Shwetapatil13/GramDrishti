@@ -77,7 +77,7 @@ export const MapContainer: React.FC = React.memo(() => {
     setActiveLayers(active);
   }, [layers.activeSatelliteLayer, setActiveLayers]);
 
-  const getBaseTiles = (): { url: string; attribution: string } => {
+  const getBaseTiles = (): { url: string; attribution: string; maxNativeZoom?: number } => {
     switch (layers.activeBaseLayer) {
       case 'satellite':
         return {
@@ -92,10 +92,12 @@ export const MapContainer: React.FC = React.memo(() => {
       case 'dark':
       default:
         return {
+          // CARTO basemaps now require an API key; Esri canvas tiles are keyless
           url: theme === 'light'
-            ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
-            : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            ? 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+            : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+          attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors',
+          maxNativeZoom: 16,
         };
     }
   };
@@ -129,7 +131,7 @@ export const MapContainer: React.FC = React.memo(() => {
           attribution={baseTiles.attribution}
           url={baseTiles.url}
           maxZoom={21}
-          maxNativeZoom={19}
+          maxNativeZoom={baseTiles.maxNativeZoom ?? 19}
         />
 
         {/* Village markers removed as requested */}

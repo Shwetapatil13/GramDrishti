@@ -41,7 +41,9 @@ export const AIChatPanel: React.FC = () => {
         {messages.length === 0 && !isLoading && (
           <div className="flex-1 flex items-center justify-center text-center">
             <span className="text-body text-text-muted">
-              {t('chat.empty_state', "Ask GramDrishti AI about {{villageName}}'s environmental health.", { villageName: selectedVillage?.name })}
+              {selectedVillage
+                ? t('chat.empty_state', "Ask GramDrishti AI about {{villageName}}'s environmental health.", { villageName: selectedVillage.name })
+                : t('chat.empty_state_no_village', 'Select a village to ask GramDrishti AI about its environmental health.')}
             </span>
           </div>
         )}

@@ -129,6 +129,13 @@ def get_village_boundary(village_id: str) -> Optional[Dict[str, Any]]:
 def add_dynamic_village(
         village_id: str, polygon: Dict[str, Any], name: str = None) -> Village:
     """Add a dynamically fetched polygon (e.g. from Nominatim) to the cache."""
+    # Never overwrite a known village's real name/district with placeholders
+    existing = SEARCH_CACHE.get(village_id)
+    if existing is not None:
+        if polygon and village_id not in BOUNDARY_CACHE:
+            BOUNDARY_CACHE[village_id] = polygon
+        return existing
+
     # Calculate approximate center
     lat = 20.0
     lon = 78.0

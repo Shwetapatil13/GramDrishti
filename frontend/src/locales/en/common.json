@@ -142,6 +142,7 @@
   "chat": {
     "title": "GRAMDRISHTI AI",
     "empty_state": "Ask GramDrishti AI about {{villageName}}'s environmental health.",
+    "empty_state_no_village": "Select a village to ask GramDrishti AI about its environmental health.",
     "placeholder": "Ask a question..."
   },
   "auth": {
